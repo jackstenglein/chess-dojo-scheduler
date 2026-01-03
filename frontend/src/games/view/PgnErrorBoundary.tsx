@@ -1,5 +1,6 @@
 // Based off of https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary
 
+import { logger } from '@/logging/logger';
 import { Button, Container, Stack, Typography } from '@mui/material';
 import React, { Component, ErrorInfo } from 'react';
 import { EventType, trackEvent } from '../../analytics/events';
@@ -36,8 +37,8 @@ class PgnErrorBoundary extends Component<
     }
 
     componentDidCatch(error: Error, info: ErrorInfo) {
-        console.log('Error: ', error);
-        console.log('Info: ', info);
+        logger.error?.('Error: ', error);
+        logger.error?.('Info: ', info);
         this.setState({ hasError: true, error, info });
         trackEvent(EventType.PgnErrorBoundary, {
             location: window.location.href,

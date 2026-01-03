@@ -99,7 +99,6 @@ export const MoveDialog = ({
                 }
             })
             .catch((err) => {
-                console.error('moveDirectoryItems: ', err);
                 moveRequest.onFailure(err);
             });
     };

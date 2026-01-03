@@ -3,6 +3,7 @@
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
+import { logger } from '@/logging/logger';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
@@ -39,7 +40,7 @@ export const SignInForm = () => {
         auth.signin(email.trim(), password)
             .then(() => router.push(redirectUri ? decodeURIComponent(redirectUri) : '/profile'))
             .catch((err: { name?: string }) => {
-                console.error(err);
+                logger.error?.(err);
                 if (err.name === 'NotAuthorizedException' || err.name === 'UserNotFoundException') {
                     setErrors({ password: 'Incorrect email or password' });
                     request.onFailure({ message: 'Incorrect email or password' });

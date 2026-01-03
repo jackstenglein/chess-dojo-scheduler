@@ -34,7 +34,6 @@ export function useExam({ type, id }: { type: ExamType; id: string }) {
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }

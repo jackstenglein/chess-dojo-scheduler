@@ -69,7 +69,6 @@ export const AddButton = ({
                 handleClose();
             })
             .catch((err) => {
-                console.error('createDirectory: ', err);
                 request.onFailure(err);
             });
     };

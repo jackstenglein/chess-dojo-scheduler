@@ -1,3 +1,4 @@
+import { logger } from '@/logging/logger';
 import { proxy, releaseProxy, Remote, wrap } from 'comlink';
 import {
     createContext,
@@ -55,8 +56,6 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
     }, []);
 
     const onLoad = useCallback(async () => {
-        console.log('onLoad');
-
         const newSources: PlayerSource[] = [];
         const seenSources = new Set<string>();
         for (const source of sources) {
@@ -73,14 +72,11 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
 
         setSources(newSources);
         if (newSources.some((s) => s.hasError)) {
-            console.log('Source has error');
             return;
         }
 
         const loader = await workerRef.current?.newLoader();
         if (!loader) {
-            console.log('loader does not exist: ', loader);
-            console.log('workerRef.current: ', workerRef.current);
             return;
         }
 
@@ -96,7 +92,7 @@ export function PlayerOpeningTreeProvider({ children }: { children: ReactNode })
             proxy((tree) => (openingTree.current = OpeningTree.fromTree(tree))),
         );
         const tree = OpeningTree.fromTree(result);
-        console.log('loader finished with tree: ', tree);
+        logger.debug?.('loader finished with tree: ', tree);
         openingTree.current = tree;
         loadComplete.current = true;
         setIsLoading(false);

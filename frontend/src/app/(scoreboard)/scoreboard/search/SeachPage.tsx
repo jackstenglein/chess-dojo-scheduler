@@ -209,7 +209,6 @@ export function SearchPage() {
                 }
             })
             .catch((err) => {
-                console.error(err);
                 onFailure(err);
             });
     }, [allFields, fields, query, searchUsers, onStart, onSuccess, onFailure]);

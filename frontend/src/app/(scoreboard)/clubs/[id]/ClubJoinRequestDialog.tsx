@@ -39,7 +39,6 @@ export const ClubJoinRequestDialog: React.FC<ClubJoinRequestDialogProps> = ({
                 setNotes('');
             })
             .catch((err) => {
-                console.error('requestToJoinClub: ', err);
                 request.onFailure(err);
             });
     };

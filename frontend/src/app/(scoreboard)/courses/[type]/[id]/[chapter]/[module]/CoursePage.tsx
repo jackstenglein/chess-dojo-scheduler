@@ -9,6 +9,7 @@ import { Link } from '@/components/navigation/Link';
 import { Course } from '@/database/course';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import { Alert, Box, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { getCheckoutSessionId, setCheckoutSessionId } from '../../../../localStorage';
@@ -43,14 +44,13 @@ export const CoursePage = ({
                 })
                 .catch((err) => {
                     request.onFailure(err);
-                    console.error('getCourse: ', err);
                 });
         }
     }, [request, api, params, checkoutId, auth.status]);
 
     useEffect(() => {
         if (anonymousUser) {
-            console.log('Set checkout session id');
+            logger.debug?.(`Set checkout session id for course ${params.id} to ${checkoutId}`);
             setCheckoutSessionId(params.id, checkoutId);
         }
     }, [anonymousUser, params.id, checkoutId]);

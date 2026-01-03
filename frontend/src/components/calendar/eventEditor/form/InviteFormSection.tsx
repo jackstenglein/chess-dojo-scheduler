@@ -76,9 +76,8 @@ export function InviteFormSection({
                             })),
                         );
                     })
-                    .catch((err: unknown) => {
+                    .catch(() => {
                         setLoading(false);
-                        console.error('searchUsers: ', err);
                     });
             }, 400),
         [searchUsers],

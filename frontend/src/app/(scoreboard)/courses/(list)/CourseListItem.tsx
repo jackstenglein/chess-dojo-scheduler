@@ -80,7 +80,6 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error('purchaseCourse: ', err);
                 request.onFailure(err);
             });
     };

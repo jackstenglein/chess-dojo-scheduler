@@ -13,6 +13,7 @@ import { GameContext } from '@/context/useGame';
 import { Game, PositionComment } from '@/database/game';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import { Chess, EventType as ChessEventType, Move } from '@jackstenglein/chess';
 import {
     GameHeader,
@@ -53,7 +54,6 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
                     request.onSuccess(game);
                 })
                 .catch((err) => {
-                    console.error('Failed to get game: ', err);
                     request.onFailure(err);
                 });
         }
@@ -67,7 +67,7 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
         const game = request.data;
 
         if (game === undefined) {
-            console.error('Game is unexpectedly undefined');
+            logger.error?.('Game is unexpectedly undefined');
             return;
         }
 
@@ -111,7 +111,6 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
                 updateSearchParams({ firstLoad: 'false' });
             })
             .catch((err) => {
-                console.error('updateGame: ', err);
                 updateRequest.onFailure(err);
             });
     };

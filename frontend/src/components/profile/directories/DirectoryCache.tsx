@@ -210,7 +210,6 @@ export function useDirectory(owner: string, id: string): UseDirectoryResponse {
                     cache.request.onSuccess();
                 })
                 .catch((err: AxiosError) => {
-                    console.error('getDirectory: ', err);
                     if (err.response?.status === 404) {
                         cache.markFetched(compoundKey);
                         cache.request.onSuccess();
@@ -280,7 +279,6 @@ export function useBreadcrumbs(owner: string, id: string, sharedOwner?: string) 
                 setBreadcrumbs((data) => ({ ...data, ...resp.data }));
             })
             .catch((err) => {
-                console.error('listBreadcrumbs: ', err);
                 request.onFailure(err);
             });
     }, [id, request, api, owner, setBreadcrumbs, sharedOwner]);

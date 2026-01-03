@@ -1,6 +1,7 @@
 import { metaCompleteRegistration } from '@/analytics/meta';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { AuthStatus, useAuth } from '@/auth/Auth';
+import { logger } from '@/logging/logger';
 import { ChessDojoIcon } from '@/style/ChessDojoIcon';
 import { Lock } from '@mui/icons-material';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
@@ -49,7 +50,7 @@ export const VerifyEmailForm = ({
                 return auth.signin(email, password);
             })
             .catch((err: { message?: string; name?: string }) => {
-                console.dir(err);
+                logger.error?.('confirmSignup ', err);
                 if (err.message) {
                     setCodeError(err.message);
                 }
@@ -74,7 +75,7 @@ export const VerifyEmailForm = ({
                 codeRequest.onSuccess('New verification code sent');
             })
             .catch((err: { message?: string }) => {
-                console.dir(err);
+                logger.error?.('resendSignupCode: ', err);
                 if (err.message) {
                     codeRequest.onFailure(err.message);
                 } else {

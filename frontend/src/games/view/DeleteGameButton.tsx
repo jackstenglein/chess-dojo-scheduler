@@ -116,7 +116,6 @@ export function DeleteGamesDialog({
                 router.push('/profile?view=games');
             }
         } catch (err) {
-            console.error(err);
             request.onFailure(err);
         }
     };

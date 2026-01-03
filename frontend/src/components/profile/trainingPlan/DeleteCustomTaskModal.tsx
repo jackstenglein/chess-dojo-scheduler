@@ -52,7 +52,6 @@ const DeleteCustomTaskModal: React.FC<DeleteCustomTaskModalProps> = ({
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

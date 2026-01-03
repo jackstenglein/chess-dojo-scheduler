@@ -1,6 +1,7 @@
 'use client';
 
 import { useApi } from '@/api/Api';
+import { axiosService } from '@/api/axiosService';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useRouter } from '@/hooks/useRouter';
 import { PawnIcon } from '@/style/ChessIcons';
@@ -17,7 +18,6 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import axios from 'axios';
 import { useState } from 'react';
 
 interface LichessGameResponse {
@@ -63,7 +63,7 @@ const SubmitResultsPage = () => {
         }
         const gameId = gameUrl.replace('https://lichess.org/', '').split('/')[0]?.split('#')[0];
 
-        axios
+        axiosService
             .get<LichessGameResponse>(`https://lichess.org/api/game/${gameId}`)
             .then((resp) => {
                 setErrors({ ...errors, gameUrl: '' });
@@ -78,8 +78,7 @@ const SubmitResultsPage = () => {
                     setResult('0-1');
                 }
             })
-            .catch((err: unknown) => {
-                console.error(err);
+            .catch(() => {
                 setErrors({
                     ...errors,
                     gameUrl:
@@ -135,7 +134,6 @@ const SubmitResultsPage = () => {
                 );
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

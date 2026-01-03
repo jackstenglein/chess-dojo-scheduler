@@ -1,16 +1,9 @@
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { z } from 'zod';
+import { LogLevel } from './logging/logLevel';
 
 export const MUI_LICENSE_KEY =
     '24a7fa97376749c937d182874ff9e0bcTz0xMjMxMjIsRT0xNzk3MjA2Mzk5MDAwLFM9cHJvLExNPXN1YnNjcmlwdGlvbixQVj1RMy0yMDI0LEtWPTI=';
-
-export enum LogLevel {
-    Debug,
-    Log,
-    Info,
-    Warning,
-    Error,
-}
 
 export const EnvSchema = z.object({
     auth: z.object({

@@ -99,7 +99,6 @@ const EventEditor: React.FC<EventEditorProps> = ({ scheduler }) => {
             request.onSuccess();
             scheduler.close();
         } catch (err) {
-            console.error(err);
             request.onFailure(err);
         } finally {
             scheduler.loading(false);

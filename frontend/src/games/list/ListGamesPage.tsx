@@ -35,17 +35,13 @@ const ListGamesPage = () => {
     const { user } = useAuth();
 
     useEffect(() => {
-        api.listGamesForReview()
-            .then((resp) => {
-                if (resp.data.games.length > 0) {
-                    setReviewQueueLabel(
-                        `${resp.data.games.length}${resp.data.lastEvaluatedKey ? '+' : ''}`,
-                    );
-                }
-            })
-            .catch((err) => {
-                console.error('listGamesForReview: ', err);
-            });
+        void api.listGamesForReview().then((resp) => {
+            if (resp.data.games.length > 0) {
+                setReviewQueueLabel(
+                    `${resp.data.games.length}${resp.data.lastEvaluatedKey ? '+' : ''}`,
+                );
+            }
+        });
     }, [setReviewQueueLabel, api]);
 
     const pagination = usePagination(null, 0, 10);

@@ -37,7 +37,6 @@ function AuthModelGamesPage({ user }: { user: User }) {
                     );
                 })
                 .catch((err) => {
-                    console.error('listModelGames: ', err);
                     listRequest.onFailure(err);
                 });
         }
@@ -57,7 +56,6 @@ function AuthModelGamesPage({ user }: { user: User }) {
                     getRequest.onSuccess(res.data);
                 })
                 .catch((err) => {
-                    console.error('getGame: ', err);
                     getRequest.onFailure(err);
                 });
         }

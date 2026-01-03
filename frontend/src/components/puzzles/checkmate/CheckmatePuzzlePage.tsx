@@ -132,11 +132,9 @@ async function fetchNextPuzzle({
             themes,
             relativeRating: DIFFICULTY_TO_RATING_RANGE[difficulty],
         });
-        console.log(`nextPuzzle: `, response);
         requestTracker?.onSuccess(response.data);
         onSuccess?.(response.data);
     } catch (err) {
-        console.error(`nextPuzzle: `, err);
         requestTracker?.onFailure(err);
     }
 }
@@ -148,59 +146,55 @@ async function updateProgress({
     api: ApiContextType;
     session: RefObject<PuzzleSession>;
 }) {
-    try {
-        const { win, draw, loss } = session.current.history.reduce(
-            (acc, { result }) => {
-                acc[result] += 1;
-                return acc;
-            },
-            { win: 0, draw: 0, loss: 0 },
-        );
+    const { win, draw, loss } = session.current.history.reduce(
+        (acc, { result }) => {
+            acc[result] += 1;
+            return acc;
+        },
+        { win: 0, draw: 0, loss: 0 },
+    );
 
-        if (session.current.timelineEntry && session.current.progress) {
-            let totalMinutesSpent = session.current.timelineEntry.totalMinutesSpent;
-            totalMinutesSpent =
-                totalMinutesSpent -
-                session.current.timelineEntry.minutesSpent +
-                Math.round(session.current.timeSpentSeconds / 60);
+    if (session.current.timelineEntry && session.current.progress) {
+        let totalMinutesSpent = session.current.timelineEntry.totalMinutesSpent;
+        totalMinutesSpent =
+            totalMinutesSpent -
+            session.current.timelineEntry.minutesSpent +
+            Math.round(session.current.timeSpentSeconds / 60);
 
-            await api.updateUserTimeline({
+        await api.updateUserTimeline({
+            requirementId: checkmatePuzzlesTaskId,
+            progress: {
                 requirementId: checkmatePuzzlesTaskId,
-                progress: {
-                    requirementId: checkmatePuzzlesTaskId,
-                    minutesSpent: {
-                        ...session.current.progress.minutesSpent,
-                        [session.current.cohort]: totalMinutesSpent,
-                    },
-                    counts: { ALL_COHORTS: session.current.history.at(-1)?.rating ?? 0 },
-                    updatedAt: new Date().toISOString(),
+                minutesSpent: {
+                    ...session.current.progress.minutesSpent,
+                    [session.current.cohort]: totalMinutesSpent,
                 },
-                updated: [
-                    {
-                        ...session.current.timelineEntry,
-                        minutesSpent: Math.round(session.current.timeSpentSeconds / 60),
-                        totalMinutesSpent,
-                        newCount: session.current.history.at(-1)?.rating ?? 0,
-                        notes: `Solved ${session.current.history.length} puzzles!\n\n✅ Correct: ${win}\n☑️ Equal: ${draw}\n❌ Wrong: ${loss}`,
-                    },
-                ],
-                deleted: [],
-            });
-        } else {
-            const response = await api.updateUserProgress({
-                requirementId: checkmatePuzzlesTaskId,
-                cohort: session.current.cohort,
-                previousCount: session.current.start,
-                newCount: session.current.history.at(-1)?.rating ?? 0,
-                incrementalMinutesSpent: Math.round(session.current.timeSpentSeconds / 60),
-                date: null,
-                notes: `Solved ${session.current.history.length} puzzles!\n\n✅ Correct: ${win}\n☑️ Equal: ${draw}\n❌ Wrong: ${loss}`,
-            });
-            session.current.timelineEntry = response.data.timelineEntry;
-            session.current.progress = response.data.user.progress[checkmatePuzzlesTaskId];
-        }
-    } catch (err) {
-        console.error(`updateProgress: `, err);
+                counts: { ALL_COHORTS: session.current.history.at(-1)?.rating ?? 0 },
+                updatedAt: new Date().toISOString(),
+            },
+            updated: [
+                {
+                    ...session.current.timelineEntry,
+                    minutesSpent: Math.round(session.current.timeSpentSeconds / 60),
+                    totalMinutesSpent,
+                    newCount: session.current.history.at(-1)?.rating ?? 0,
+                    notes: `Solved ${session.current.history.length} puzzles!\n\n✅ Correct: ${win}\n☑️ Equal: ${draw}\n❌ Wrong: ${loss}`,
+                },
+            ],
+            deleted: [],
+        });
+    } else {
+        const response = await api.updateUserProgress({
+            requirementId: checkmatePuzzlesTaskId,
+            cohort: session.current.cohort,
+            previousCount: session.current.start,
+            newCount: session.current.history.at(-1)?.rating ?? 0,
+            incrementalMinutesSpent: Math.round(session.current.timeSpentSeconds / 60),
+            date: null,
+            notes: `Solved ${session.current.history.length} puzzles!\n\n✅ Correct: ${win}\n☑️ Equal: ${draw}\n❌ Wrong: ${loss}`,
+        });
+        session.current.timelineEntry = response.data.timelineEntry;
+        session.current.progress = response.data.user.progress[checkmatePuzzlesTaskId];
     }
 }
 
@@ -282,7 +276,6 @@ function AuthCheckmatePuzzlePage({ user, id }: { user: User; id?: string }) {
         setResult('loss');
 
         if (resultRef.current === undefined) {
-            console.log('Reporting loss');
             void fetchNextPuzzle({
                 api,
                 requestTracker,

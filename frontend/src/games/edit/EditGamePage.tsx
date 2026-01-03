@@ -44,7 +44,6 @@ const EditGamePage = ({ cohort, id }: { cohort: string; id: string }) => {
                 router.push(`/games/${cohort}/${id}?firstLoad=true`);
             })
             .catch((err) => {
-                console.error('updateGame: ', err);
                 request.onFailure(err);
             });
     };

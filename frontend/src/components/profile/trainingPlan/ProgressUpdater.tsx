@@ -137,7 +137,6 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
                 request.reset();
             })
             .catch((err) => {
-                console.error('updateUserProgress: ', err);
                 request.onFailure(err);
             });
     };

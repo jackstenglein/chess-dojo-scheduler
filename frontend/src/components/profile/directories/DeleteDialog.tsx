@@ -119,7 +119,6 @@ export const DeleteDialog = ({
         Promise.all(promises)
             .then(onCancel)
             .catch((err) => {
-                console.log('deleteItems: ', err);
                 request.onFailure(err);
             });
     };

@@ -37,14 +37,10 @@ export function ClubScoreboardPage({ id }: { id: string }) {
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }
     }, [id, request, api, user]);
-
-    console.log('User: ', user);
-    console.log('Id: ', id);
 
     if (!request.isSent() || request.isLoading()) {
         return <LoadingPage />;

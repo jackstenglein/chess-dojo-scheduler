@@ -231,7 +231,6 @@ export function useEvents(): UseEventsResponse {
                     cache.events.putMany(events);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 })
                 .finally(() => {
@@ -273,7 +272,6 @@ export function useNotifications(): UseNotificationsResponse {
                     cache.notifications.putMany(resp.data.notifications);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }

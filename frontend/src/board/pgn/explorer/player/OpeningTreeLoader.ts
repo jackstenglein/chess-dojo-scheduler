@@ -1,11 +1,12 @@
+import { axiosService } from '@/api/axiosService';
 import { ChesscomGame, fetchChesscomArchiveGames } from '@/api/external/chesscom';
 import { LichessGame } from '@/api/external/lichess';
 import { chesscomGameResult, getTimeClass, lichessGameResult } from '@/api/external/onlineGame';
 import { GameData } from '@/database/explorer';
 import { getNormalizedRating } from '@/database/user';
+import { logger } from '@/logging/logger';
 import { RatingSystem } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Mutex } from 'async-mutex';
-import axios from 'axios';
 import { expose, proxy } from 'comlink';
 import { OpeningTree } from './OpeningTree';
 import { Color, MIN_DOWNLOAD_LIMIT, PlayerSource, SourceType } from './PlayerSource';
@@ -80,7 +81,7 @@ export class OpeningTreeLoader {
                     username: source.username.trim().toLowerCase(),
                 });
             } catch (err) {
-                console.error('Failed to load Chess.com source: ', source, err);
+                logger.error?.('Failed to load Chess.com source: ', source, err);
             }
         }
     }
@@ -94,7 +95,7 @@ export class OpeningTreeLoader {
             throw new Error(`Invalid source type: ${source.type}`);
         }
 
-        const archiveResponse = await axios.get<ChesscomListArchivesResponse>(
+        const archiveResponse = await axiosService.get<ChesscomListArchivesResponse>(
             `https://api.chess.com/pub/player/${source.username}/games/archives`,
         );
         const archives = archiveResponse.data.archives?.toReversed() ?? [];
@@ -103,7 +104,7 @@ export class OpeningTreeLoader {
             try {
                 const match = CHESSCOM_ARCHIVE_REGEX.exec(archive);
                 if (!match) {
-                    console.error(
+                    logger.warn?.(
                         `Skipping archive ${archive} because it does not match archive regex ${CHESSCOM_ARCHIVE_REGEX.source}`,
                     );
                     continue;
@@ -115,7 +116,7 @@ export class OpeningTreeLoader {
                 const promises = games.map((game) => this.indexChesscomGame(source, game));
                 await Promise.allSettled(promises);
             } catch (err) {
-                console.error(`Failed to load Chess.com archive ${archive}: `, err);
+                logger.error?.(`Failed to load Chess.com archive ${archive}: `, err);
             }
         }
     }
@@ -159,7 +160,7 @@ export class OpeningTreeLoader {
                     username: source.username.trim().toLowerCase(),
                 });
             } catch (err) {
-                console.error('Failed to load Lichess source: ', source, err);
+                logger.error?.('Failed to load Lichess source: ', source, err);
             }
         }
     }
@@ -205,7 +206,7 @@ export class OpeningTreeLoader {
                     const game = JSON.parse(line) as LichessGame;
                     await this.indexLichessGame(source, game);
                 } catch (err) {
-                    console.error('Failed to load lichess game: ', line, err);
+                    logger.error?.('Failed to load lichess game: ', line, err);
                 }
             }
         }

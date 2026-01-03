@@ -1,4 +1,5 @@
 import { useChess } from '@/board/pgn/PgnBoard';
+import { logger } from '@/logging/logger';
 import { EventType } from '@jackstenglein/chess';
 import { E_CANCELED } from 'async-mutex';
 import { useEffect, useRef, useState } from 'react';
@@ -40,7 +41,7 @@ export function useEval(enabled: boolean, engineName?: EngineName): PositionEval
         }
 
         if (!engine?.isReady()) {
-            console.error(`Engine ${engineName} not ready`);
+            logger.error?.(`Engine ${engineName} not ready`);
         }
 
         const evaluate = async () => {

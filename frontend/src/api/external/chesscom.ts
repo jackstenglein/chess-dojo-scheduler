@@ -1,6 +1,7 @@
-import axios from 'axios';
+import { logger } from '@/logging/logger';
 import { useCallback } from 'react';
 import { Request, useRequest } from '../Request';
+import { axiosService } from '../axiosService';
 
 export interface ChesscomGame {
     url: string;
@@ -92,7 +93,7 @@ export function useChesscomGames(): [
                     request.onSuccess(games);
                 })
                 .catch((err: unknown) => {
-                    console.log('Failed to get Chesscom games: ', err);
+                    logger.error?.('Failed to get Chesscom games: ', err);
                     request.onFailure(err);
                 });
         },
@@ -103,7 +104,7 @@ export function useChesscomGames(): [
 }
 
 export async function fetchChesscomArchiveGames(username: string, year: string, month: string) {
-    const resp = await axios.get<ChesscomGamesResponse>(
+    const resp = await axiosService.get<ChesscomGamesResponse>(
         `https://api.chess.com/pub/player/${username}/games/${year}/${month}`,
     );
     return resp.data.games;

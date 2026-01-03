@@ -27,9 +27,7 @@ const Tutorial: React.FC<TutorialProps> = ({ name, steps, zIndex }) => {
                     [name]: true,
                 };
                 updateUser({ tutorials });
-                api.updateUser({
-                    tutorials,
-                }).catch((err: unknown) => console.error('completeTutorial: ', err));
+                void api.updateUser({ tutorials });
                 updateSearchParams({ tutorial: '' });
             }
         },

@@ -96,7 +96,6 @@ export const AddToDirectoryDialog = ({
                 onClose();
             })
             .catch((err) => {
-                console.error('addDirectoryItem: ', err);
                 request.onFailure(err);
             });
     };

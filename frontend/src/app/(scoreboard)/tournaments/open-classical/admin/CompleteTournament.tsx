@@ -39,7 +39,6 @@ const CompleteTournament: React.FC<CompleteTournamentProps> = ({ openClassical, 
                 setOpen(false);
             })
             .catch((err) => {
-                console.error('adminCompleteTournament: ', err);
                 request.onFailure(err);
             });
     };

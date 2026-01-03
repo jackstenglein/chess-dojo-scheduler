@@ -3,6 +3,7 @@
 import { Container, Stack, Typography } from '@mui/material';
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { EventType, trackEvent } from './analytics/events';
+import { logger } from './logging/logger';
 
 interface ErrorBoundaryState {
     hasError: boolean;
@@ -21,8 +22,7 @@ class ErrorBoundary extends Component<React.PropsWithChildren, ErrorBoundaryStat
     }
 
     componentDidCatch(error: Error, info: ErrorInfo) {
-        console.log('Error: ', error);
-        console.log('Info: ', info);
+        logger.error?.('Error: ', error, info);
         this.setState({ hasError: true, error, info });
         trackEvent(EventType.ErrorBoundary, {
             location: window.location.href,

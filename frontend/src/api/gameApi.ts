@@ -1,3 +1,4 @@
+import { logger } from '@/logging/logger';
 import {
     CreateGameRequest,
     DeleteGamesRequest,
@@ -705,12 +706,12 @@ export function isChesscomEventsUrl(url: string) {
     try {
         urlObj = new URL(url.trim());
     } catch (error) {
-        console.log(error);
+        logger.error?.(error);
         return false;
     }
 
     if (urlObj.hostname !== 'www.chess.com') {
-        console.log('Hostname: ', urlObj.hostname);
+        logger.debug?.('Invalid hostname: ', urlObj.hostname);
         return false;
     }
 

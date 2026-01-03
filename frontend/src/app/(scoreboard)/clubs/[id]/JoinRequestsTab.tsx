@@ -96,7 +96,6 @@ const JoinRequest: React.FC<JoinRequestProps> = ({
                 }
             })
             .catch((err) => {
-                console.error('processJoinRequest: ', err);
                 request.onFailure(err);
             });
     };

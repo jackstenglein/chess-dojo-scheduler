@@ -72,7 +72,6 @@ function AuthProfilePage({ currentUser, username }: { currentUser: User; usernam
                     request.onSuccess(response.data);
                 })
                 .catch((err: unknown) => {
-                    console.error('Failed to get user profile: ', err);
                     request.onFailure(err);
                 });
         }

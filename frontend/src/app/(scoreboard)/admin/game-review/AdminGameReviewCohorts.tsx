@@ -250,9 +250,6 @@ export function AdminGameReviewCohorts() {
         }
     };
 
-    console.log('Editor: ', editor);
-    console.log('Request.data: ', request.data);
-
     return (
         <Container sx={{ py: 5 }}>
             <RequestSnackbar request={request} />

@@ -1,4 +1,5 @@
 import { EventType, trackEvent } from '@/analytics/events';
+import { axiosService } from '@/api/axiosService';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import Board from '@/board/Board';
 import { getLigaIconBasedOnTimeControl } from '@/components/calendar/eventViewer/LigaTournamentViewer';
@@ -21,7 +22,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { useRef, useState } from 'react';
 import { SiChessdotcom } from 'react-icons/si';
@@ -63,7 +63,7 @@ const Position = ({ position, orientation }: PositionProps) => {
 
     const generateLichessUrl = () => {
         lichessRequest.onStart();
-        axios
+        axiosService
             .post<{ url: string }>('https://lichess.org/api/challenge/open', {
                 'clock.limit': position.limitSeconds,
                 'clock.increment': position.incrementSeconds,
@@ -82,7 +82,6 @@ const Position = ({ position, orientation }: PositionProps) => {
                 onCopy('lichess');
             })
             .catch((err) => {
-                console.error(err);
                 lichessRequest.onFailure(err);
             });
     };

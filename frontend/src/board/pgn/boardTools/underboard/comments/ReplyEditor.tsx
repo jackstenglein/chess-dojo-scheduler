@@ -55,7 +55,6 @@ const ReplyEditor: React.FC<ReplyEditorProps> = ({ parent, onCancel }) => {
                 onCancel();
             })
             .catch((err) => {
-                console.error('createComment: ', err);
                 request.onFailure(err);
             });
     };

@@ -145,7 +145,6 @@ export function StatisticsPage() {
                     request.onSuccess(response.data);
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }

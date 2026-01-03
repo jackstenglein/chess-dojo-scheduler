@@ -53,11 +53,9 @@ function UserPuzzleHistory({ user }: { user: User }) {
             request.onStart();
             api.getPuzzleHistory({ username: user.username })
                 .then((response) => {
-                    console.log(`getPuzzleHistory: `, response.data);
                     request.onSuccess(response.data);
                 })
                 .catch((err: unknown) => {
-                    console.error(`getPuzzleHistory: `, err);
                     request.onFailure(err);
                 });
         }

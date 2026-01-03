@@ -56,7 +56,6 @@ export function UserCard({
                     followRequest.onSuccess(resp.data || undefined);
                 })
                 .catch((err) => {
-                    console.error(err);
                     followRequest.onFailure(err);
                 });
         }
@@ -80,7 +79,6 @@ export function UserCard({
                 followRequest.onSuccess(resp.data || undefined);
             })
             .catch((err) => {
-                console.error(err);
                 followRequest.onFailure(err);
             });
     };

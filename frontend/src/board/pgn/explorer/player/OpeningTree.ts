@@ -1,6 +1,7 @@
 import { OnlineGameTimeClass } from '@/api/external/onlineGame';
 import { GameData, LichessExplorerMove, LichessExplorerPosition } from '@/database/explorer';
 import { GameResult } from '@/database/game';
+import { logger } from '@/logging/logger';
 import { Chess, normalizeFen } from '@jackstenglein/chess';
 import { fideDpTable } from '@jackstenglein/chess-dojo-common/src/ratings/performanceRating';
 import deepEqual from 'deep-equal';
@@ -443,7 +444,7 @@ export class OpeningTree {
             }
             return true;
         } catch (err) {
-            console.error(`Failed to index game`, game, err);
+            logger.error?.(`Failed to index game`, game, err);
             return false;
         }
     }

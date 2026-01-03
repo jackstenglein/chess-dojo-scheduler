@@ -48,7 +48,6 @@ const SupportTicket = () => {
                 request.onSuccess(resp.data.ticketId);
             })
             .catch((err) => {
-                console.error(err);
                 request.onFailure(err);
             });
     };

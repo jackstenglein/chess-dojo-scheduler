@@ -15,6 +15,7 @@ import { Event, EventStatus, EventType, getDisplayString } from '@/database/even
 import { dojoCohorts, User } from '@/database/user';
 import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
+import { logger } from '@/logging/logger';
 import CancelMeetingButton from '@/meeting/CancelMeetingButton';
 import MeetingMessages from '@/meeting/MeetingMessages';
 import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
@@ -199,7 +200,6 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
                 window.location.href = resp.data.url;
             })
             .catch((err: unknown) => {
-                console.error('getEventCheckout: ', err);
                 checkoutRequest.onFailure(err);
             });
     };
@@ -208,7 +208,7 @@ export function MeetingPage({ meetingId }: { meetingId: string }) {
         cache.events.put({ ...meeting, gameReviewCohort: grc });
     };
 
-    console.log('Meeting: ', meeting);
+    logger.debug?.('Meeting: ', meeting);
 
     return (
         <Container maxWidth='lg' sx={{ py: 4 }}>

@@ -12,7 +12,7 @@ import (
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
 
-const ENV = "dev"
+const ENV = "prod"
 const PERIOD = "2025"
 const START_DATE = PERIOD + "-01-01"
 const END_DATE = PERIOD + "-12-31"

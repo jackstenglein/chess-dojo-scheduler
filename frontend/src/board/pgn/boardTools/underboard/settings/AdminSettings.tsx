@@ -86,7 +86,6 @@ const GameReviewDetails: React.FC<AdminSettingsProps> = ({ game, onSaveGame }) =
                 onSaveGame?.(resp.data);
             })
             .catch((err) => {
-                console.error('markReviewed: ', err);
                 request.onFailure(err);
             });
     };

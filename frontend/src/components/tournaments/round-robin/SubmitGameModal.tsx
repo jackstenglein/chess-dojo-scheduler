@@ -59,7 +59,6 @@ export function SubmitGameModal({
             onClose();
             setGameUrl('');
         } catch (err) {
-            console.error('submitRoundRobinGame: ', err);
             request.onFailure(err);
         }
     };

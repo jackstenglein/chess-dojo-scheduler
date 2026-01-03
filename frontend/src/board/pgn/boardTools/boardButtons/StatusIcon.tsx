@@ -82,7 +82,6 @@ const StatusIcon: React.FC<StatusIconProps> = ({ game }) => {
                     setHasChanges(false);
                 })
                 .catch((err) => {
-                    console.error('updateGame: ', err);
                     request.onFailure(err);
                 });
         } else {

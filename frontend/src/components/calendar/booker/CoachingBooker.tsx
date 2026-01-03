@@ -55,7 +55,6 @@ const CoachingBooker: React.FC<CoachingBookerProps> = ({ event }) => {
                 window.location.href = resp.data.checkoutUrl;
             })
             .catch((err) => {
-                console.error('bookEvent: ', err);
                 request.onFailure(err);
             });
     };

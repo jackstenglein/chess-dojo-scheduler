@@ -27,7 +27,6 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ user }) => {
                 window.location.href = resp.data.url;
             })
             .catch((err: unknown) => {
-                console.error('subscriptionManage: ', err);
                 request.onFailure(err);
             });
     };

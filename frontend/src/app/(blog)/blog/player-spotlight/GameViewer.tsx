@@ -22,7 +22,6 @@ export const GameViewer = ({ cohort, id }: { cohort: string; id: string }) => {
             api.getGame(cohort, id)
                 .then((response) => request.onSuccess(response.data))
                 .catch((err) => {
-                    console.error('Failed to get game: ', err);
                     request.onFailure(err);
                 });
         }

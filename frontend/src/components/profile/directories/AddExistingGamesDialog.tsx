@@ -5,6 +5,7 @@ import { useRequiredAuth } from '@/auth/Auth';
 import GameTable from '@/components/games/list/GameTable';
 import { GameInfo } from '@/database/game';
 import { usePagination } from '@/hooks/usePagination';
+import { logger } from '@/logging/logger';
 import { Directory } from '@jackstenglein/chess-dojo-common/src/database/directory';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -63,7 +64,7 @@ export const AddExistingGamesDialog = ({
 
         const rows = gridApiRef.current?.getSelectedRows() ?? new Map();
         if (rows.size !== selectedRows.ids.size) {
-            console.error(
+            logger.error?.(
                 `Grid API getSelectedRows has size ${rows.size} but state selectedRows has size ${selectedRows.ids.size}`,
             );
             return;
@@ -100,7 +101,6 @@ export const AddExistingGamesDialog = ({
                 onCancel();
             })
             .catch((err) => {
-                console.error('addDirectoryItems: ', err);
                 addRequest.onFailure(err);
             });
     };

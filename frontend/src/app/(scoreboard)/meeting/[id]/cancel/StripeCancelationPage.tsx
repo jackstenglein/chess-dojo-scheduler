@@ -26,7 +26,6 @@ export function StripeCancelationPage({ meetingId }: { meetingId: string }) {
                     router.push('/calendar');
                 })
                 .catch((err) => {
-                    console.error(err);
                     request.onFailure(err);
                 });
         }

@@ -24,10 +24,8 @@ const ListCoursesPage = () => {
             api.listAllCourses()
                 .then((courses) => {
                     request.onSuccess(courses);
-                    console.log('listCourses: ', courses);
                 })
                 .catch((err) => {
-                    console.error('listCourses: ', err);
                     request.onFailure(err);
                 });
         }

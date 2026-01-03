@@ -25,7 +25,6 @@ const StripeInfo = () => {
                     request.onSuccess(resp.data);
                 })
                 .catch((err) => {
-                    console.error('getPaymentAccount: ', err);
                     request.onFailure(err);
                 });
         }

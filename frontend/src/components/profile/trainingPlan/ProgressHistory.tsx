@@ -458,7 +458,6 @@ export function useProgressHistoryEditor({
                 onSuccess();
             })
             .catch((err) => {
-                console.error('updateUserTimeline: ', err);
                 request.onFailure(err);
             });
     };

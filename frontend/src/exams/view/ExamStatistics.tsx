@@ -346,7 +346,5 @@ function getLegendMargin(numCohorts: number, parentWidth: number): number {
         cohortLegendWidth * (numCohorts - cohortsPerLine * (numCohortLines - 1));
     const numLines = leftoverWidth < 0 ? numCohortLines + 1 : numCohortLines;
 
-    console.log('Num lines: ', numLines);
-
     return 2 * legendPadding + numLines * legendLineHeight + 9 * (numLines - 1);
 }

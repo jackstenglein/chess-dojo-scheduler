@@ -35,7 +35,6 @@ const PurchaseOption: React.FC<PurchaseOptionProps> = ({ course, purchaseOption,
                 request.onSuccess();
             })
             .catch((err) => {
-                console.error('purchaseCourse: ', err);
                 request.onFailure(err);
             });
     };

@@ -46,7 +46,6 @@ export function ChangeVisibilityDialog({
             request.onSuccess();
             onSuccess(updated, skipped);
         } catch (err) {
-            console.error('changeGameVisibility: ', err);
             request.onFailure(err);
         }
     };

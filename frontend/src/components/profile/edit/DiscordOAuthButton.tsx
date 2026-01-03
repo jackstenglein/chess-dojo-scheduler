@@ -31,7 +31,6 @@ function DiscordOAuthButton() {
                     updateSearchParams({ code: '' });
                 })
                 .catch((err) => {
-                    console.error('discordAuth: ', err);
                     request.onFailure(err);
                 });
         }
@@ -45,7 +44,6 @@ function DiscordOAuthButton() {
                 updateUser({ discordUsername: '', discordId: '' });
             })
             .catch((err) => {
-                console.error('discordAuth: ', err);
                 request.onFailure(err);
             });
     };

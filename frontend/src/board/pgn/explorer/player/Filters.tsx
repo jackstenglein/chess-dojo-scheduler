@@ -397,10 +397,7 @@ export function Filters({ filters }: { filters: EditableGameFilters }) {
 
             <DateRangePicker
                 defaultValue={filters.dateRange}
-                onChange={(v) => {
-                    console.log(v);
-                    filters.setDateRange(v);
-                }}
+                onChange={filters.setDateRange}
                 localeText={{ start: 'Start', end: 'End' }}
                 calendars={1}
                 slots={{ field: SingleInputDateRangeField }}

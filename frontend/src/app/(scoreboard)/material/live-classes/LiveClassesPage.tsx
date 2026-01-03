@@ -43,11 +43,9 @@ export function LiveClassesPage() {
             request.onStart();
             api.listRecordings()
                 .then((resp) => {
-                    console.log(`listRecordings: `, resp);
                     request.onSuccess(resp.data.classes ?? []);
                 })
                 .catch((err: unknown) => {
-                    console.error(`listRecordings: `, err);
                     request.onFailure(err);
                 });
         }
@@ -84,7 +82,6 @@ export function LiveClassesPage() {
             setPresignedUrls((urls) => ({ ...urls, [s3Key]: { url: resp.data.url } }));
             return resp.data.url;
         } catch (err) {
-            console.error(`getRecording: `, err);
             setPresignedUrls((urls) => ({ ...urls, [s3Key]: { loading: false } }));
         }
     };

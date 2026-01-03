@@ -1,5 +1,6 @@
 import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
+import { axiosService } from '@/api/axiosService';
 import { isGame } from '@/api/gameApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
@@ -36,7 +37,6 @@ import {
     Slider,
     Stack,
 } from '@mui/material';
-import axios from 'axios';
 import copy from 'copy-to-clipboard';
 import { ReactNode, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -119,7 +119,6 @@ export function ShareTab() {
             });
             return true;
         } catch (err) {
-            console.error('addDirectoryItems: ', err);
             addToFolderRequest.onFailure(err);
             return false;
         }
@@ -174,38 +173,34 @@ export function ShareTab() {
             return;
         }
 
-        try {
-            const white = getPlayer(chess, 'White', 'WhiteElo');
-            const black = getPlayer(chess, 'Black', 'BlackElo');
+        const white = getPlayer(chess, 'White', 'WhiteElo');
+        const black = getPlayer(chess, 'Black', 'BlackElo');
 
-            const response = await getPgnGif({
-                white,
-                black,
-                date: chess.header().getRawValue('Date'),
-                orientation: board?.state.orientation || 'white',
-                comment: window.location.href,
-                theme: boardStyle.toLowerCase(),
-                piece:
-                    pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue
-                        ? 'standard'
-                        : pieceStyle.toLowerCase(),
-                delay: 100,
-                frames: [{ fen: chess.setUpFen() }].concat(
-                    chess.history().map((move) => ({
-                        fen: move.after,
-                        lastMove: `${move.from}${move.to}`,
-                    })),
-                ),
-            });
+        const response = await getPgnGif({
+            white,
+            black,
+            date: chess.header().getRawValue('Date'),
+            orientation: board?.state.orientation || 'white',
+            comment: window.location.href,
+            theme: boardStyle.toLowerCase(),
+            piece:
+                pieceStyle === PieceStyle.ThreeD || pieceStyle === PieceStyle.ThreeDRedBlue
+                    ? 'standard'
+                    : pieceStyle.toLowerCase(),
+            delay: 100,
+            frames: [{ fen: chess.setUpFen() }].concat(
+                chess.history().map((move) => ({
+                    fen: move.after,
+                    lastMove: `${move.from}${move.to}`,
+                })),
+            ),
+        });
 
-            const a = document.createElement('a');
-            a.download = `${white} - ${black}.gif`;
-            a.href = window.URL.createObjectURL(response.data);
-            a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(':');
-            a.click();
-        } catch (err) {
-            console.error('getPgnGif: ', err);
-        }
+        const a = document.createElement('a');
+        a.download = `${white} - ${black}.gif`;
+        a.href = window.URL.createObjectURL(response.data);
+        a.dataset.downloadurl = ['application/octet-stream', a.download, a.href].join(':');
+        a.click();
     };
 
     const renderPgn = () => {
@@ -288,7 +283,6 @@ export function ShareTab() {
             pdfRequest.onSuccess();
             window.URL.revokeObjectURL(a.href);
         } catch (err) {
-            console.error('exportPgnPdf: ', err);
             pdfRequest.onFailure(err);
         }
     };
@@ -322,7 +316,6 @@ export function ShareTab() {
                 cloneRequest.onSuccess();
             })
             .catch((err) => {
-                console.error('createGame: ', err);
                 cloneRequest.onFailure(err);
             });
     };
@@ -607,13 +600,15 @@ interface PgnGifProps {
  * @returns The gif data as a blob.
  */
 function getPgnGif(props: PgnGifProps) {
-    return axios.post<Blob>(`${config.api.baseUrl}/public/pgn-export/gif`, props, {
+    return axiosService.post<Blob>(`/public/pgn-export/gif`, props, {
         responseType: 'blob',
+        functionName: 'pgnExportGif',
     });
 }
 
 function getPdf(request: PdfExportRequest) {
-    return axios.post<Blob>(`${config.api.baseUrl}/public/pgn-export/pdf`, request, {
+    return axiosService.post<Blob>(`/public/pgn-export/pdf`, request, {
         responseType: 'blob',
+        functionName: 'pgnExportPdf',
     });
 }
