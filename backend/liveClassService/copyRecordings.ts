@@ -159,7 +159,6 @@ async function streamFileToS3(
             addParents: FINISHED_UPLOADS_DRIVE_FOLDER,
             removeParents: fileParents.join(','),
         });
-        await driveClient.files.delete({ fileId, supportsAllDrives: true });
         console.log(`Successfully moved "${fileName}" to Finished Uploads folder in Google Drive`);
     } catch (err) {
         console.error(`Failed to process "${fileName}":`, err);

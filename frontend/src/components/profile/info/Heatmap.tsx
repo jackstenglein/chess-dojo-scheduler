@@ -191,8 +191,8 @@ export function Heatmap({
     }
 
     const { activities, weekSummaries, totalDojoPoints, totalMinutesSpent } = useMemo(() => {
-        return getActivity(entries, minDate, maxDate, viewer);
-    }, [entries, minDate, maxDate, viewer]);
+        return getActivity(entries, minDate, maxDate, weekEndOn, viewer);
+    }, [entries, minDate, maxDate, viewer, weekEndOn]);
 
     useEffect(() => {
         const scroller = document.getElementById('heatmap-scroll-container');
@@ -416,6 +416,7 @@ export function CategoryLegend() {
  * @param entries The timeline entries to extract data from.
  * @param minDate The minimum allowed date for the heatmap.
  * @param maxDate The maximum allowed date for the heatmap.
+ * @param weekEndOn The day index the week ends on in the heatmap.
  * @param viewer The user viewing the site. Used for calculating timezones.
  * @returns A list of activities and the total count.
  */
@@ -423,6 +424,7 @@ function getActivity(
     entries: TimelineEntry[],
     minDate: string,
     maxDate: string,
+    weekEndOn: number,
     viewer?: User,
 ): {
     activities: Activity[];
@@ -520,7 +522,7 @@ function getActivity(
     );
 
     const date = new Date(minDate);
-    date.setUTCDate(date.getUTCDate() + 6);
+    date.setUTCDate(date.getUTCDate() - date.getDay() + weekEndOn - 1);
     const weekSummaries: Record<string, WeekSummary> = {
         [date.toISOString().split('T')[0]]: defaultWeekSummary(date.toISOString().split('T')[0]),
     };
