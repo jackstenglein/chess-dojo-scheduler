@@ -1,3 +1,4 @@
+import chessandfitness from './dojo-blog/chess-and-fitness/chess-and-fitness.png';
 import customtask from './dojo-blog/custom-tasks/custom-tasks.png';
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
@@ -37,6 +38,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'Chess and Fitness',
+        subtitle: 'Dojo Blog • January 5, 2026',
+        body: `In the New Year spirit of resetting goals, GM Kraai explores how fitness and chess improvement are similar in needing structure but fundamentally different because fitness is measurable while chess and mental growth are far more slippery.`,
+        href: '/blog/dojo-blog/chess-and-fitness',
+        image: {
+            src: chessandfitness,
+            alt: '',
+        },
+    },
     {
         title: 'Dojo Core and Live Classes',
         subtitle: 'Dojo Digest • January 1, 2026',

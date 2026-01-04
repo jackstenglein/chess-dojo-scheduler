@@ -86,6 +86,8 @@ const pagesWithVideos = [
     '/blog/dojo-talks/:path*',
     '/material/guides',
     '/material/live-classes',
+    '/blog/tactics-test',
+    '/blog/dojo-blog/chess-and-fitness',
 
     // K+P Endings
     '/courses/ENDGAME/34241b4d-3a8f-4d5f-9a15-b26cf718a0d0/1/1',
