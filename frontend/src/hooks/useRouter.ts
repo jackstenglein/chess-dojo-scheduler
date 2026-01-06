@@ -7,6 +7,9 @@ export const pagesWithVideos = [
     /\/blog\/olympiad-2024/,
     /\/blog\/new-ratings/,
     /\/blog\/dojo-talks\/.*/,
+    /^\/blog\/tactics-test$/,
+    /^\/blog\/tactics-test$/,
+    /^\/blog\/dojo-blog\/chess-and-fitness$/,
     /^\/material\/guides$/,
     /^\/material\/live-classes$/,
 
