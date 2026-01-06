@@ -522,7 +522,7 @@ function getActivity(
     );
 
     const date = new Date(minDate);
-    date.setUTCDate(date.getUTCDate() - date.getDay() + weekEndOn - 1);
+    date.setUTCDate(date.getUTCDate() - date.getUTCDay() + weekEndOn);
     const weekSummaries: Record<string, WeekSummary> = {
         [date.toISOString().split('T')[0]]: defaultWeekSummary(date.toISOString().split('T')[0]),
     };
