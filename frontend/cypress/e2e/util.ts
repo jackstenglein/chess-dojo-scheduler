@@ -39,3 +39,45 @@ export interface Event {
     startTime: string;
     endTime: string;
 }
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+/** Convert hex string back to buffer */
+function hexToBuf(hex: string) {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    }
+    return bytes;
+}
+
+/** Derive AES-256 key from a passphrase */
+async function getKey(secret: string): Promise<CryptoKey> {
+    const cryptoObj = window.crypto;
+    const keyMaterial = await cryptoObj.subtle.importKey(
+        'raw',
+        textEncoder.encode(secret.padEnd(32, '0')).slice(0, 32),
+        { name: 'AES-CBC' },
+        false,
+        ['encrypt', 'decrypt'],
+    );
+    return keyMaterial;
+}
+
+/** Decrypt an object */
+export async function decryptObject<T>(
+    encrypted: { iv: string; encryptedData: string },
+    secret: string,
+): Promise<T> {
+    const cryptoObj = window.crypto;
+    const iv = hexToBuf(encrypted.iv);
+    const key = await getKey(secret);
+    const decryptedBuffer = await cryptoObj.subtle.decrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        hexToBuf(encrypted.encryptedData),
+    );
+    const decryptedJson = textDecoder.decode(decryptedBuffer);
+    return JSON.parse(decryptedJson) as T;
+}

@@ -31,10 +31,7 @@ declare global {
              * @param dataCyAttribute The value of the data-cy attribute to find.
              * @param options reflects options parameter to cy.find()
              */
-            findBySel(
-                dataCyAttribute: string,
-                options?: CyFindOptions,
-            ): Chainable<JQuery>;
+            findBySel(dataCyAttribute: string, options?: CyFindOptions): Chainable<JQuery>;
 
             /**
              * Logs into AWS Cognito via the Amplify Auth API, bypassing the login screen.
@@ -42,11 +39,7 @@ declare global {
              * @param email The email to use when logging in.
              * @param password The password to use when logging in.
              */
-            loginByCognitoApi(
-                sessionId: string,
-                email: string,
-                password: string,
-            ): Chainable<null>;
+            loginByCognitoApi(sessionId: string, email: string, password: string): Chainable<null>;
 
             /**
              * Checks to ensure all strings are contained
@@ -61,11 +54,7 @@ declare global {
              * @param url The URL of the request, omitting the host.
              * @param response The response to return.
              */
-            interceptApi(
-                method: Method,
-                url: string,
-                response?: RouteHandler,
-            ): Chainable<null>;
+            interceptApi(method: Method, url: string, response?: RouteHandler): Chainable<null>;
         }
     }
 }

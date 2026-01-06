@@ -22,6 +22,7 @@ import {
 import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { decryptObject } from '../../cypress/e2e/util';
 import { EventType, setUserProperties as setAnalyticsUser, trackEvent } from '../analytics/events';
 import { syncPurchases } from '../api/paymentApi';
 import { getUser } from '../api/userApi';
@@ -179,6 +180,11 @@ export function useFreeTier() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState<AuthStatus>(AuthStatus.Loading);
+    const [isClient, setIsClient] = useState(false);
+    const isSocialFromMobile: boolean =
+        typeof window !== 'undefined'
+            ? new URL(window.location.href).searchParams.get('isSocialFromMobile') === 'true'
+            : false;
 
     const handleCognitoResponse = useCallback(async (cognitoUser: CognitoUser) => {
         const checkoutSessionIds = getAllCheckoutSessionIds();
@@ -191,7 +197,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             );
             clearCheckoutSessionIds();
         } else {
-            apiResponse = await getUser(cognitoUser.tokens?.idToken?.toString() ?? '');
+            const token = cognitoUser.tokens?.idToken?.toString() ?? '';
+            apiResponse = await getUser(token);
         }
 
         const user = parseUser(apiResponse.data, cognitoUser);
@@ -214,17 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [handleCognitoResponse]);
 
-    useEffect(() => {
-        void getCurrentUser();
-    }, [getCurrentUser]);
-
-    const updateUser = (update: Partial<User>) => {
-        if (user) {
-            setUser({ ...user, ...update });
-        }
-    };
-
-    const signin = (email: string, password: string) => {
+    const signin = (email: string, password: string, isFromMobile = false) => {
         return new Promise<void>((resolve, reject) => {
             void (async () => {
                 try {
@@ -237,6 +234,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         username: authUser.username,
                         tokens: authSession.tokens,
                     });
+                    if (isFromMobile) {
+                        // Save flag in local storage and replace current page in history
+                        // so the user can't go back to the redirect
+                        localStorage.setItem('isFromMobile', 'true');
+                        window.location.replace(window.location.origin + window.location.pathname);
+                    }
+
                     resolve();
                 } catch (err) {
                     logger.error?.('Failed to sign in: ', err);
@@ -251,9 +255,107 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             trackEvent(EventType.Logout);
             await amplifySignOut();
-            window.location.href = '/';
+
+            if (localStorage.getItem('isFromMobile') === 'true') {
+                localStorage.removeItem('isFromMobile');
+
+                // Redirect with query param so React Native can detect
+                window.location.href = '/?redirect=app';
+            } else {
+                // Normal browser logout
+                window.location.href = '/';
+            }
         } catch (err) {
             logger.error?.('Error signing out: ', err);
+        }
+    };
+
+    // Detect client-side hydration
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (isSocialFromMobile) {
+            localStorage.setItem('isSocialFromMobile', 'true');
+            void (async () => {
+                const paramsValue = new URL(window.location.href).searchParams.get('values');
+                if (!paramsValue) {
+                    socialSignin('Google', '/profile?loggedInFromMobile=true');
+                    return;
+                }
+
+                const [iv = '', encryptedData = ''] = paramsValue.split('/');
+
+                const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
+                if (!secret) {
+                    logger.error?.('Encryption secret is missing');
+                    return;
+                }
+
+                try {
+                    const { token } = await decryptObject<{
+                        token?: string;
+                    }>({ iv, encryptedData }, secret);
+
+                    if (token) {
+                        localStorage.setItem('firebaseTokens', token);
+                    }
+                } catch (err) {
+                    logger.error?.('Decryption failed:', err);
+                } finally {
+                    // Clean URL
+                    const cleanUrl = window.location.origin + window.location.pathname;
+                    // Replace current page in history so user can't go "back" to redirect
+                    window.location.replace(cleanUrl);
+                    socialSignin('Google', '/profile?loggedInFromMobile=true');
+                }
+            })();
+        }
+    }, [isSocialFromMobile]);
+
+    // Token extraction effect - only runs on client side after hydration
+    useEffect(() => {
+        if (!isClient) return;
+
+        void (async () => {
+            const paramsValue = new URL(window.location.href).searchParams.get('values');
+            if (!paramsValue) {
+                void getCurrentUser();
+                return;
+            }
+
+            const [iv = '', encryptedData = ''] = paramsValue.split('/');
+
+            const secret = process.env.NEXT_PUBLIC_ENCRYPTION_SECRET ?? '';
+            if (!secret) {
+                logger.error?.('Encryption secret is missing');
+                return;
+            }
+
+            try {
+                const { email, password, token } = await decryptObject<{
+                    email?: string;
+                    password?: string;
+                    token?: string;
+                }>({ iv, encryptedData }, secret);
+
+                if (token) {
+                    localStorage.setItem('firebaseTokens', token);
+                }
+
+                if (email && password) {
+                    void signin(email, password, true);
+                }
+            } catch (err) {
+                logger.error?.('Decryption failed:', err);
+            }
+        })();
+    }, [isClient, signin, getCurrentUser]);
+
+    const updateUser = (update: Partial<User>) => {
+        if (user) {
+            setUser({ ...user, ...update });
         }
     };
 

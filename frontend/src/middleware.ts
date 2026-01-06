@@ -6,6 +6,10 @@ import { logger } from './logging/logger';
 const publicPaths = [
     /^\/_next\/.*$/,
     /^\/static\/.*$/,
+    /^\/sw\.js$/,
+    /^\/service-worker\.js$/,
+    /^\/manifest\.json$/,
+    /^\/offline\.html$/,
     /^\/donate$/,
     /^\/help.*/,
     /^\/tournaments$/,
@@ -25,6 +29,11 @@ const publicPaths = [
     /^\/games\/.*\/.*$/,
     /^\/profile\/.*\/postmortem\/.*$/,
     /^\/calendar.*$/,
+
+    // Icon files
+    /^\/apple-touch-icon.*\.png$/,
+    /^\/favicon.*\.png$/,
+    /^\/android-chrome.*\.png$/,
 ];
 
 const unauthenticatedPaths = [

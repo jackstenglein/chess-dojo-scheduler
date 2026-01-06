@@ -537,7 +537,6 @@ const KeyboardShortcuts = ({
                 Keyboard shortcuts are disabled while editing text fields (comments, clock times,
                 tags, etc).
             </Typography>
-
             <Grid container rowGap={2} columnSpacing={2} alignItems='center' mt={1.5}>
                 <Grid sx={{ borderBottom: 1, borderColor: 'divider' }} size={5}>
                     <Typography>Action</Typography>
