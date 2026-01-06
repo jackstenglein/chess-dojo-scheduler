@@ -1,4 +1,4 @@
-import chessandfitness from './dojo-blog/chess-and-fitness/chess-and-fitness.png';
+import chessandfitness from './dojo-blog/chess-and-fitness/chess-fitness.png';
 import customtask from './dojo-blog/custom-tasks/custom-tasks.png';
 import mastersImage from './dojo-digest/vol-10/masters.png';
 import dojoDigestVol11Image from './dojo-digest/vol-11/kraai.jpg';
