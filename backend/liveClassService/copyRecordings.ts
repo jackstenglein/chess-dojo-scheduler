@@ -10,7 +10,7 @@ const MEET_RECORDINGS_DRIVE_FOLDER = process.env.meetRecordingsDriveFolder;
 const FINISHED_UPLOADS_DRIVE_FOLDER = process.env.finishedUploadsDriveFolder;
 const S3_BUCKET = process.env.s3Bucket;
 const STAGE = process.env.stage || '';
-const MEET_ID_REGEX = /^([a-z-]+).*/;
+const MEET_RECORDING_REGEX = /^(.*) - (.*) - Recording/;
 const S3_CLIENT = new S3Client({ region: 'us-east-1' });
 
 /**
@@ -114,17 +114,18 @@ async function streamFileToS3(
     fileParents: string[],
 ) {
     console.log(`Processing: "${fileName}" (${fileId}) with mimeType ${mimeType}`);
-    const matches = MEET_ID_REGEX.exec(fileName);
-    if (!matches || matches.length < 2) {
-        console.warn(`Skipping "${fileName}" because it has no meet id`);
+    const matches = MEET_RECORDING_REGEX.exec(fileName);
+    if (!matches || matches.length < 3) {
+        console.warn(`Skipping "${fileName}" because it does not match MEET_RECORDING_REGEX`);
         return;
     }
 
-    const meetId = matches[1];
-    const meetInfo = MEETING_INFO[STAGE]?.[meetId];
+    const meetName = matches[1];
+    const meetDate = matches[2].split(' ')[0].replaceAll('/', '-');
+    const meetInfo = MEETING_INFO[STAGE]?.[meetName];
     if (!meetInfo) {
         console.warn(
-            `Skipping "${fileName}" because its meet id "${meetId}" has no associated meeting info for stage "${STAGE}"`,
+            `Skipping "${fileName}" because its meeting name "${meetName}" has no associated meeting info for stage "${STAGE}"`,
         );
         return;
     }
@@ -138,7 +139,7 @@ async function streamFileToS3(
         const passThrough = new PassThrough();
         driveResponse.data.pipe(passThrough);
 
-        const s3Key = `${meetInfo.keyPrefix}/${fileName.replace(meetId, meetInfo.name)}`;
+        const s3Key = `${meetInfo.keyPrefix}/${meetInfo.meetId}/${meetName} (${meetDate})`;
         const upload = new Upload({
             client: S3_CLIENT,
             params: {
