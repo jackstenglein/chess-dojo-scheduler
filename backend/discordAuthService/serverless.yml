@@ -41,4 +41,5 @@ functions:
       discordClientSecret: ${file(../discord.yml):clientSecret}
       discordBotToken: ${file(../discord.yml):discordAuth}
       discordGuildId: ${file(../config-${sls:stage}.yml):discordPrivateGuildId}
+      discordLiveClassesRole: ${file(../config-${sls:stage}.yml):discordLiveClassesRole}
       frontendHost: ${file(../config-${sls:stage}.yml):frontendHost}

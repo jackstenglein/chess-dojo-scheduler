@@ -6,7 +6,8 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/auth/discord';
 import {
     getSearchKey,
-    SubscriptionStatus,
+    getSubscriptionTier,
+    SubscriptionTier,
     User,
 } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
@@ -31,6 +32,7 @@ import {
     DiscordUserResponse,
     FREE_UNVERIFIED_ROLE_ID,
     FreeCohortRoleId,
+    LIVE_CLASSES_ROLE_ID,
     PaidCohortRoleId,
     USER_TABLE,
 } from './constants';
@@ -98,11 +100,8 @@ async function handleConnectRequest(
         headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
     });
 
-    const isPaid = user.subscriptionStatus === SubscriptionStatus.Subscribed;
-    const roles = isPaid
-        ? [PaidCohortRoleId[user.dojoCohort]]
-        : [FreeCohortRoleId[user.dojoCohort], FREE_UNVERIFIED_ROLE_ID];
-    if (!roles[0]) {
+    const roles = getRoles(user);
+    if (roles.some((r) => !r)) {
         throw new ApiError({
             statusCode: 400,
             publicMessage: `Invalid cohort: ${user.dojoCohort}`,
@@ -212,4 +211,24 @@ async function handleDisconnectRequest(user: User): Promise<APIGatewayProxyResul
     console.log(`Discord username and id removed from user ${user.username}`);
 
     return success(null);
+}
+
+/**
+ * Returns the discord roles for the given user based on their subscription tier.
+ * @param user The user to get the roles for.
+ */
+function getRoles(user: User): string[] {
+    const subscriptionTier = getSubscriptionTier(user);
+    if (subscriptionTier === SubscriptionTier.Basic) {
+        return [PaidCohortRoleId[user.dojoCohort]];
+    }
+
+    if (
+        subscriptionTier === SubscriptionTier.Lecture ||
+        subscriptionTier === SubscriptionTier.GameReview
+    ) {
+        return [PaidCohortRoleId[user.dojoCohort], LIVE_CLASSES_ROLE_ID];
+    }
+
+    return [FreeCohortRoleId[user.dojoCohort], FREE_UNVERIFIED_ROLE_ID];
 }

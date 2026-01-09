@@ -28,6 +28,7 @@ export const DISCORD_CLIENT_SECRET = process.env.discordClientSecret || '';
 export const DISCORD_DEFAULT_REDIRECT_URI = `${process.env.frontendHost}/profile/edit`;
 export const DISCORD_BOT_TOKEN = process.env.discordBotToken || '';
 export const DISCORD_GUILD_ID = process.env.discordGuildId || '';
+export const LIVE_CLASSES_ROLE_ID = process.env.discordLiveClassesRole || '';
 
 export const DISCORD_TOKEN_URL = 'https://discord.com/api/oauth2/token';
 export const DISCORD_USER_URL = 'https://discord.com/api/users/@me';
