@@ -25,6 +25,8 @@ import ratingConverter from './new-ratings/noseknowsall/ratings-image05.png';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
 import dandeerImage from './player-spotlight/dandeer/opengraph-image.jpg';
 import tacticsTestImage from './tactics-test/image.png';
+import top10tournaments from './dojo-talks/top-10-tournaments/tournaments.jpg';
+
 
 export interface BlogItem {
     title: string;
@@ -38,6 +40,16 @@ export interface BlogItem {
 }
 
 const items: BlogItem[] = [
+    {
+        title: 'The Top 10 Greatest Chess Tournaments Ever',
+        subtitle: 'Dojo Talks • January 12, 2026',
+        body: `In this episode of Dojo Talks, we rank and debate the 10 greatest chess tournaments of all time`,
+        href: '/blog/dojo-talks/top-10-tournaments',
+        image: {
+            src: top10tournaments,
+            alt: '',
+        },
+    },
     {
         title: 'Chess and Fitness',
         subtitle: 'Dojo Blog • January 5, 2026',
