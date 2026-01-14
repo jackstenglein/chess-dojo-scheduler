@@ -167,6 +167,7 @@ functions:
           - dynamodb:UpdateItem
         Resource:
           - !GetAtt LiveClassesTable.Arn
+          - ${param:ClubsTableArn}
       - Effect: Allow
         Action:
           - dynamodb:BatchGetItem
