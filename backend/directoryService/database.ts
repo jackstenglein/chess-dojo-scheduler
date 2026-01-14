@@ -19,6 +19,8 @@ export const USER_TABLE = `${process.env.stage}-users`;
 
 /** The name of the Dynamo table containing live classes info. */
 export const LIVE_CLASSES_TABLE = `${process.env.stage}-live-classes`;
+/** The name of the Dynamo table containing clubs. */
+export const CLUB_TABLE = `${process.env.stage}-clubs`;
 
 type updateReturnType = 'NONE' | 'ALL_OLD' | 'UPDATED_OLD' | 'ALL_NEW' | 'UPDATED_NEW';
 
@@ -92,14 +94,70 @@ export class UpdateItemBuilder<T> extends DynamoCommandBuilder {
      * @returns The UpdateItemBuilder for method chaining.
      */
     set(path: AttributePath, value: any): this {
+        return this.setImpl(path, value, false);
+    }
+
+    /**
+     * Adds a command to set the given attribute path to the given value
+     * only if it does not already exist on the DynamoDB record. If the value
+     * is undefined, this function is a no-op. If path is a string, it will be
+     * split around the period character and each component will be converted
+     * to a DynamoDB expression attribute name. If path is an array, each
+     * item will be converted to a DynamoDB expression attribute name.
+     * @param path The attribute path to set, if it does not exist.
+     * @param value The value to set.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    setIfNotExists(path: AttributePath, value: any): this {
+        return this.setImpl(path, value, true);
+    }
+
+    /**
+     * Adds a command to set the given attribute path to the given value.
+     * If the value is undefined, this function is a no-op. If path is a string,
+     * it will be split around the period character and each component will be
+     * converted to a DynamoDB expression attribute name. If path is an array, each
+     * item will be converted to a DynamoDB expression attribute name.
+     * @param path The attribute path to set.
+     * @param value The value to set.
+     * @param ifNotExists Whether to use the if_not_exists function.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    private setImpl(path: AttributePath, value: any, ifNotExists: boolean): this {
         if (value === undefined) {
             return this;
         }
 
         if (typeof path === 'string') {
-            return this.setPath(path.split('.'), value);
+            return this.setPath(path.split('.'), value, ifNotExists);
         }
-        return this.setPath(path, value);
+        return this.setPath(path, value, ifNotExists);
+    }
+
+    /**
+     * Adds a command to set the given attribute path to the given value.
+     * If the value is undefined, this function is a no-op.
+     * @param path The attribute path to set.
+     * @param value The value to set.
+     * @param ifNotExists Whether to use the if_not_exists function.
+     * @returns The UpdateItemBuilder for method chaining.
+     */
+    private setPath(path: AttributePathTokens, value: any, ifNotExists: boolean): this {
+        if (value === undefined) {
+            return this;
+        }
+
+        if (this.setExpression.length > 0) {
+            this.setExpression += ', ';
+        }
+        const expressionPath = this.addExpressionPath(path);
+        this.setExpression += `${expressionPath} = ${ifNotExists ? `if_not_exists(${expressionPath}, ` : ''}:n${this.attrIndex}${ifNotExists ? ')' : ''}`;
+        this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value, {
+            removeUndefinedValues: true,
+            convertTopLevelContainer: true,
+        });
+        this.attrIndex++;
+        return this;
     }
 
     /**
@@ -137,31 +195,6 @@ export class UpdateItemBuilder<T> extends DynamoCommandBuilder {
         this.addExpression += this.addExpressionPath(path);
         this.addExpression += ` :n${this.attrIndex}`;
         this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value);
-        this.attrIndex++;
-        return this;
-    }
-
-    /**
-     * Adds a command to set the given attribute path to the given value.
-     * If the value is undefined, this function is a no-op.
-     * @param path The attribute path to set.
-     * @param value The value to set.
-     * @returns The UpdateItemBuilder for method chaining.
-     */
-    private setPath(path: AttributePathTokens, value: any): this {
-        if (value === undefined) {
-            return this;
-        }
-
-        if (this.setExpression.length > 0) {
-            this.setExpression += ', ';
-        }
-        this.setExpression += this.addExpressionPath(path);
-        this.setExpression += ` = :n${this.attrIndex}`;
-        this.exprAttrValues[`:n${this.attrIndex}`] = marshall(value, {
-            removeUndefinedValues: true,
-            convertTopLevelContainer: true,
-        });
         this.attrIndex++;
         return this;
     }

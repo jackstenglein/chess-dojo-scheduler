@@ -1,5 +1,6 @@
 import { BatchGetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { ClubMember } from '@jackstenglein/chess-dojo-common/src/database/club';
 import { Event, EventStatus, EventType } from '@jackstenglein/chess-dojo-common/src/database/event';
 import {
     GameReviewCohort,
@@ -29,6 +30,7 @@ import {
     success,
 } from '../../directoryService/api';
 import {
+    CLUB_TABLE,
     dynamo,
     getUser,
     LIVE_CLASSES_TABLE,
@@ -118,6 +120,7 @@ async function handleRequest(request: SetGameReviewCohortsRequest) {
         newCohorts.push(newCohort);
 
         await setUserGameReviewCohortIds(newCohort);
+        await setClub(newCohort);
         if (cohort.discordChannelId) {
             await updateDiscordChannel(discordClient, cohort.discordChannelId, newCohort);
         }
@@ -422,4 +425,38 @@ async function setUserGameReviewCohortIds(cohort: GameReviewCohort) {
             .table(USER_TABLE)
             .send();
     }
+}
+
+/**
+ * Sets the club for the game review cohort.
+ * @param cohort The game review cohort to set the club for.
+ */
+async function setClub(cohort: GameReviewCohort) {
+    const members = Object.values(cohort.members).reduce(
+        (acc, item) => {
+            acc[item.username] = {
+                username: item.username,
+                joinedAt: item.queueDate,
+            };
+            return acc;
+        },
+        {} as Record<string, ClubMember>,
+    );
+
+    await new UpdateItemBuilder()
+        .key('id', cohort.id)
+        .set('name', cohort.name)
+        .set('description', `Club for members of the Game+Profile Review ${cohort.name}.`)
+        .set('shortDescription', `Club for members of the Game+Profile Review ${cohort.name}.`)
+        .set('owner', 'admin')
+        .set('memberCount', Object.entries(cohort.members).length)
+        .set('members', members)
+        .set('approvalRequired', true)
+        .set('allowFreeTier', false)
+        .set('joinRequests', {})
+        .setIfNotExists('createdAt', new Date().toISOString())
+        .set('updatedAt', new Date().toISOString())
+        .return('NONE')
+        .table(CLUB_TABLE)
+        .send();
 }

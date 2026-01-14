@@ -234,4 +234,5 @@ services:
       apiAuthorizer: ${chess-dojo-scheduler.serviceAuthorizer}
       UsersTableArn: ${chess-dojo-scheduler.UsersTableArn}
       EventsTableArn: ${chess-dojo-scheduler.EventsTableArn}
+      ClubsTableArn: ${clubService.ClubsTableArn}
       SecretsBucket: ${chess-dojo-scheduler.SecretsBucket}
