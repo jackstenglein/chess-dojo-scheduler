@@ -48,7 +48,7 @@
         "serverless": "^3.39.0",
         "stripe": "^17.5.0",
         "uuid": "^11.0.3",
-        "zod": "^4.0.14"
+        "zod": "^4.3.5"
     },
     "scripts": {
         "setup": "scripts/setup.sh",
