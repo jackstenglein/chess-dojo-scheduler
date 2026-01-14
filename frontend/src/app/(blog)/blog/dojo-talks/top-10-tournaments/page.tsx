@@ -1,7 +1,6 @@
 import { Container, Divider, Stack, Typography } from '@mui/material';
 import { Metadata } from 'next';
 import Image from 'next/image';
-import { ReactNode } from 'react';
 import { Footer } from '../../common/Footer';
 import { Header } from '../../common/Header';
 
@@ -10,12 +9,6 @@ export const metadata: Metadata = {
     description:
         'In this episode of Dojo Talks, we rank and debate the 10 greatest chess tournaments of all time — from historic classics like London 1851, Hastings 1895, and St. Petersburg 1914 to legendary modern events featuring Kasparov, Fischer, Tal, Topalov, and more.',
 };
-
-const SectionHeader = ({ children }: { children: ReactNode }) => (
-    <Typography variant='subtitle1' fontWeight='bold' sx={{ mt: 3 }}>
-        {children}
-    </Typography>
-);
 
 export default function DojoTalksTop10Tournaments() {
     return (

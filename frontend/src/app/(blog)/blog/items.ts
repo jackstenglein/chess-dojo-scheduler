@@ -21,12 +21,11 @@ import dojoDigestVol8Image from './dojo-digest/vol-8/dojo_3-0.webp';
 import dojoDigestVol9Image from './dojo-digest/vol-9/newTests.png';
 import worldrapid from './dojo-talks/2024-world-rapid-blitz/2024-rapid.png';
 import talkstop2025 from './dojo-talks/top-10-2025/image.webp';
+import top10tournaments from './dojo-talks/top-10-tournaments/tournaments.jpg';
 import ratingConverter from './new-ratings/noseknowsall/ratings-image05.png';
 import olympiadImage from './olympiad-2024/olympiad.jpg';
 import dandeerImage from './player-spotlight/dandeer/opengraph-image.jpg';
 import tacticsTestImage from './tactics-test/image.png';
-import top10tournaments from './dojo-talks/top-10-tournaments/tournaments.jpg';
-
 
 export interface BlogItem {
     title: string;
