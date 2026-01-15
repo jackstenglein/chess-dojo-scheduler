@@ -16,6 +16,7 @@ import {
     getDisplayString,
 } from '@/database/event';
 import { ALL_COHORTS, TimeFormat, compareCohorts, dojoCohorts } from '@/database/user';
+import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import Icon from '@/style/Icon';
 import { DayHours } from '@jackstenglein/react-scheduler/types';
@@ -154,6 +155,23 @@ export function useFilters(): Filters {
         'calendarFilters.tournamentPositions.2',
         [PositionType.AllPositions],
     );
+
+    const { searchParams, setSearchParams } = useNextSearchParams();
+    useEffect(() => {
+        if (searchParams.get('sessions')) {
+            setSessions(JSON.parse(searchParams.get('sessions') || '[]') as CalendarSessionType[]);
+        }
+        if (searchParams.get('types')) {
+            setTypes(JSON.parse(searchParams.get('types') || '[]') as AvailabilityType[]);
+        }
+        if (searchParams.get('tournamentTimeControls')) {
+            setTournamentTimeControls(
+                JSON.parse(searchParams.get('tournaments') || '[]') as TimeControlType[],
+            );
+        }
+
+        setSearchParams({});
+    }, [searchParams, setSearchParams, setSessions, setTypes, setTournamentTimeControls]);
 
     const weekStartOn = user?.weekStart ?? originalWeekStartOn;
 

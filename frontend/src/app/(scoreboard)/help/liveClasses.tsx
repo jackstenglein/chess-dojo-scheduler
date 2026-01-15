@@ -7,24 +7,12 @@ export const liveClassesFaq = {
             title: 'What types of live classes are offered?',
             content: (
                 <>
-                    There are two types of classes: larger lecture-style group classes and smaller,
-                    more personal Game and Profile Review classes. The lecture classes cover a
-                    variety of different specialized topics (for example endgame fundamentals,
-                    calculation or the Najdorf) and rotate monthly. In the Game and Profile Review
-                    classes, the sensei focuses on a single player, analyzing their training habits
-                    and (at least) one of their annotated games.
-                </>
-            ),
-        },
-        {
-            title: 'When do the live classes start?',
-            content: (
-                <>
-                    Live classes start in January 2026. The full class calendar is available{' '}
-                    <Link target='_blank' href='/calendar'>
-                        here
-                    </Link>
-                    .
+                    There are two types of classes: larger lectures and smaller, more personal Game
+                    and Profile Review classes. The lectures cover a variety of different
+                    specialized topics (for example endgame fundamentals, calculation or the
+                    Najdorf) and rotate monthly. In the Game and Profile Review classes, the sensei
+                    focuses on a single player each week, analyzing their training habits and (at
+                    least) one of their annotated games.
                 </>
             ),
         },
@@ -45,8 +33,8 @@ export const liveClassesFaq = {
             content: (
                 <>
                     We will add further classes and different time slots as we get more students.
-                    This applies to both the group lectures and the Game and Profile Review classes.
-                    The topics of the group lectures will also rotate monthly.
+                    This applies to both the lectures and the Game and Profile Review classes. The
+                    topics of the lectures will also rotate monthly.
                 </>
             ),
         },
@@ -54,11 +42,11 @@ export const liveClassesFaq = {
             title: 'How much do the classes cost?',
             content: (
                 <>
-                    The group lecture classes are available on the $75/month subscription tier. The
-                    Game and Profile Review classes are available on the $200/month subscription
-                    tier. The $200/month subscription tier also provides access to the group lecture
-                    classes. Both subscription tiers provide full access to the rest of the
-                    ChessDojo training plan and website.
+                    The lectures are available on the $75/month subscription tier. The Game and
+                    Profile Review classes are available on the $200/month subscription tier. The
+                    $200/month subscription tier also provides access to the lecture classes. Both
+                    subscription tiers provide full access to the rest of the ChessDojo training
+                    plan and website.
                 </>
             ),
         },
@@ -70,11 +58,11 @@ export const liveClassesFaq = {
                     0-600, 600-1000, 1000-1400, 1400-1800, 1800+ (these ratings all use the{' '}
                     <Link href='/material/ratings'>ChessDojo rating scale</Link>). For the Game and
                     Profile Review classes, you can only join the class for your specific cohort.
-                    The group lecture classes are roughly split among the same rating ranges but may
-                    cover broader or more targeted ranges for a given class. Each class will specify
-                    its recommended rating range. Any subscriber can join the group lecture classes,
-                    even if they are outside the recommended rating range. However, the class
-                    material will be designed for the recommended rating range.
+                    The lectures are roughly split among the same rating ranges but may cover
+                    broader or more targeted ranges for a given class. Each class will specify its
+                    recommended rating range. Any subscriber can join the lecture classes, even if
+                    they are outside the recommended rating range. However, the class material will
+                    be designed for the recommended rating range.
                 </>
             ),
         },
@@ -82,9 +70,9 @@ export const liveClassesFaq = {
             title: 'How many students can join each class?',
             content: (
                 <>
-                    The group lecture classes have no limit on the amount of students that can join
-                    each class. The Game and Profile Review classes will be limited to approximately
-                    10 students. As more students join a given cohort range, they will be split into
+                    The lecture classes have no limit on the amount of students that can join each
+                    class. The Game and Profile Review classes will be limited to approximately 10
+                    students. As more students join a given cohort range, they will be split into
                     additional sections. For example, there might be two sections of the 600-1000
                     Game and Profile Review, each with 7 students.
                 </>
@@ -97,9 +85,8 @@ export const liveClassesFaq = {
                     All classes will be conducted through Google Meet. This allows us to
                     automatically record and upload the classes for viewing on demand. The Google
                     Meet links will be available in the{' '}
-                    <Link href='/calendar'>ChessDojo calendar</Link> after you have subscribed.
-                    Note: January classes will be posted to the calendar by Dec. 20th. No special
-                    software is required to join. All you need is a standard web browser.
+                    <Link href='/calendar'>ChessDojo calendar</Link> after you have subscribed. No
+                    special software is required to join. All you need is a standard web browser.
                 </>
             ),
         },
@@ -107,10 +94,10 @@ export const liveClassesFaq = {
             title: 'Do I have to additionally register for specific classes after subscribing?',
             content: (
                 <>
-                    No, all subscribers can join any of the group lecture classes using the Google
-                    Meet links in the calendar. Game and Profile Review subscribers will
-                    automatically have access to their specific cohort's section of the class
-                    through the Google Meet link in the calendar as well.
+                    No, all subscribers can join any of the lecture classes using the Google Meet
+                    links in the calendar. Game and Profile Review subscribers will automatically
+                    have access to their specific cohort's section of the class through the Google
+                    Meet link in the calendar as well.
                 </>
             ),
         },
@@ -128,30 +115,10 @@ export const liveClassesFaq = {
             content: (
                 <>
                     Subscribers will get access to a private section of Discord channels. There will
-                    be a channel for each group lecture class, as well as channels specifically for
-                    each Game and Profile Review cohort. Subscribers will have access to all group
-                    lecture Discord channels, but only the members in a specific Game and Profile
-                    Review cohort will have access to the corresponding Discord channel.
-                </>
-            ),
-        },
-        {
-            title: `Is the Black Friday discount permanent or just for a single month?`,
-            content: (
-                <>
-                    If you subscribe before December 2nd 2025 and use the code{' '}
-                    <strong>BLACKFRIDAY</strong>, you will receive 25% off your first month.
-                </>
-            ),
-        },
-        {
-            title: `The group classes don't start until January, but it looks like I will be charged again before that?`,
-            content: (
-                <>
-                    If you are upgrading your current subscription, this is a limitation in the UI
-                    of our payment processor Stripe. We will make sure that all subscriptions are
-                    fixed in Stripe so that your second charge will not take place until Feb 1,
-                    2026, after which you will be charged monthly.
+                    be a channel for each lecture class, as well as channels specifically for each
+                    Game and Profile Review cohort. Subscribers will have access to all lecture
+                    channels, but only the members in a specific Game and Profile Review cohort will
+                    have access to the corresponding Discord channel.
                 </>
             ),
         },
