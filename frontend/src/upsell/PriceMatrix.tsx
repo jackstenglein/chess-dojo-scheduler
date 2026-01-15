@@ -1,6 +1,7 @@
 'use client';
 
 import { Link } from '@/components/navigation/Link';
+import { CalendarSessionType } from '@/database/event';
 import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { Button, ButtonProps, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { JSX, useEffect, useState } from 'react';
@@ -39,12 +40,12 @@ const priceDataByCurrency: Record<
             year: 10,
         },
         [SubscriptionTier.Lecture]: {
-            month: 75,
-            year: 75,
+            month: 65,
+            year: 65,
         },
         [SubscriptionTier.GameReview]: {
-            month: 200,
-            year: 200,
+            month: 170,
+            year: 170,
         },
     },
     GBP: {
@@ -54,12 +55,12 @@ const priceDataByCurrency: Record<
             year: 10,
         },
         [SubscriptionTier.Lecture]: {
-            month: 75,
-            year: 75,
+            month: 55,
+            year: 55,
         },
         [SubscriptionTier.GameReview]: {
-            month: 200,
-            year: 200,
+            month: 150,
+            year: 150,
         },
     },
     INR: {
@@ -211,7 +212,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
 
             <Grid size={{ xs: 12, sm: 8.5, md: onFreeTier ? 6 : 4, lg: 'grow' }}>
                 <PriceCard
-                    name='Group Classes'
+                    name='Lectures'
                     price={{
                         value: priceData[SubscriptionTier.Lecture][interval],
                         symbol: priceData.symbol,
@@ -224,7 +225,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             status: SellingPointStatus.Included,
                         },
                         {
-                            description: 'Weekly live group classes on specialized topics',
+                            description: 'Weekly live lectures on specialized topics',
                             status: SellingPointStatus.Included,
                         },
                         {
@@ -236,7 +237,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             status: SellingPointStatus.Included,
                         },
                         {
-                            description: 'Access to recordings of all group classes',
+                            description: 'Access to recordings of all lectures',
                             status: SellingPointStatus.Included,
                         },
                     ]}
@@ -248,12 +249,21 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                                 currency,
                                 value: priceData[SubscriptionTier.Lecture][interval],
                             }),
-                        children: 'Join Group Classes',
+                        children: 'Join Lectures',
                     }}
                     afterButton={
-                        <Link target='_blank' href='/calendar'>
-                            View Full Class Calendar
-                        </Link>
+                        <Typography>
+                            <Link target='_blank' href='/help?id=live-classes'>
+                                FAQ
+                            </Link>
+                            {' / '}
+                            <Link
+                                target='_blank'
+                                href={`/calendar?sessions=${JSON.stringify([CalendarSessionType.Lectures])}&types=[]&tournaments=[]`}
+                            >
+                                Class Calendar
+                            </Link>
+                        </Typography>
                     }
                     isCurrentTier={currentTier === SubscriptionTier.Lecture}
                 />
@@ -282,7 +292,7 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                             status: SellingPointStatus.Included,
                         },
                         {
-                            description: 'Access to recordings of all classes',
+                            description: 'Access to recordings of all lectures and classes',
                             status: SellingPointStatus.Included,
                         },
                     ]}
@@ -299,9 +309,18 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
                         children: 'Get Sensei Feedback',
                     }}
                     afterButton={
-                        <Link target='_blank' href='/calendar'>
-                            View Full Class Calendar
-                        </Link>
+                        <Typography>
+                            <Link target='_blank' href='/help?id=live-classes'>
+                                FAQ
+                            </Link>
+                            {' / '}
+                            <Link
+                                target='_blank'
+                                href={`/calendar?sessions=${JSON.stringify([CalendarSessionType.Lectures, CalendarSessionType.GameReviews])}&types=[]&tournaments=[]`}
+                            >
+                                Class Calendar
+                            </Link>
+                        </Typography>
                     }
                     isCurrentTier={currentTier === SubscriptionTier.GameReview}
                 />
