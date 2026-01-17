@@ -1,7 +1,11 @@
+import { useEvents } from '@/api/cache/Cache';
 import { getGameReviewCohort } from '@/api/liveClassesApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
+import { useAuth } from '@/auth/Auth';
+import { toDojoDateString, toDojoTimeString } from '@/components/calendar/displayDate';
 import { Link } from '@/components/navigation/Link';
 import { getConfig } from '@/config';
+import { Event, EventType } from '@/database/event';
 import { User } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import {
@@ -11,13 +15,18 @@ import {
 import { GameReviewCohort } from '@jackstenglein/chess-dojo-common/src/liveClasses/api';
 import { Divider, Stack, Typography } from '@mui/material';
 import { useEffect } from 'react';
+import { datetime, RRule } from 'rrule';
 import { GameReviewCohortQueue } from './GameReviewCohortQueue';
 
 export function LiveClassesTab({ user }: { user: User }) {
-    if (getSubscriptionTier(user) === SubscriptionTier.GameReview) {
-        return <GameReviewSection user={user} />;
-    }
-    return <LectureSection />;
+    return (
+        <Stack spacing={8}>
+            {getSubscriptionTier(user) === SubscriptionTier.GameReview && (
+                <GameReviewSection user={user} />
+            )}
+            <LectureSection />
+        </Stack>
+    );
 }
 
 function GameReviewSection({ user }: { user: User }) {
@@ -117,6 +126,15 @@ function GameReviewSection({ user }: { user: User }) {
             </Typography>
 
             <Typography variant='h6' mt={2}>
+                Scoreboard
+            </Typography>
+            <Typography color='textSecondary'>
+                You can view the team scoreboard{' '}
+                <Link href={`/clubs/${gameReviewCohort.id}`}>here</Link>. Use this to see at a
+                glance how much work you and the other members of your team are doing!
+            </Typography>
+
+            <Typography variant='h6' mt={2}>
                 Review Queue
             </Typography>
             <Typography color='textSecondary' mb={3}>
@@ -133,19 +151,53 @@ function GameReviewSection({ user }: { user: User }) {
 }
 
 function LectureSection() {
+    const { user } = useAuth();
+    const { events } = useEvents();
+    const now = new Date();
+    const nextEvents = events
+        .filter((e) => e.type === EventType.LectureTier && e.rrule)
+        .map((e) => {
+            const rrule = RRule.fromString(e.rrule || '');
+            const date = rrule.after(
+                datetime(now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate()),
+                true,
+            );
+            return {
+                event: e,
+                nextDate: date,
+            };
+        })
+        .filter((e) => e.nextDate)
+        .sort((lhs, rhs) => (lhs.nextDate?.getTime() ?? 0) - (rhs.nextDate?.getTime() ?? 0)) as {
+        event: Event;
+        nextDate: Date;
+    }[];
+
     return (
         <Stack>
-            <Typography variant='h5'>Group Classes</Typography>
+            <Typography variant='h5'>Lectures</Typography>
             <Divider />
 
             <Typography variant='h6' mt={2}>
                 Classes
             </Typography>
             <Typography color='textSecondary'>
-                The group classes are larger, lecture-style classes. You can join any of the
-                classes, although material will be designed for the rating range listed in each
-                class description.
+                You can join any of the lecture classes, although material will be designed for the
+                rating range listed in each class description.
             </Typography>
+
+            {nextEvents.map((e) => (
+                <Stack key={e.event.id} mt={2}>
+                    <Typography variant='subtitle1' fontWeight='bold'>
+                        <Link href={`/meeting/${e.event.id}`}>{e.event.title}</Link>
+                    </Typography>
+                    <Typography>
+                        {toDojoDateString(e.nextDate, user?.timezoneOverride)}
+                        {' • '}
+                        {toDojoTimeString(e.nextDate, user?.timezoneOverride, user?.timeFormat)}
+                    </Typography>
+                </Stack>
+            ))}
 
             <Typography variant='h6' mt={2}>
                 Joining Classes
