@@ -21,8 +21,8 @@ const priceDataByCurrency: Record<
     USD: {
         symbol: '$',
         [SubscriptionTier.Basic]: {
-            month: 15,
-            year: 10,
+            month: 20,
+            year: 12,
         },
         [SubscriptionTier.Lecture]: {
             month: 75,
@@ -36,7 +36,7 @@ const priceDataByCurrency: Record<
     EUR: {
         symbol: '€',
         [SubscriptionTier.Basic]: {
-            month: 15,
+            month: 17,
             year: 10,
         },
         [SubscriptionTier.Lecture]: {
@@ -66,8 +66,8 @@ const priceDataByCurrency: Record<
     INR: {
         symbol: '₹',
         [SubscriptionTier.Basic]: {
-            month: 650,
-            year: 433,
+            month: 700,
+            year: 467,
         },
         [SubscriptionTier.Lecture]: {
             month: 3250,
