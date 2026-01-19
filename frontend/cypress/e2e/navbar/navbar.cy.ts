@@ -30,7 +30,7 @@ const viewPortWidths = [
 ];
 
 describe('Navbar', () => {
-    it.only('should have limited options when unauthenticated', () => {
+    it('should have limited options when unauthenticated', () => {
         cy.visit('/');
         cy.viewport(1200, 660);
 
