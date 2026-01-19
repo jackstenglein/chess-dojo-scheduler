@@ -54,6 +54,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import {
     Badge,
     Button,
+    Chip,
     Collapse,
     IconButton,
     List,
@@ -65,7 +66,7 @@ import {
     Typography,
     useMediaQuery,
 } from '@mui/material';
-import React, { useState, type JSX } from 'react';
+import React, { ReactNode, useState, type JSX } from 'react';
 import DarkModeToggle from './DarkModeToggle';
 import ProfileButton from './ProfileButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
@@ -94,7 +95,8 @@ interface MenuProps {
 }
 
 export interface NavbarItem {
-    name: string;
+    id: string;
+    name: ReactNode;
     icon?: JSX.Element;
     onClick?: () => void;
     children?: Omit<NavbarItem, 'onClick'>[];
@@ -105,41 +107,49 @@ export interface NavbarItem {
 function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
     return [
         {
+            id: 'newsfeed',
             name: 'Newsfeed',
             icon: <Feed />,
             href: '/newsfeed',
         },
         {
+            id: 'training-plan',
             name: 'Training Plan',
             icon: <Checklist />,
             href: '/profile?view=progress',
         },
         {
+            id: 'scoreboard',
             name: 'Scoreboard',
             icon: <Scoreboard />,
-            onClick: () => toggleExpansion('Scoreboard'),
+            onClick: () => toggleExpansion('scoreboard'),
             children: [
                 {
+                    id: 'my-cohort',
                     name: 'My Cohort',
                     icon: <GroupIcon />,
                     href: '/scoreboard',
                 },
                 {
+                    id: 'full-dojo',
                     name: 'Full Dojo',
                     icon: <LanguageIcon />,
                     href: '/scoreboard/dojo',
                 },
                 {
+                    id: 'followers',
                     name: 'Followers',
                     icon: <ThumbUpIcon />,
                     href: '/scoreboard/following',
                 },
                 {
+                    id: 'search-users',
                     name: 'Search Users',
                     icon: <SearchIcon />,
                     href: '/scoreboard/search',
                 },
                 {
+                    id: 'statistics',
                     name: 'Statistics',
                     icon: <AutoGraphIcon />,
                     href: '/scoreboard/stats',
@@ -147,21 +157,25 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
             ],
         },
         {
+            id: 'tournaments',
             name: 'Tournaments',
             icon: <Tournaments />,
-            onClick: () => toggleExpansion('Tournaments'),
+            onClick: () => toggleExpansion('tournaments'),
             children: [
                 {
+                    id: 'round-robin',
                     name: 'Round Robin',
                     icon: <CrossedSwordIcon />,
                     href: '/tournaments/round-robin',
                 },
                 {
+                    id: 'open-classical',
                     name: 'Open Classical',
                     icon: <TournamentBracketIcon />,
                     href: '/tournaments/open-classical',
                 },
                 {
+                    id: 'dojo-liga',
                     name: 'DojoLiga',
                     icon: <MilitaryTech />,
                     href: '/tournaments/liga',
@@ -169,21 +183,25 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
             ],
         },
         {
+            id: 'games',
             name: 'Games',
             icon: <PawnIcon />,
-            onClick: () => toggleExpansion('Games'),
+            onClick: () => toggleExpansion('games'),
             children: [
                 {
+                    id: 'analysis-board',
                     name: 'Analysis Board',
                     icon: <Biotech />,
                     href: '/games/import',
                 },
                 {
+                    id: 'full-database',
                     name: 'Full Database',
                     icon: <Storage />,
                     href: '/games',
                 },
                 {
+                    id: 'my-games',
                     name: 'My Games',
                     icon: <AccountCircle />,
                     href: '/profile?view=games',
@@ -191,79 +209,94 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
             ],
         },
         {
+            id: 'calendar',
             name: 'Calendar',
             icon: <CalendarToday />,
             href: '/calendar',
         },
         {
+            id: 'material',
             name: 'Material',
             icon: <MenuBook />,
-            onClick: () => toggleExpansion('Material'),
+            onClick: () => toggleExpansion('material'),
             children: [
                 {
+                    id: 'courses',
                     name: 'Courses',
                     icon: <ImportContacts />,
                     href: '/courses',
                 },
                 {
+                    id: 'live-classes',
                     name: 'Live Classes',
                     icon: <PresenterIcon sx={{ fontSize: '24px' }} />,
                     href: '/material/live-classes',
                 },
                 {
+                    id: 'tests',
                     name: 'Tests',
                     icon: <Speed />,
                     href: '/tests',
                 },
                 {
+                    id: 'books',
                     name: 'Books',
                     icon: <AutoStories />,
                     href: '/material/books',
                 },
                 {
+                    id: 'sparring-positions',
                     name: 'Sparring Positions',
                     icon: <LocalFireDepartment />,
                     href: '/material/sparring',
                 },
                 {
+                    id: 'model-annotations',
                     name: 'Model Annotations',
                     icon: <BorderColor />,
                     href: '/material/modelgames',
                 },
                 {
+                    id: 'games-to-memorize',
                     name: 'Games to Memorize',
                     icon: <Psychology />,
                     href: '/material/memorizegames',
                 },
                 {
+                    id: 'rating-conversions',
                     name: 'Rating Conversions',
                     icon: <SignalCellularAlt />,
                     href: '/material/ratings',
                 },
                 {
+                    id: 'guides',
                     name: 'Guides',
                     icon: <Info />,
                     href: '/material/guides',
                 },
                 {
+                    id: 'discord',
                     name: 'Discord',
                     icon: <DiscordIcon sx={{ color: '#5865f2' }} />,
                     href: config.discord.url,
                     target: '_blank',
                 },
                 {
+                    id: 'twitch',
                     name: 'Twitch',
                     icon: <TwitchIcon color='twitch' />,
                     href: 'https://www.twitch.tv/chessdojo/videos',
                     target: '_blank',
                 },
                 {
+                    id: 'youtube',
                     name: 'YouTube',
                     icon: <YoutubeIcon color='youtube' />,
                     href: 'https://www.youtube.com/@ChessDojo',
                     target: '_blank',
                 },
                 {
+                    id: 'patreon',
                     name: 'Patreon',
                     icon: <FontAwesomeSvgIcon icon={faPatreon} sx={{ color: 'white' }} />,
                     href: 'https://www.patreon.com/ChessDojo',
@@ -272,37 +305,55 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
             ],
         },
         {
+            id: 'live-classes',
+            name: (
+                <>
+                    Live Classes{' '}
+                    <Chip label='NEW' color='success' size='small' sx={{ ml: 1 }} />{' '}
+                </>
+            ),
+            icon: <PresenterIcon sx={{ fontSize: '24px' }} />,
+            href: '/live-classes',
+        },
+        {
+            id: 'clubs',
             name: 'Clubs',
             icon: <Groups />,
             href: '/clubs',
         },
         {
+            id: 'blog',
             name: 'Blog',
             icon: <Forum />,
             href: '/blog',
         },
         {
+            id: 'shop',
             name: 'Shop',
             icon: <Sell />,
-            onClick: () => toggleExpansion('Shop'),
+            onClick: () => toggleExpansion('shop'),
             children: [
                 {
+                    id: 'courses',
                     name: 'Courses',
                     icon: <ImportContacts />,
                     href: '/courses',
                 },
                 {
+                    id: 'coaching',
                     name: 'Coaching',
                     icon: <RocketLaunch />,
                     href: '/coaching',
                 },
                 {
+                    id: 'merch',
                     name: 'Merch',
                     icon: <Storefront />,
                     href: 'https://www.chessdojo.shop/shop',
                     target: '_blank',
                 },
                 {
+                    id: 'donate',
                     name: 'Donate',
                     href: '/donate',
                     icon: <DonateIcon />,
@@ -314,6 +365,7 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
 
 function helpItem(): NavbarItem {
     return {
+        id: 'help',
         name: 'Help',
         icon: <Help />,
         href: '/help',
@@ -351,7 +403,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
     if (item.name === 'Calendar') {
         return (
             <Button
-                key={item.name}
+                key={item.id}
                 onClick={item.onClick}
                 sx={{ color: 'white', whiteSpace: 'nowrap' }}
                 startIcon={
@@ -370,7 +422,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
     return (
         <>
             <Button
-                key={item.name}
+                key={item.id}
                 onClick={item.children ? handleOpen : item.onClick}
                 sx={{ color: 'white', whiteSpace: 'nowrap' }}
                 startIcon={item.icon}
@@ -389,7 +441,7 @@ export const StartItem: React.FC<{ item: NavbarItem; meetingCount: number }> = (
                 >
                     {item.children.map((child) => (
                         <MenuItem
-                            key={child.name}
+                            key={child.id}
                             onClick={handleClose}
                             component={child.href ? Link : 'li'}
                             href={child.href}
@@ -414,7 +466,7 @@ export const NavMenuItem: React.FC<{
     return (
         <>
             <MenuItem
-                key={item.name}
+                key={item.id}
                 onClick={item.children ? item.onClick : undefined}
                 component={item.href ? Link : 'li'}
                 href={item.href}
@@ -425,7 +477,7 @@ export const NavMenuItem: React.FC<{
                     {item.name === 'Calendar' && meetingCount ? ` (${meetingCount})` : ''}
                 </Typography>
                 {item.children &&
-                    (openItems[item.name] ? (
+                    (openItems[item.id] ? (
                         <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
                             <ExpandLess />
                         </ListItemIcon>
@@ -436,11 +488,11 @@ export const NavMenuItem: React.FC<{
                     ))}
             </MenuItem>
             {item.children && (
-                <Collapse key={item.name + '-collapse'} in={openItems[item.name]}>
+                <Collapse key={item.id + '-collapse'} in={openItems[item.id]}>
                     <List component='div' disablePadding>
                         {item.children.map((child) => (
                             <MenuItem
-                                key={child.name}
+                                key={child.id}
                                 onClick={handleClose}
                                 sx={{ pl: 3 }}
                                 component={child.href ? Link : 'li'}
@@ -478,13 +530,14 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const auth = useAuth();
 
-    const showAll = useMediaQuery('(min-width:1615px)');
-    const hide2 = useMediaQuery('(min-width:1488px)');
-    const hide3 = useMediaQuery('(min-width:1370px)');
-    const hide4 = useMediaQuery('(min-width:1256px)');
-    const hide5 = useMediaQuery('(min-width:1120px)');
-    const hide6 = useMediaQuery('(min-width:979px)');
-    const hide7 = useMediaQuery('(min-width:772px)');
+    const showAll = useMediaQuery('(min-width:1856px)');
+    const hide2 = useMediaQuery('(min-width:1694px)');
+    const hide3 = useMediaQuery('(min-width:1599px)');
+    const hide4 = useMediaQuery('(min-width:1388px)');
+    const hide5 = useMediaQuery('(min-width:1249px)');
+    const hide6 = useMediaQuery('(min-width:1116px)');
+    const hide7 = useMediaQuery('(min-width:990px)');
+    const hide8 = useMediaQuery('(min-width:797px)');
 
     const showHelp = useMediaQuery('(min-width:624px)');
     const showNotifications = useMediaQuery('(min-width:567px)');
@@ -509,8 +562,10 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
         startItemCount = startItems.length - 6;
     } else if (hide7) {
         startItemCount = startItems.length - 7;
-    } else {
+    } else if (hide8) {
         startItemCount = startItems.length - 8;
+    } else {
+        startItemCount = startItems.length - 9;
     }
 
     const onClose = () => {
@@ -520,13 +575,13 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => <StartItem key={item.name} item={item} meetingCount={meetingCount} />);
+        .map((item) => <StartItem key={item.id} item={item} meetingCount={meetingCount} />);
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
         .map((item) => (
             <NavMenuItem
-                key={item.name}
+                key={item.id}
                 item={item}
                 openItems={openItems}
                 handleClose={onClose}
@@ -682,7 +737,7 @@ const ExtraSmallMenu = ({ meetingCount }: MenuProps) => {
     if (profileCreated) {
         startItemsJsx = startItems.map((item) => (
             <NavMenuItem
-                key={item.name}
+                key={item.id}
                 item={item}
                 openItems={openItems}
                 handleClose={handleClose}

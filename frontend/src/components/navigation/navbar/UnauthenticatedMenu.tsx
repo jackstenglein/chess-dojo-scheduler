@@ -3,6 +3,7 @@
 import { barlowCondensed } from '@/components/landing/fonts';
 import { DonateIcon } from '@/style/DonateIcon';
 import { fontFamily } from '@/style/font';
+import { PresenterIcon } from '@/style/PresenterIcon';
 import {
     ChevronRight,
     ExpandLess,
@@ -19,6 +20,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import SensorOccupiedIcon from '@mui/icons-material/SensorOccupied';
 import {
     Button,
+    Chip,
     Collapse,
     IconButton,
     List,
@@ -46,37 +48,55 @@ export default UnauthenticatedMenu;
 function unauthenticatedStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
     return [
         {
+            id: 'live-classes',
+            name: (
+                <>
+                    Live Classes{' '}
+                    <Chip label='NEW' color='success' size='small' sx={{ ml: 1 }} />{' '}
+                </>
+            ),
+            icon: <PresenterIcon sx={{ fontSize: '24px' }} />,
+            href: '/live-classes',
+        },
+        {
+            id: 'tournaments',
             name: 'Tournaments',
             icon: <Tournaments />,
             href: '/tournaments',
         },
         {
+            id: 'blog',
             name: 'Blog',
             icon: <Forum />,
             href: '/blog',
         },
         {
+            id: 'shop',
             name: 'Shop',
             icon: <Sell />,
-            onClick: () => toggleExpansion('Shop'),
+            onClick: () => toggleExpansion('shop'),
             children: [
                 {
+                    id: 'courses',
                     name: 'Courses',
                     icon: <ImportContacts />,
                     href: '/courses',
                 },
                 {
+                    id: 'coaching',
                     name: 'Coaching',
                     icon: <RocketLaunch />,
                     href: '/coaching',
                 },
                 {
+                    id: 'merch',
                     name: 'Merch',
                     icon: <Storefront />,
                     href: 'https://www.chessdojo.shop/shop',
                     target: '_blank',
                 },
                 {
+                    id: 'donate',
                     name: 'Donate',
                     href: '/donate',
                     icon: <DonateIcon />,
@@ -89,10 +109,9 @@ function unauthenticatedStartItems(toggleExpansion: (item: string) => void): Nav
 function useNavbarItems(handleClose: () => void) {
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-    const showAll = useMediaQuery('(min-width:785px)');
-    const hide2 = useMediaQuery('(min-width:640px)');
-    const hide3 = useMediaQuery('(min-width:400px)');
-    const hide4 = useMediaQuery('(min-width:400px)');
+    const showAll = useMediaQuery('(min-width:1012px)');
+    const hide2 = useMediaQuery('(min-width:840px)');
+    const hide3 = useMediaQuery('(min-width:676px)');
 
     const startItems = unauthenticatedStartItems((item: string) =>
         setOpenItems((v) => ({ ...v, [item]: !(v[item] || false) })),
@@ -105,19 +124,19 @@ function useNavbarItems(handleClose: () => void) {
         startItemCount = startItems.length - 2;
     } else if (hide3) {
         startItemCount = startItems.length - 3;
-    } else if (hide4) {
+    } else {
         startItemCount = startItems.length - 4;
     }
 
     const shownStartItems: JSX.Element[] = startItems
         .slice(0, startItemCount)
-        .map((item) => <StartItem key={item.name} item={item} meetingCount={0} />);
+        .map((item) => <StartItem key={item.id} item={item} meetingCount={0} />);
 
     const menuItems: JSX.Element[] = startItems
         .slice(startItemCount)
         .map((item) => (
             <NavMenuItem
-                key={item.name}
+                key={item.id}
                 item={item}
                 openItems={openItems}
                 handleClose={handleClose}
@@ -270,7 +289,7 @@ export const ExtraSmallMenuUnauthenticated = () => {
 
                 {startItems.map((item) => [
                     <MenuItem
-                        key={item.name}
+                        key={item.id}
                         onClick={item.children ? item.onClick : undefined}
                         component={item.href ? 'a' : 'li'}
                         href={item.href}
@@ -278,7 +297,7 @@ export const ExtraSmallMenuUnauthenticated = () => {
                         <ListItemIcon>{item.icon}</ListItemIcon>
                         <Typography textAlign='center'>{item.name}</Typography>
                         {item.children &&
-                            (openItems[item.name] ? (
+                            (openItems[item.id] ? (
                                 <ListItemIcon sx={{ position: 'absolute', right: 0 }}>
                                     <ExpandLess />
                                 </ListItemIcon>
@@ -289,11 +308,11 @@ export const ExtraSmallMenuUnauthenticated = () => {
                             ))}
                     </MenuItem>,
                     item.children ? (
-                        <Collapse in={openItems[item.name]}>
+                        <Collapse in={openItems[item.id]}>
                             <List component='div' disablePadding>
                                 {item.children.map((child) => (
                                     <MenuItem
-                                        key={child.name}
+                                        key={child.id}
                                         onClick={handleClose}
                                         component={child.href ? 'a' : 'li'}
                                         href={child.href}
