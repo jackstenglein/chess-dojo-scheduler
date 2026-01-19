@@ -10,6 +10,7 @@ import { dojoCohorts } from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
+import { getSubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import {
     CheckBox,
     CheckBoxOutlineBlank,
@@ -67,8 +68,11 @@ export function FullTrainingPlan() {
 
     const sections: Section[] = useMemo(() => {
         const sections: Section[] = [];
+        const subscriptionTier = getSubscriptionTier(user);
 
-        const requirements = allRequirements.filter((r) => r.counts[cohort]);
+        const requirements = allRequirements.filter(
+            (r) => r.counts[cohort] && (r.subscriptionTiers?.includes(subscriptionTier) ?? true),
+        );
         const tasks = (requirements as (Requirement | CustomTask)[]).concat(user.customTasks ?? []);
         for (const task of tasks) {
             if (task.counts[cohort] === undefined) {

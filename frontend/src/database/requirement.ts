@@ -5,6 +5,7 @@ import {
     RequirementProgress,
     ScoreboardDisplay,
 } from '@jackstenglein/chess-dojo-common/src/database/requirement';
+import { SubscriptionTier } from '@jackstenglein/chess-dojo-common/src/database/user';
 import { isObject } from './scoreboard';
 import { TimelineEntry } from './timeline';
 import { isFree, User } from './user';
@@ -160,6 +161,9 @@ export interface Requirement {
 
     /** The expected amount of time it takes to complete a task. */
     expectedMinutes: number;
+
+    /** The subscription tiers that can view this requirement. */
+    subscriptionTiers?: SubscriptionTier[];
 }
 
 /**

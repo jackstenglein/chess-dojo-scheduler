@@ -113,6 +113,14 @@ def getBlockers(row: dict):
     return blockers
 
 
+def getSubscriptionTiers(row: dict):
+    if not row['Tiers']:
+        return None
+
+    tiers = row['Tiers'].split(',')
+    return tiers
+
+
 def main():
     items = []
     categories = {
@@ -165,6 +173,7 @@ def main():
                 'isFree': row['Free?'] == '1',
                 'blockers': getBlockers(row),
                 'atomic': row['Atomic'] == 'TRUE',
+                'subscriptionTiers': getSubscriptionTiers(row),
             }
             if row['Expected Minutes']:
                 item['expectedMinutes'] = int(row['Expected Minutes'])
