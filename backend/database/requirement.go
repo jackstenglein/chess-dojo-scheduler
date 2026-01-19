@@ -230,6 +230,9 @@ type Requirement struct {
 
 	// The expected amount of time it takes to complete the task.
 	ExpectedMinutes int `dynamodbav:"expectedMinutes,omitempty" json:"expectedMinutes"`
+
+	// The subscription tiers that have access to this task.
+	SubscriptionTiers []SubscriptionTier `dynamodbav:"subscriptionTiers,omitempty" json:"subscriptionTiers,omitempty"`
 }
 
 func (r *Requirement) clampCount(cohort DojoCohort, count int) int {

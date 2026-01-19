@@ -112,13 +112,13 @@ function LectureActions({ event }: { event: Event }) {
                 variant: 'contained',
             }}
             dialogProps={{
-                title: 'Upgrade to Access All Live Classes',
+                title: 'Upgrade to Access Lecture Classes',
                 description: `Your current plan doesn't provide access to this class. Upgrade to:`,
                 postscript: `Your progress on your current training plan will carry over when you upgrade.`,
-                currentAction: 'Attend weekly live group classes on specialized topics',
+                currentAction: 'Attend weekly lecture classes on specialized topics',
                 bulletPoints: [
                     'Access structured homework assignments',
-                    'Access recordings of live group classes',
+                    'Access recordings of lecture classes',
                     'Get full access to the ChessDojo website',
                 ],
             }}

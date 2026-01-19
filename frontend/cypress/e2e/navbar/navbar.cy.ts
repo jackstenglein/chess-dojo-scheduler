@@ -6,6 +6,7 @@ const navbarStartItems = [
     'Games',
     'Calendar',
     'Material',
+    'Live Classes',
     'Clubs',
     'Blog',
     'Shop',
@@ -14,23 +15,26 @@ const navbarStartItems = [
 const navbarEndItems = ['Help', 'Notifications', 'navbar-profile-button'];
 
 const viewPortWidths = [
-    { width: 1615, hidden: 0, endHidden: 0 },
-    { width: 1488, hidden: 2, endHidden: 0 },
-    { width: 1370, hidden: 3, endHidden: 0 },
-    { width: 1256, hidden: 4, endHidden: 0 },
-    { width: 1120, hidden: 5, endHidden: 0 },
-    { width: 979, hidden: 6, endHidden: 0 },
-    { width: 772, hidden: 7, endHidden: 0 },
-    { width: 624, hidden: 8, endHidden: 0 },
-    { width: 567, hidden: 8, endHidden: 1 },
-    { width: 542, hidden: 8, endHidden: 2 },
-    { width: 449, hidden: 10, endHidden: 3 },
+    { width: 1856, hidden: 0, endHidden: 0 },
+    { width: 1694, hidden: 2, endHidden: 0 },
+    { width: 1599, hidden: 3, endHidden: 0 },
+    { width: 1388, hidden: 4, endHidden: 0 },
+    { width: 1249, hidden: 5, endHidden: 0 },
+    { width: 1116, hidden: 6, endHidden: 0 },
+    { width: 990, hidden: 7, endHidden: 0 },
+    { width: 797, hidden: 8, endHidden: 0 },
+    { width: 790, hidden: 9, endHidden: 0 },
+    { width: 567, hidden: 9, endHidden: 1 },
+    { width: 542, hidden: 9, endHidden: 2 },
+    { width: 449, hidden: 11, endHidden: 3 },
 ];
 
 describe('Navbar', () => {
     it('should have limited options when unauthenticated', () => {
         cy.visit('/');
+        cy.viewport(1200, 660);
 
+        cy.getBySel('navbar').contains('Live Classes');
         cy.getBySel('navbar').contains('Tournaments');
         cy.getBySel('navbar').contains('Blog');
         cy.getBySel('navbar').contains('Shop');
@@ -42,6 +46,7 @@ describe('Navbar', () => {
         cy.viewport(449, 660);
 
         cy.getBySel('navbar-more-button').click();
+        cy.get('#menu-appbar').contains('Live Classes');
         cy.get('#menu-appbar').contains('Tournaments');
         cy.get('#menu-appbar').contains('Blog');
         cy.get('#menu-appbar').contains('Shop');

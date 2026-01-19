@@ -95,6 +95,10 @@ const INELIGIBLE_SUGGESTED_TASKS = [
     '25230066-4eda-4886-a12c-39a5175ea632', // Online tactics tune up 0-1400
     'b55eda1d-11dc-4f6f-aa7b-b83a6339513f', // Online tactics tune up 1400-1800
     'b9ef52d2-795d-4005-b15a-437ee36a2c0a', // Online tactics tune up 1800+
+    'b9b3e16b-613a-43a5-b5d5-77f827a0f5d0', // Dojo tactics lecture
+    'd1688281-2bf0-4a70-9b0d-1f1484a0b9e5', // Dojo middlegame lecture
+    '27d02505-64d7-4075-af02-769a54ca40df', // Dojo endgame lecture
+    '7ceed525-82fd-4f2a-adbb-f6cbd7300979', // Dojo opening lecture
 ];
 
 /**
