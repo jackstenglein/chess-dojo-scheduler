@@ -1,5 +1,6 @@
 import { ApiProvider } from '@/api/Api';
 import { CacheProvider } from '@/api/cache/Cache';
+import { QueryClientProvider } from '@/api/QueryClientProvider';
 import { AuthProvider } from '@/auth/Auth';
 import { RequireProfile } from '@/components/auth/RequireProfile';
 import { LocalizationProvider } from '@/components/mui/LocalizationProvider';
@@ -13,12 +14,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <ThemeProvider>
                 <AuthProvider>
                     <ApiProvider>
-                        <RequireProfile />
+                        <QueryClientProvider>
+                            <RequireProfile />
 
-                        <CacheProvider>
-                            <Navbar />
-                            <LocalizationProvider>{children}</LocalizationProvider>
-                        </CacheProvider>
+                            <CacheProvider>
+                                <Navbar />
+                                <LocalizationProvider>{children}</LocalizationProvider>
+                            </CacheProvider>
+                        </QueryClientProvider>
                     </ApiProvider>
                 </AuthProvider>
             </ThemeProvider>

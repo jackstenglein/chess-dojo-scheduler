@@ -4,6 +4,7 @@ module.exports = {
                 'plugin:react/jsx-runtime',
                 'plugin:react-hooks/recommended',
                 'plugin:react/recommended',
+                'plugin:eslint-plugin-query',
                 './react-rules'
         ],
 };

@@ -1,7 +1,9 @@
 'use client';
 
 import { useApi } from '@/api/Api';
-import { RequestSnackbar, useRequest } from '@/api/Request';
+import { ErrorSnackbar } from '@/api/ErrorSnackbar';
+import { listRecordings } from '@/api/liveClassesApi';
+import { useAxiosQuery } from '@/api/useAxiosQuery';
 import { useAuth } from '@/auth/Auth';
 import LoadingPage from '@/loading/LoadingPage';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
@@ -22,7 +24,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface PresignedUrlData {
     loading?: boolean;
@@ -33,25 +35,16 @@ export function LiveClassesPage() {
     const api = useApi();
     const { user } = useAuth();
     const subscriptionTier = getSubscriptionTier(user);
-    const request = useRequest<LiveClass[]>();
     const [presignedUrls, setPresignedUrls] = useState<Record<string, PresignedUrlData>>({});
     const [playingUrl, setPlayingUrl] = useState<string>();
     const [showUpsell, setShowUpsell] = useState<SubscriptionTier>();
 
-    useEffect(() => {
-        if (!request.isSent()) {
-            request.onStart();
-            api.listRecordings()
-                .then((resp) => {
-                    request.onSuccess(resp.data.classes ?? []);
-                })
-                .catch((err: unknown) => {
-                    request.onFailure(err);
-                });
-        }
+    const { isPending, data, error } = useAxiosQuery({
+        queryKey: ['live-classes/recordings'],
+        queryFn: listRecordings,
     });
 
-    if (!request.isSent() || request.isLoading()) {
+    if (isPending) {
         return <LoadingPage />;
     }
 
@@ -94,12 +87,12 @@ export function LiveClassesPage() {
         setPlayingUrl(url);
     };
 
-    const lectures = request.data?.filter((c) => c.type === SubscriptionTier.Lecture) ?? [];
-    const gameReviews = request.data?.filter((c) => c.type === SubscriptionTier.GameReview) ?? [];
+    const lectures = data?.classes.filter((c) => c.type === SubscriptionTier.Lecture) ?? [];
+    const gameReviews = data?.classes.filter((c) => c.type === SubscriptionTier.GameReview) ?? [];
 
     return (
         <Container sx={{ py: 5 }}>
-            <RequestSnackbar request={request} />
+            <ErrorSnackbar error={error} />
             <Typography variant='h4'>Live Class Recordings</Typography>
 
             <Stack spacing={5} mt={5}>
