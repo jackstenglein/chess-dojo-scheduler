@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 
 /**
@@ -9,9 +9,13 @@ import { AxiosResponse } from 'axios';
  */
 export function useAxiosQuery<T>(options: UseQueryOptions<AxiosResponse<T>>) {
     const response = useQuery(options);
+    const queryClient = useQueryClient();
     return {
         ...response,
         data: response.data?.data,
         axiosResponse: response.data,
+        onUpdate: (data: T) => {
+            queryClient.setQueryData(options.queryKey, { ...response.data, data });
+        },
     };
 }
