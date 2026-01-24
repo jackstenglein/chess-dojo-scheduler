@@ -24,11 +24,14 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 	}
 
 	var isForbidden bool
-	subscriptionStatus := database.SubscriptionStatus_Subscribed
-	if !user.PaymentInfo.IsSubscribed() {
+	subscriptionStatus := user.GetSubscriptionStatus()
+	subscriptionTier := user.GetSubscriptionTier()
+
+	if user.PaymentInfo.GetCustomerId() == "" || user.PaymentInfo.GetCustomerId() == "WIX" {
 		isForbidden, err = access.IsForbidden(user.WixEmail, 0)
 		if isForbidden {
 			subscriptionStatus = database.SubscriptionStatus_NotSubscribed
+			subscriptionTier = database.SubscriptionTier_Free
 		}
 	}
 
@@ -37,6 +40,7 @@ func Handler(ctx context.Context, event api.Request) (api.Response, error) {
 		// frontend immediately show the correct version of the site
 		_, err := repository.UpdateUser(info.Username, &database.UserUpdate{
 			SubscriptionStatus: aws.String(string(subscriptionStatus)),
+			SubscriptionTier:   aws.String(string(subscriptionTier)),
 		})
 		if err != nil {
 			log.Error("Failed UpdateUser: ", err)
