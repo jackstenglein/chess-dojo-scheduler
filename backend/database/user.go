@@ -388,12 +388,6 @@ type PaymentInfo struct {
 
 	// The date the subscription was last updated
 	UpdatedAt string `dynamodbav:"updatedAt" json:"updatedAt"`
-
-	// The status of the subscription
-	// SubscriptionStatus SubscriptionStatus `dynamodbav:"subscriptionStatus" json:"subscriptionStatus"`
-
-	// The tier of the subscription
-	// SubscriptionTier SubscriptionTier `dynamodbav:"subscriptionTier" json:"subscriptionTier"`
 }
 
 type WorkGoalSettings struct {
@@ -445,37 +439,12 @@ type GameScheduleEntry struct {
 	Count int `dynamodbav:"count" json:"count"`
 }
 
-// // Returns true if the given PaymentInfo indicates an active subscription.
-// func (pi *PaymentInfo) IsSubscribed() bool {
-// 	if pi == nil {
-// 		return false
-// 	}
-// 	return pi.SubscriptionId != "" && pi.SubscriptionStatus == SubscriptionStatus_Subscribed
-// }
-
 func (pi *PaymentInfo) GetCustomerId() string {
 	if pi == nil {
 		return ""
 	}
 	return pi.CustomerId
 }
-
-// func (pi *PaymentInfo) GetSubscriptionStatus() SubscriptionStatus {
-// 	if pi == nil {
-// 		return SubscriptionStatus_NotSubscribed
-// 	}
-// 	return pi.SubscriptionStatus
-// }
-
-// func (pi *PaymentInfo) GetSubscriptionTier() SubscriptionTier {
-// 	if pi == nil {
-// 		return SubscriptionTier_Free
-// 	}
-// 	if pi.SubscriptionTier == "" {
-// 		return SubscriptionTier_Basic
-// 	}
-// 	return pi.SubscriptionTier
-// }
 
 func (pi *PaymentInfo) GetSubscriptionId() string {
 	if pi == nil {
