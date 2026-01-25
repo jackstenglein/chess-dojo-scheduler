@@ -78,6 +78,8 @@
         "test": "npm run test:unit && npm run test:cypress",
         "test:unit": "$npm_package_config_run_test -- vitest run",
         "test:cypress": "cypress run",
+        "test:playwright": "playwright test --config=playwright/playwright.config.ts",
+        "test:playwright:ui": "playwright test --config=playwright/playwright.config.ts --ui",
         "lint": "npm run lint:types && eslint .",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix .",
@@ -111,6 +113,7 @@
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@jackstenglein/eslint-config-dojo": "file:../eslint-config-dojo",
+        "@playwright/test": "^1.58.0",
         "@testing-library/jest-dom": "^6.9.0",
         "@testing-library/react": "^16.3.0",
         "@types/deep-equal": "^1.0.4",

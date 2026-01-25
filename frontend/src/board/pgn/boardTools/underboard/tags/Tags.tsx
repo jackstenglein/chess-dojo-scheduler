@@ -30,49 +30,10 @@ import {
     GridRenderCellParams,
     GridRenderEditCellParams,
 } from '@mui/x-data-grid-pro';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useChess } from '../../../PgnBoard';
 import { EditDateCell } from './DateEditor';
 import { TimeControlGridEditor } from './TimeControlEditor';
-
-/** localStorage key for storing the default time control */
-const DEFAULT_TIME_CONTROL_KEY = 'defaultTimeControl';
-
-/**
- * Checks if the TimeControl header is empty or not set.
- * @param timeControlValue The raw TimeControl header value.
- * @returns True if the TimeControl is empty or not set.
- */
-function isTimeControlEmpty(timeControlValue: string | undefined): boolean {
-    return !timeControlValue || timeControlValue.trim() === '' || timeControlValue === '?';
-}
-
-/**
- * Gets the default time control from localStorage.
- * @returns The stored time control string, or undefined if not set.
- */
-function getDefaultTimeControl(): string | undefined {
-    try {
-        const stored = localStorage.getItem(DEFAULT_TIME_CONTROL_KEY);
-        return stored || undefined;
-    } catch {
-        return undefined;
-    }
-}
-
-/**
- * Saves the time control to localStorage as the new default.
- * @param timeControl The time control string to save.
- */
-function saveDefaultTimeControl(timeControl: string): void {
-    try {
-        if (timeControl && !isTimeControlEmpty(timeControl)) {
-            localStorage.setItem(DEFAULT_TIME_CONTROL_KEY, timeControl);
-        }
-    } catch {
-        // Ignore localStorage errors
-    }
-}
 
 interface OwnerValue {
     displayName: string;
@@ -238,9 +199,6 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
     const [customTagValue, setCustomTagValue] = useState('');
     const [customTagError, setCustomTagError] = useState<Record<string, string>>({});
 
-    // Track whether we've already attempted to pre-fill the TimeControl
-    const hasPrefilledTimeControl = useRef(false);
-
     useEffect(() => {
         if (chess) {
             const observer = {
@@ -254,22 +212,6 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
             return () => chess.removeObserver(observer);
         }
     }, [chess]);
-
-    // Pre-fill TimeControl from localStorage if empty and in edit mode
-    useEffect(() => {
-        if (chess && allowEdits && !hasPrefilledTimeControl.current) {
-            const currentTimeControl = chess.header().getRawValue('TimeControl') as
-                | string
-                | undefined;
-            if (isTimeControlEmpty(currentTimeControl)) {
-                const defaultTimeControl = getDefaultTimeControl();
-                if (defaultTimeControl) {
-                    chess.setHeader('TimeControl', defaultTimeControl);
-                }
-            }
-            hasPrefilledTimeControl.current = true;
-        }
-    }, [chess, allowEdits]);
 
     const header = chess?.pgn.header;
     if (!header) {
@@ -389,11 +331,6 @@ const Tags: React.FC<TagsProps> = ({ game, allowEdits }) => {
                     }
 
                     chess.setHeader(newRow.name, newRow.value as string);
-
-                    // Save TimeControl to localStorage when updated
-                    if (name === 'TimeControl') {
-                        saveDefaultTimeControl(value);
-                    }
 
                     if (defaultTags.includes(name)) {
                         return {
