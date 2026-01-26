@@ -5,20 +5,22 @@ End-to-end tests for the ChessDojo frontend using [Playwright](https://playwrigh
 ## Setup
 
 1. Install dependencies (from the `frontend` directory):
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 2. Install Playwright browsers:
-   ```bash
-   npx playwright install
-   ```
+
+    ```bash
+    npx playwright install
+    ```
 
 3. Create a `.env.test.local` file in the `frontend` directory with test credentials:
-   ```
-   AWS_COGNITO_USERNAME=your-test-email@example.com
-   AWS_COGNITO_PASSWORD=your-test-password
-   ```
+    ```
+    AWS_COGNITO_USERNAME=your-test-email@example.com
+    AWS_COGNITO_PASSWORD=your-test-password
+    ```
 
 ## Running Tests
 
@@ -60,6 +62,7 @@ The configuration defines two test projects:
 ## Authentication
 
 Tests use browser-based authentication:
+
 1. The setup project navigates to `/signin`
 2. Fills in credentials from environment variables
 3. Saves the authenticated session to `.auth/user.json`
@@ -68,11 +71,13 @@ Tests use browser-based authentication:
 ## Writing Tests
 
 Tests should:
+
 - Use Playwright's [locator API](https://playwright.dev/docs/locators) for element selection
 - Prefer role-based locators (`getByRole`, `getByLabel`, `getByText`)
 - Use `data-cy` attributes when role-based locators aren't specific enough
 
 Example:
+
 ```typescript
 import { test, expect } from '@playwright/test';
 
