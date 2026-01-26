@@ -168,6 +168,7 @@ const defaultTags = [
     'Section',
     'Round',
     'Board',
+    'TimeControl',
 ];
 
 const uneditableTags = ['PlyCount'];
