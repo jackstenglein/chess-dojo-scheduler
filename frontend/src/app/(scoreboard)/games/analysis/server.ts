@@ -288,6 +288,7 @@ export async function getChesscomAnalysis(url?: string): Promise<PgnImportResult
             },
         };
     }
+    console.error('window.chesscom: ', data);
 
     if (!('analysis' in data)) {
         return {
