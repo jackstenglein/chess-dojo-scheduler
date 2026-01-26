@@ -86,8 +86,8 @@
         "lint:types": "tsc --noEmit",
         "lint:types:watch": "tsc --noEmit --watch",
         "cy:parallel": "cypress-parallel -s test:cypress -t 3 --spec $(find cypress/e2e -name '*.cy.ts')",
-        "format": "prettier src cypress/e2e --write",
-        "format:check": "prettier src cypress/e2e --check",
+        "format": "prettier src cypress/e2e playwright --write",
+        "format:check": "prettier src cypress/e2e playwright --check",
         "docs": "npm run docs:build && npm run docs:serve",
         "docs:serve": "serve -l 8080 docs",
         "docs:build": "typedoc"
