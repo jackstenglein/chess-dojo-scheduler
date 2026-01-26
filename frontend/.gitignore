@@ -16,6 +16,12 @@ runner-results/
 .cypressCombineCoverage.lock/
 .cypressCoverageReport.lock/
 
+# Playwright
+playwright/.auth/
+playwright/.env.test.local
+/playwright-report/
+/test-results/
+
 # production
 /build
 

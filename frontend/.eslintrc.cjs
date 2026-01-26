@@ -19,6 +19,7 @@ module.exports = {
         'node_modules/**',
         'coverage/**',
         'public/**',
+        'playwright/**',
         'src/stockfish/engine/sf17-79.js',
         'src/stockfish/engine/sf171-79.js',
         'scripts/simulate-suggested-tasks.ts',
