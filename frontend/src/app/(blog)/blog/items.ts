@@ -1,3 +1,4 @@
+import aaggaardPuzzle from './dojo-blog/Aagaard-puzzle-method/the-aagaard-puzzle-method.png';
 import chessandfitness from './dojo-blog/chess-and-fitness/chess-fitness.png';
 import customtask from './dojo-blog/custom-tasks/custom-tasks.png';
 import mastersImage from './dojo-digest/vol-10/masters.png';
@@ -40,9 +41,19 @@ export interface BlogItem {
 
 const items: BlogItem[] = [
     {
+        title: 'The Aagaard Puzzle Method',
+        subtitle: 'Dojo Blog • January 26, 2026',
+        body: `The Aagaard puzzle method emphasizes "deep work" by calculating complex, human-contested positions over long periods away from the computer to build mental stamina. It highlights that while these elite-level materials are often designed for players rated 2200+, the habit of deep thinking is essential for any player looking to improve their pattern recognition and visualization.`,
+        href: '/blog/dojo-blog/Aagaard-puzzle-method',
+        image: {
+            src: aaggaardPuzzle,
+            alt: '',
+        },
+    },
+    {
         title: 'The Top 10 Greatest Chess Tournaments Ever',
         subtitle: 'Dojo Talks • January 12, 2026',
-        body: `In this episode of Dojo Talks, we rank and debate the 10 greatest chess tournaments of all time`,
+        body: `In this episode of Dojo Talks, we rank and debate the 10 greatest chess tournaments of all time.`,
         href: '/blog/dojo-talks/top-10-tournaments',
         image: {
             src: top10tournaments,
