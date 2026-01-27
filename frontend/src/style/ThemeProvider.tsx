@@ -34,9 +34,7 @@ enum requirementCategoryOverrides {
 // Extremely degen stuff to force the type system to accept the result
 // of themeRequirementCategory as a valid theme value.
 // TODO: figure out a way to migrate this.
-type RequirementCategoryOverrides = {
-    [key in requirementCategoryOverrides]?: true;
-};
+type RequirementCategoryOverrides = Partial<Record<requirementCategoryOverrides, true>>;
 
 /**
  * Converts the given requirement category to a value that can be passed to
@@ -52,7 +50,7 @@ export function themeRequirementCategory(
         .replaceAll(/[^a-z]/g, '') as unknown as requirementCategoryOverrides;
 }
 
-type RequirementCategoryPalette = { [key in requirementCategoryOverrides]?: PaletteColor };
+type RequirementCategoryPalette = Partial<Record<requirementCategoryOverrides, PaletteColor>>;
 
 declare module '@mui/material/styles' {
     interface Palette extends RequirementCategoryPalette {

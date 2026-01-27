@@ -189,7 +189,7 @@ export function CacheProvider({ children }: { children: ReactNode }) {
         (item) => item?.normalizedFen || '',
     );
     const clubs = useIdentifiableCache<Club>();
-    const [imageBypass, setImageBypass] = useState(Date.now());
+    const [imageBypass, setImageBypass] = useState(() => Date.now());
 
     const value = {
         isLoading,

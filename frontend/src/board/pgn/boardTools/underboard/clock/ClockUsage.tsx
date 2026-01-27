@@ -143,7 +143,7 @@ const barAxis: AxisOptions<Datum> = {
     scaleType: 'band',
     position: 'left',
     formatters: {
-        tooltip: (value) => `Move ${value?.toString()}`,
+        tooltip: (value) => `Move ${(value as number)?.toString()}`,
     },
 };
 

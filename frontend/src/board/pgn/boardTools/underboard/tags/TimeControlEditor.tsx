@@ -42,14 +42,14 @@ function parseTimeControlString(value: string): TimeControl[] {
         const tc: TimeControl = {};
 
         // Check for moves/time format: "40/5400" means 40 moves in 5400 seconds
-        const movesMatch = part.match(/^(\d+)\/(.+)$/);
+        const movesMatch = /^(\d+)\/(.+)$/.exec(part);
         if (movesMatch) {
             tc.moves = parseInt(movesMatch[1]);
             part = movesMatch[2];
         }
 
         // Check for increment: "5400+30"
-        const incrementMatch = part.match(/^(\d+)\+(\d+)$/);
+        const incrementMatch = /^(\d+)\+(\d+)$/.exec(part);
         if (incrementMatch) {
             tc.seconds = parseInt(incrementMatch[1]);
             tc.increment = parseInt(incrementMatch[2]);
@@ -60,7 +60,7 @@ function parseTimeControlString(value: string): TimeControl[] {
         }
 
         // Check for delay: "5400d30"
-        const delayMatch = part.match(/^(\d+)d(\d+)$/);
+        const delayMatch = /^(\d+)d(\d+)$/.exec(part);
         if (delayMatch) {
             tc.seconds = parseInt(delayMatch[1]);
             tc.delay = parseInt(delayMatch[2]);

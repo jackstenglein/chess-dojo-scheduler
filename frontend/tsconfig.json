@@ -27,18 +27,18 @@
         "src",
         "cypress.config.ts",
         "vitest.config.ts",
-        ".eslintrc.cjs",
+        ".eslintrc-old.cjs",
         "scripts",
         "./*.cjs",
         "./*.mjs",
         "./next-env.d.ts",
         ".next/types/**/*.ts",
-        "./window.d.ts"
+        "./window.d.ts",
+        "next.config.mjs"
     ],
     "exclude": [
         "node_modules",
         "src/stockfish/engine/sf17-79.js",
-        "src/stockfish/engine/sf171-79.js",
-        "scripts/simulate-suggested-tasks.ts"
+        "src/stockfish/engine/sf171-79.js"
     ]
 }

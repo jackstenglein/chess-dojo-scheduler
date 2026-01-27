@@ -135,6 +135,7 @@ function getDisplayString(field: string): string {
 }
 
 function useDebounce(effect: () => void, dependencies: React.DependencyList, delay: number) {
+    // eslint-disable-next-line react-hooks/use-memo
     const callback = useCallback(effect, [effect, ...dependencies]);
 
     useEffect(() => {
