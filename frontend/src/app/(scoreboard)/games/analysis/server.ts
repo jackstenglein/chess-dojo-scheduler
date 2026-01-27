@@ -74,7 +74,7 @@ function getPathSegment(url: string | undefined, idx: number): PgnImportResult<s
     let urlObj: URL;
     try {
         urlObj = new URL(url.trim());
-    } catch (error) {
+    } catch (_error) {
         return {
             error: {
                 statusCode: 400,
@@ -185,7 +185,7 @@ function splitPgns(pgns: string, separator = /(1-0|0-1|1\/2-1\/2|\*)(\r?\n)+\[/)
     for (const split of splits) {
         if (isValidResult(split) && games.length > 0) {
             games[games.length - 1] += split;
-        } else if (split.startsWith('[') || split.trim().match(/^\d+/)) {
+        } else if (split.startsWith('[') || /^\d+/.exec(split.trim())) {
             games.push(split);
         } else if (split.trim().length > 0) {
             games.push(`[${split}`);
@@ -288,7 +288,6 @@ export async function getChesscomAnalysis(url?: string): Promise<PgnImportResult
             },
         };
     }
-    console.error('window.chesscom: ', data);
 
     if (!('analysis' in data)) {
         return {
@@ -411,7 +410,7 @@ export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult
  * @returns The PGN of the game.
  */
 export async function getChesscomEvent(url?: string): Promise<PgnImportResult<string>> {
-    const [, path] = (url ?? '').match(chesscomEventRegex) ?? [];
+    const [, path] = chesscomEventRegex.exec(url ?? '') ?? [];
 
     if (!path) {
         return {

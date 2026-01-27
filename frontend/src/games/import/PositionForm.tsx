@@ -1,4 +1,5 @@
 import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
+import { logger } from '@/logging/logger';
 import { Chess } from '@jackstenglein/chess';
 import { GameImportTypes } from '@jackstenglein/chess-dojo-common/src/database/game';
 import {
@@ -84,6 +85,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
                 type: GameImportTypes.fen,
             });
         } catch (err) {
+            logger.warn?.(`Invalid FEN: `, err);
             setError('Invalid FEN');
         }
     };
