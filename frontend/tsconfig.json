@@ -1,44 +1,57 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "target": "ES2015",
-        "useDefineForClassFields": true,
-        "lib": ["ESNext", "DOM", "DOM.Iterable"],
-        "module": "ESNext",
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
-        "jsx": "preserve",
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true,
-        "allowJs": true,
-        "forceConsistentCasingInFileNames": true,
-        "incremental": true,
-        "plugins": [{ "name": "next" }],
-        "paths": { "@/*": ["src/*"] }
-    },
-    "include": [
-        "src",
-        "cypress.config.ts",
-        "vitest.config.ts",
-        ".eslintrc-old.cjs",
-        "scripts",
-        "./*.cjs",
-        "./*.mjs",
-        "./next-env.d.ts",
-        ".next/types/**/*.ts",
-        "./window.d.ts",
-        "next.config.mjs"
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ES2015",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
     ],
-    "exclude": [
-        "node_modules",
-        "src/stockfish/engine/sf17-79.js",
-        "src/stockfish/engine/sf171-79.js"
-    ]
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "cypress.config.ts",
+    "vitest.config.ts",
+    ".eslintrc-old.cjs",
+    "scripts",
+    "./*.cjs",
+    "./*.mjs",
+    "./next-env.d.ts",
+    ".next/types/**/*.ts",
+    "./window.d.ts",
+    "next.config.mjs",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/stockfish/engine/sf17-79.js",
+    "src/stockfish/engine/sf171-79.js"
+  ]
 }
