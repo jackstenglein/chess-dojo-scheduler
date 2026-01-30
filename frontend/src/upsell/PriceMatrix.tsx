@@ -109,12 +109,6 @@ const PriceMatrix: React.FC<PriceMatrixProps> = ({
         () => 'USD',
     );
 
-    // const [currency, setCurrency] = useState('USD');
-    // useEffect(() => {
-    //     const lang = navigator.languages[0];
-    //     setCurrency(getCurrency(lang));
-    // }, [setCurrency]);
-
     const priceData = priceDataByCurrency[currency || 'USD'] || priceDataByCurrency.USD;
 
     return (
