@@ -156,15 +156,10 @@ const listColDef: GridListViewColDef<GameInfo> = {
     renderCell: ListViewCell,
 };
 
-interface GameTableProps
-    extends Omit<
-        DataGridProProps<GameInfo>,
-        | 'columns'
-        | 'rows'
-        | 'pagination'
-        | 'columnVisibilityModel'
-        | 'onColumnVisibilityModelChange'
-    > {
+interface GameTableProps extends Omit<
+    DataGridProProps<GameInfo>,
+    'columns' | 'rows' | 'pagination' | 'columnVisibilityModel' | 'onColumnVisibilityModelChange'
+> {
     namespace: string;
     pagination: PaginationResult;
     contextMenu?: DataGridContextMenu;

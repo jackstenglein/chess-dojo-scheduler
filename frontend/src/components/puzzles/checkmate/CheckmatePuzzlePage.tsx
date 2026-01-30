@@ -218,6 +218,14 @@ function AuthCheckmatePuzzlePage({ user, id }: { user: User; id?: string }) {
     });
     const router = useRouter();
 
+    const pgnRef = useRef<PgnBoardApi>(null);
+    const [result, setResult] = useState<'win' | 'loss'>();
+    const resultRef = useRef(result);
+    resultRef.current = result;
+    const [complete, setComplete] = useState(false);
+    const [puzzleOverview, setPuzzleOverview] = useState(getPuzzleOverview(user, 'OVERALL'));
+    const [ratingChange, setRatingChange] = useState(0);
+
     useEffect(() => {
         if (!requestTracker.isSent()) {
             void fetchNextPuzzle({
@@ -237,14 +245,6 @@ function AuthCheckmatePuzzlePage({ user, id }: { user: User; id?: string }) {
             setPuzzleOverview(getPuzzleOverview(requestTracker.data.user, 'OVERALL'));
         }
     }, [currentPuzzle, requestTracker, resetCountdown, startCountdown, updateUser]);
-
-    const pgnRef = useRef<PgnBoardApi>(null);
-    const [result, setResult] = useState<'win' | 'loss'>();
-    const resultRef = useRef(result);
-    resultRef.current = result;
-    const [complete, setComplete] = useState(false);
-    const [puzzleOverview, setPuzzleOverview] = useState(getPuzzleOverview(user, 'OVERALL'));
-    const [ratingChange, setRatingChange] = useState(0);
 
     const [puzzlePGN, playerColor] = useMemo(() => {
         if (!currentPuzzle) {
