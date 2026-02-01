@@ -120,3 +120,12 @@ export interface Reaction {
     /** The reaction types set by the user. */
     types?: string[];
 }
+
+/**
+ * Special requirement ids in the timeline which do not have a
+ * real requirement associated with them.
+ */
+export enum TimelineSpecialRequirementId {
+    GameSubmission = 'GameSubmission',
+    Graduation = 'Graduation',
+}
