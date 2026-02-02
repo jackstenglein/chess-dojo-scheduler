@@ -80,9 +80,12 @@ async function main() {
     }
     summaryHtml = summaryHtml.replace('</style>', HEATMAP_STYLE_MINIFIED + '</style>');
 
+    let total = 0;
     let failed = 0;
-    let success = 0;
+    let basicSuccess = 0;
+    let summarySuccess = 0;
     for (const subscriber of subscribers) {
+        total++;
         try {
             let data: DigestData | undefined = undefined;
             try {
@@ -93,22 +96,28 @@ async function main() {
 
             if (!data?.time || !data.heatmapHtml) {
                 // Send basic email
-                console.log(`Sending basic email to ${subscriber.email}`);
                 await sendEmail(subscriber.email, basicHtml, args.subject);
+                basicSuccess++;
             } else {
                 // Send email with previous month summary
-                console.log(`Sending summary email to ${subscriber.email}`);
                 await sendSummaryEmail(subscriber.email, summaryHtml, args.subject, data);
+                summarySuccess++;
             }
-
-            success++;
         } catch (err) {
             console.error(`Failed to send email to ${subscriber.email}: `, err);
             failed++;
         }
+
+        if (total % 1000 === 0) {
+            console.log(
+                `In progress with ${basicSuccess} basic successes, ${summarySuccess} summary successes, and ${failed} failures.`,
+            );
+        }
     }
 
-    console.log(`Finished with ${success} successes and ${failed} failures.`);
+    console.log(
+        `Finished with ${basicSuccess} basic successes, ${summarySuccess} summary successes, and ${failed} failures.`,
+    );
 }
 
 interface Unsubscriber {
