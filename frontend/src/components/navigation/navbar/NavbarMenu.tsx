@@ -69,6 +69,7 @@ import {
 import React, { ReactNode, useState, type JSX } from 'react';
 import DarkModeToggle from './DarkModeToggle';
 import ProfileButton from './ProfileButton';
+import { TimerButton, TimerMenuItem } from './TimerButton';
 import UnauthenticatedMenu, { ExtraSmallMenuUnauthenticated } from './UnauthenticatedMenu';
 
 const config = getConfig();
@@ -540,6 +541,7 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
     const hide8 = useMediaQuery('(min-width:797px)');
 
     const showHelp = useMediaQuery('(min-width:624px)');
+    const showTimer = useMediaQuery('(min-width:584px)');
     const showNotifications = useMediaQuery('(min-width:567px)');
     const showProfileDropdown = useMediaQuery('(min-width:542px)');
 
@@ -595,6 +597,12 @@ function useNavbarItems(meetingCount: number, handleClose: () => void) {
         endItems.push(<NotificationButton key='notifications' />);
     } else {
         menuItems.push(<NotificationsMenuItem key='notifications' />);
+    }
+
+    if (showTimer) {
+        endItems.push(<TimerButton key='timer' />);
+    } else {
+        menuItems.push(<TimerMenuItem key='timer' />);
     }
 
     if (showHelp) {

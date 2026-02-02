@@ -123,6 +123,12 @@ export interface User {
 
     /** The id of the user's game review cohort, if they are a member of the Game & Profile review tier. */
     gameReviewCohortId?: string;
+
+    /** The time already on the user's timer, if it is paused. */
+    timerSeconds?: number;
+
+    /** The date the timer was last started or unpaused. If the timer is not running or paused, it will be empty. */
+    timerStartedAt?: string;
 }
 
 /**
