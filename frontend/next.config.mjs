@@ -53,7 +53,7 @@ const nextConfig = {
         },
         {
             source: '/material/bots',
-            destination: '/material/guides',
+            destination: '/learn/guides',
             permanent: true,
         },
     ],
@@ -84,8 +84,8 @@ const pagesWithVideos = [
     '/blog/olympiad-2024',
     '/blog/new-ratings',
     '/blog/dojo-talks/:path*',
-    '/material/guides',
-    '/material/live-classes',
+    '/learn/guides',
+    '/learn/live-classes',
     '/blog/tactics-test',
     '/blog/dojo-blog/chess-and-fitness',
 

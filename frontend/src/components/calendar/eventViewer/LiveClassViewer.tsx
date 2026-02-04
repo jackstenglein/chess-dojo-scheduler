@@ -43,7 +43,7 @@ function GameReviewActions({ event }: { event: Event }) {
                 <Button variant='contained' href={event.location} target='_blank'>
                     Join on Google Meet
                 </Button>
-                <Button variant='outlined' href='/material/live-classes' LinkComponent={Link}>
+                <Button variant='outlined' href='/learn/live-classes' LinkComponent={Link}>
                     Watch Recordings
                 </Button>
             </>
@@ -54,7 +54,7 @@ function GameReviewActions({ event }: { event: Event }) {
         // The user is in a different game review cohort, so should only be able to view
         // recordings for this event.
         return (
-            <Button variant='outlined' href='/material/live-classes' LinkComponent={Link}>
+            <Button variant='outlined' href='/learn/live-classes' LinkComponent={Link}>
                 Watch Recordings
             </Button>
         );
@@ -96,7 +96,7 @@ function LectureActions({ event }: { event: Event }) {
                 <Button variant='contained' href={event.location} target='_blank'>
                     Join on Google Meet
                 </Button>
-                <Button variant='outlined' href='/material/live-classes' LinkComponent={Link}>
+                <Button variant='outlined' href='/learn/live-classes' LinkComponent={Link}>
                     Watch Recordings
                 </Button>
             </>

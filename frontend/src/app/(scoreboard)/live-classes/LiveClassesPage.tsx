@@ -146,7 +146,7 @@ export default function LiveClassesPage() {
             <Typography variant='h6' mt={2}>
                 {isLiveClassUser ? (
                     <>
-                        All recordings can be found <Link href='/material/live-classes'>here</Link>.
+                        All recordings can be found <Link href='/learn/live-classes'>here</Link>.
                     </>
                 ) : (
                     <>All classes are recorded and available for viewing on demand.</>
