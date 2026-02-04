@@ -351,6 +351,12 @@ type User struct {
 
 	// The id of the user's game review cohort, if they are a member of the Game & Profile Review tier.
 	GameReviewCohortId string `dynamodbav:"gameReviewCohortId,omitempty" json:"gameReviewCohortId,omitempty"`
+
+	// The time already on the user's timer, if it is paused.
+	TimerSeconds int `dynamodbav:"timerSeconds,omitempty" json:"timerSeconds"`
+
+	// The date the timer was last started or unpaused. If the timer is not running or paused, it will be empty.
+	TimerStartedAt string `dynamodbav:"timerStartedAt,omitempty" json:"timerStartedAt"`
 }
 
 type PuzzleThemeOverview struct {
@@ -802,6 +808,12 @@ type UserUpdate struct {
 
 	// The user's firebase cloud messaging tokens
 	FirebaseTokens *[]string `dynamodbav:"firebaseTokens,omitempty" json:"firebaseTokens,omitempty"`
+
+	// The time already on the user's timer, if it is paused.
+	TimerSeconds *int `dynamodbav:"timerSeconds,omitempty" json:"timerSeconds,omitempty"`
+
+	// The date the timer was last started or unpaused. If the timer is not running or paused, it will be empty.
+	TimerStartedAt *string `dynamodbav:"timerStartedAt,omitempty" json:"timerStartedAt,omitempty"`
 }
 
 // AutopickCohort sets the UserUpdate's dojoCohort field based on the values of the ratingSystem

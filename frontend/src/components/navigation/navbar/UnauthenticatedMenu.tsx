@@ -11,7 +11,6 @@ import {
     Forum,
     ImportContacts,
     Menu as MenuIcon,
-    RocketLaunch,
     Sell,
     Storefront,
     EmojiEvents as Tournaments,
@@ -81,12 +80,6 @@ function unauthenticatedStartItems(toggleExpansion: (item: string) => void): Nav
                     name: 'Courses',
                     icon: <ImportContacts />,
                     href: '/courses',
-                },
-                {
-                    id: 'coaching',
-                    name: 'Coaching',
-                    icon: <RocketLaunch />,
-                    href: '/coaching',
                 },
                 {
                     id: 'merch',
