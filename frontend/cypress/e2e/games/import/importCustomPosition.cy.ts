@@ -36,6 +36,7 @@ describe('Import Games Page - Custom Position', () => {
 
         cy.getBySel('position-entry').clear();
         cy.getBySel('position-entry').type(fen);
+        cy.focused().blur();
         clickImport();
 
         cy.location('pathname').should('equal', '/games/analysis');
