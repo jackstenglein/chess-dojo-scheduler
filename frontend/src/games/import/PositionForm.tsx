@@ -60,7 +60,10 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
         return option.label;
     };
 
-    const changeFen = (_: React.SyntheticEvent, value: string | PositionFormOption | null) => {
+    const changeFen = (
+        _: React.SyntheticEvent | undefined,
+        value: string | PositionFormOption | null,
+    ) => {
         setError('');
 
         if (!value) {
@@ -69,6 +72,16 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
             try {
                 new Chess({ fen: value });
                 setFen(value);
+                const valueTokens = value.split(' ');
+                const position = positions.find((p) => {
+                    const pTokens = p.fen.split(' ');
+                    return pTokens.slice(0, 4).every((token, idx) => token === valueTokens[idx]);
+                });
+                if (position) {
+                    setInputValue(getOptionLabel(position));
+                } else {
+                    setInputValue(value);
+                }
             } catch {
                 setFen('');
             }
@@ -91,16 +104,17 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
     };
 
     const onChangeBoard = (value: string) => {
-        setFen(value);
-        const valueTokens = value.split(' ');
-        const position = positions.find((p) => {
-            const pTokens = p.fen.split(' ');
-            return pTokens.slice(0, 4).every((token, idx) => token === valueTokens[idx]);
-        });
-        if (position) {
-            setInputValue(getOptionLabel(position));
-        } else {
-            setInputValue(value);
+        changeFen(undefined, value);
+    };
+
+    const onBlur = () => {
+        try {
+            if (inputValue) {
+                new Chess({ fen: inputValue });
+                changeFen(undefined, inputValue);
+            }
+        } catch {
+            // Input value is not a FEN, so we shouldn't do anything
         }
     };
 
@@ -129,6 +143,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
                         onInputChange={(_e, value) => {
                             setInputValue(value);
                         }}
+                        onBlur={onBlur}
                         data-cy='position-entry'
                         freeSolo
                         selectOnFocus
