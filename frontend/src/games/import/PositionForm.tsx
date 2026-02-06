@@ -60,17 +60,13 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
         return option.label;
     };
 
-    const changeFen = (
-        _: React.SyntheticEvent | undefined,
-        value: string | PositionFormOption | null,
-    ) => {
+    const changeFen = (value: string | PositionFormOption | null) => {
         setError('');
 
         if (!value) {
             setFen('');
         } else if (typeof value === 'string') {
             try {
-                new Chess({ fen: value });
                 setFen(value);
                 const valueTokens = value.split(' ');
                 const position = positions.find((p) => {
@@ -104,14 +100,14 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
     };
 
     const onChangeBoard = (value: string) => {
-        changeFen(undefined, value);
+        changeFen(value);
     };
 
     const onBlur = () => {
         try {
             if (inputValue) {
                 new Chess({ fen: inputValue });
-                changeFen(undefined, inputValue);
+                changeFen(inputValue);
             }
         } catch {
             // Input value is not a FEN, so we shouldn't do anything
@@ -138,7 +134,7 @@ export const PositionForm = ({ loading, onSubmit, onClose }: ImportDialogProps) 
                             />
                         )}
                         isOptionEqualToValue={(a, b) => a.id === b.id}
-                        onChange={changeFen}
+                        onChange={(_, value) => changeFen(value)}
                         inputValue={inputValue}
                         onInputChange={(_e, value) => {
                             setInputValue(value);
