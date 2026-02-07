@@ -45,9 +45,9 @@ export async function interceptApi(
     urlPath: string,
     response: { fixture?: string; statusCode?: number; body?: unknown },
 ): Promise<void> {
-    const apiBaseUrl = process.env.API_BASE_URL ?? '';
-
-    await page.route(`${apiBaseUrl}${urlPath}`, async (route) => {
+    // Use glob pattern to match the API URL regardless of base URL.
+    // This handles both direct paths and full URLs with the API gateway domain.
+    await page.route(`**${urlPath}`, async (route) => {
         if (route.request().method() !== method.toUpperCase()) {
             await route.continue();
             return;
