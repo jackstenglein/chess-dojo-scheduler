@@ -5,9 +5,7 @@ test.describe('Memorize Games Tab', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/material/memorizegames');
         // Wait for PGN selector to load
-        await expect(getBySel(page, 'pgn-selector-item').first()).toBeVisible({
-            timeout: 15000,
-        });
+        await expect(getBySel(page, 'pgn-selector-item').first()).toBeVisible();
     });
 
     test('should have game items', async ({ page }) => {

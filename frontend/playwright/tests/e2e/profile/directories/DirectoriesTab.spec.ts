@@ -5,9 +5,7 @@ test.describe('Directories', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/profile?view=games');
         // Wait for the Games tab content to load
-        await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible({
-            timeout: 30000,
-        });
+        await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
     });
 
     test('displays home directory', async ({ page }) => {

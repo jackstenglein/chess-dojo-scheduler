@@ -26,7 +26,7 @@ test.describe('Signin Page', () => {
         await page.getByRole('button', { name: 'Sign in with Google' }).click();
 
         // Wait for redirect to Google's OAuth page
-        await expect(page).toHaveURL(/accounts\.google\.com/, { timeout: 15000 });
+        await expect(page).toHaveURL(/accounts\.google\.com/);
     });
 
     test('requires email to submit form', async ({ page }) => {

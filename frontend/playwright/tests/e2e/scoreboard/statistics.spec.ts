@@ -4,9 +4,7 @@ import { getBySel } from '../../../lib/helpers';
 test.describe('Statistics Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/scoreboard/stats');
-        await expect(getBySel(page, 'chart-title').first()).toBeVisible({
-            timeout: 30000,
-        });
+        await expect(getBySel(page, 'chart-title').first()).toBeVisible();
     });
 
     test('has selector to change views', async ({ page }) => {
@@ -29,9 +27,7 @@ test.describe('Statistics Page', () => {
             'Rating Systems',
         ];
 
-        await expect(getBySel(page, 'chart-title')).toHaveCount(titles.length, {
-            timeout: 15000,
-        });
+        await expect(getBySel(page, 'chart-title')).toHaveCount(titles.length);
 
         for (const title of titles) {
             await expect(

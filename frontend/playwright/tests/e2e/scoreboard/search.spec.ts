@@ -19,9 +19,7 @@ const checkboxes = [
 test.describe('Search Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/scoreboard/search');
-        await expect(getBySel(page, 'search-query')).toBeVisible({
-            timeout: 30000,
-        });
+        await expect(getBySel(page, 'search-query')).toBeVisible();
     });
 
     test('has selector to change views', async ({ page }) => {

@@ -10,6 +10,6 @@ test.describe('Model Games Module', () => {
         // or the course description/upsell page (if not purchased)
         await expect(
             page.getByRole('heading', { name: 'Najdorf Sicilian', exact: true }),
-        ).toBeVisible({ timeout: 30000 });
+        ).toBeVisible();
     });
 });

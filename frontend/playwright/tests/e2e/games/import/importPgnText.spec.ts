@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 async function importPgnText(page: import('@playwright/test').Page, pgn: string): Promise<void> {
     await page.getByRole('textbox', { name: 'Paste PGN' }).fill(pgn);
     await page.getByRole('button', { name: 'Import' }).click();
-    await expect(page).toHaveURL('/games/analysis', { timeout: 15000 });
+    await expect(page).toHaveURL('/games/analysis');
 }
 
 test.describe('Import Games Page - PGN Text', () => {

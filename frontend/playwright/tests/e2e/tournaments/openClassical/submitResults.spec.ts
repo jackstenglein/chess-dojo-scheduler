@@ -5,7 +5,7 @@ test.describe('Submit Results Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/tournaments/open-classical/submit-results');
         // Wait for form to load
-        await expect(getBySel(page, 'submit-button')).toBeVisible({ timeout: 15000 });
+        await expect(getBySel(page, 'submit-button')).toBeVisible();
     });
 
     test('requires region to submit', async ({ page }) => {
@@ -132,8 +132,6 @@ test.describe('Submit Results Page', () => {
         await page.getByRole('option', { name: /Black Wins/ }).click();
         await getBySel(page, 'submit-button').click();
 
-        await expect(page).toHaveURL(/\/tournaments\/open-classical/, {
-            timeout: 15000,
-        });
+        await expect(page).toHaveURL(/\/tournaments\/open-classical/);
     });
 });

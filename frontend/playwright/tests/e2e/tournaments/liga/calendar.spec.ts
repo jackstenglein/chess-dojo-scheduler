@@ -43,19 +43,17 @@ test.describe('Calendar Tab', () => {
         await page.goto('/tournaments/liga?type=calendar');
         // Dismiss tutorial dialog if it appears
         const closeButton = page.locator('[role="alertdialog"] button').first();
-        if (await closeButton.isVisible({ timeout: 10000 }).catch(() => false)) {
+        if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
             await closeButton.click();
         }
-        // Wait for the calendar to load - use first() to avoid strict mode
-        await expect(page.getByText('Hide Filters')).toBeVisible({ timeout: 60000 });
+        // Wait for the calendar to load
+        await expect(page.getByText('Hide Filters')).toBeVisible();
     });
 
     test('has tab selector', async ({ page }) => {
         await getBySel(page, 'tournaments-tab-list').getByText('Leaderboard').click();
 
-        await expect(page).toHaveURL(/\/tournaments\/liga\?type=leaderboard/, {
-            timeout: 15000,
-        });
+        await expect(page).toHaveURL(/\/tournaments\/liga\?type=leaderboard/);
     });
 
     test('has correct filters', async ({ page }) => {

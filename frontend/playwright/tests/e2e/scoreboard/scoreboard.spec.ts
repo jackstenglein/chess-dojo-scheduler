@@ -5,10 +5,10 @@ test.describe('Scoreboard Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/scoreboard');
         // Wait for redirect and scoreboard to fully render
-        await page.waitForURL(/\/scoreboard\//, { timeout: 60000 });
+        await page.waitForURL(/\/scoreboard\//);
         // Dismiss any tutorial dialog that may appear
         const closeButton = page.locator('[aria-label="Close"]').first();
-        if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
             await closeButton.click();
         }
     });
@@ -18,27 +18,19 @@ test.describe('Scoreboard Page', () => {
     });
 
     test('has selector to change views', async ({ page }) => {
-        await expect(getBySel(page, 'scoreboard-view-selector')).toBeVisible({
-            timeout: 30000,
-        });
+        await expect(getBySel(page, 'scoreboard-view-selector')).toBeVisible();
     });
 
     test('contains tables for current members and graduates', async ({ page }) => {
-        await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible({
-            timeout: 30000,
-        });
-        await expect(getBySel(page, 'graduates-scoreboard')).toBeVisible({
-            timeout: 30000,
-        });
+        await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible();
+        await expect(getBySel(page, 'graduates-scoreboard')).toBeVisible();
     });
 
     test('contains column groups', async ({ page }) => {
         await page.setViewportSize({ width: 15000, height: 660 });
         // Reload after viewport change to get all columns
         await page.reload();
-        await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible({
-            timeout: 60000,
-        });
+        await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible();
 
         const columnGroups = ['User Info', 'Ratings', 'Training Plan', 'Time Spent'];
         await locatorContainsAll(
@@ -50,9 +42,7 @@ test.describe('Scoreboard Page', () => {
     test('contains default columns', async ({ page }) => {
         await page.setViewportSize({ width: 15000, height: 660 });
         await page.reload();
-        await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible({
-            timeout: 60000,
-        });
+        await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible();
 
         const defaultColumns = [
             'Name',

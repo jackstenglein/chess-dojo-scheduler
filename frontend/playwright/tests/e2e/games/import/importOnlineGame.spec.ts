@@ -18,7 +18,7 @@ const testUrls = {
 async function importUrl(page: import('@playwright/test').Page, url: string): Promise<void> {
     await page.getByRole('textbox', { name: /Lichess or Chess\.com URL/i }).fill(url);
     await page.getByRole('button', { name: 'Import' }).click();
-    await expect(page).toHaveURL('/games/analysis', { timeout: 30000 });
+    await expect(page).toHaveURL('/games/analysis');
 }
 
 test.describe('Import Games Page - Import Online Games', () => {
@@ -154,7 +154,7 @@ test.describe('Import Games Page - Import Online Games', () => {
             .first();
         await recentGameButton.click();
         // Just verify we get to the analysis page - game content varies
-        await expect(page).toHaveURL('/games/analysis', { timeout: 30000 });
+        await expect(page).toHaveURL('/games/analysis');
     });
 
     test('submits Lichess game from position', async ({ page }) => {

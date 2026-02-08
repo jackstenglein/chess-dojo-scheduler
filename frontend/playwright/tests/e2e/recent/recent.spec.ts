@@ -13,7 +13,7 @@ test.describe('Graduations', () => {
         await page.goto('/recent');
         await expect(
             page.getByText('No graduations in the selected timeframe'),
-        ).toBeVisible({ timeout: 15000 });
+        ).toBeVisible();
     });
 
     test('displays graduations table', async ({ page }) => {
@@ -24,8 +24,6 @@ test.describe('Graduations', () => {
         await page.goto('/recent');
 
         // Wait for the table to appear
-        await expect(getBySel(page, 'recent-graduates-table')).toBeVisible({
-            timeout: 15000,
-        });
+        await expect(getBySel(page, 'recent-graduates-table')).toBeVisible();
     });
 });

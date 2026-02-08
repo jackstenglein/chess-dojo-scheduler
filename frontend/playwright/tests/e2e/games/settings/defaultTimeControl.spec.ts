@@ -15,7 +15,7 @@ test.describe('Default Time Control (localStorage)', () => {
         await page.getByRole('button', { name: /Starting Position/ }).click();
 
         // Wait for navigation to analysis page
-        await expect(page).toHaveURL('/games/analysis', { timeout: 15000 });
+        await expect(page).toHaveURL('/games/analysis');
 
         // Open the Tags tab
         await page.getByRole('button', { name: 'PGN Tags' }).click();
@@ -59,7 +59,7 @@ test.describe('Default Time Control (localStorage)', () => {
         // Click to create a new game
         await page.getByRole('button', { name: /Starting Position/ }).click();
 
-        await expect(page).toHaveURL('/games/analysis', { timeout: 15000 });
+        await expect(page).toHaveURL('/games/analysis');
 
         // Open the Tags tab
         await page.getByRole('button', { name: 'PGN Tags' }).click();
@@ -102,7 +102,7 @@ test.describe('Default Time Control (localStorage)', () => {
         await page.getByRole('button', { name: 'Import' }).click();
 
         // Should be on analysis page
-        await expect(page).toHaveURL('/games/analysis', { timeout: 15000 });
+        await expect(page).toHaveURL('/games/analysis');
 
         // Open the Tags tab
         await page.getByRole('button', { name: 'PGN Tags' }).click();

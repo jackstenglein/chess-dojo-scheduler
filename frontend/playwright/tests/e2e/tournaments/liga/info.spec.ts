@@ -5,17 +5,13 @@ test.describe('Info Tab', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/tournaments/liga?type=info');
         // Wait for the page content to load
-        await expect(page.getByText('Welcome to the DojoLiga')).toBeVisible({
-            timeout: 30000,
-        });
+        await expect(page.getByText('Welcome to the DojoLiga')).toBeVisible();
     });
 
     test('has tab selector', async ({ page }) => {
         await getBySel(page, 'tournaments-tab-list').getByText('Calendar').click();
 
-        await expect(page).toHaveURL(/\/tournaments\/liga\?type=calendar/, {
-            timeout: 15000,
-        });
+        await expect(page).toHaveURL(/\/tournaments\/liga\?type=calendar/);
     });
 
     test('has correct content', async ({ page }) => {

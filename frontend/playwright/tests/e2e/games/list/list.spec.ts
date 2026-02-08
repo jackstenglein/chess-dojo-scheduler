@@ -4,8 +4,8 @@ import { getBySel, findBySel, interceptApi } from '../../../../lib/helpers';
 test.describe('List Games Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/games');
-        // Wait for the games table to be visible (handles any tutorial popups or redirects)
-        await expect(getBySel(page, 'games-table')).toBeVisible({ timeout: 30000 });
+        // Wait for the games table to be visible
+        await expect(getBySel(page, 'games-table')).toBeVisible();
     });
 
     test('has correct columns', async ({ page }) => {
@@ -20,7 +20,7 @@ test.describe('List Games Page', () => {
         const importButton = getBySel(page, 'import-game-button');
         await expect(importButton).toContainText('Analyze a Game');
         await importButton.click();
-        await expect(page).toHaveURL(/\/games\/import/, { timeout: 15000 });
+        await expect(page).toHaveURL(/\/games\/import/);
     });
 
     test('has link to full database', async ({ page }) => {
@@ -72,14 +72,12 @@ test.describe('List Games Page', () => {
         // before clicking - otherwise the click might hit the hidden duplicate
         await expect(
             table.locator('.MuiDataGrid-main--hiddenContent'),
-        ).toHaveCount(0, { timeout: 15000 });
+        ).toHaveCount(0);
         // Click a visible row in the main (non-hidden) content area
         await table
             .locator('.MuiDataGrid-main:not(.MuiDataGrid-main--hiddenContent) .MuiDataGrid-row')
             .first()
             .click();
-        await expect(page).toHaveURL(/\/games\/\d{3,4}-\d{3,4}\/.+$/, {
-            timeout: 30000,
-        });
+        await expect(page).toHaveURL(/\/games\/\d{3,4}-\d{3,4}\/.+$/);
     });
 });
