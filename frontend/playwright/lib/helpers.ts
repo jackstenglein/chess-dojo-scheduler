@@ -1,4 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Select element by data-cy attribute.
@@ -35,6 +37,9 @@ export async function locatorContainsAll(locator: Locator, texts: string[]): Pro
     }
 }
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /**
  * Mock an API endpoint with a fixture or response.
  * Replaces Cypress cy.interceptApi(method, url, response)
@@ -55,7 +60,7 @@ export async function interceptApi(
 
         if (response.fixture) {
             await route.fulfill({
-                path: `./tests/fixtures/${response.fixture}`,
+                path: path.join(__dirname, `../tests/fixtures/${response.fixture}`),
                 contentType: 'application/json',
             });
         } else {

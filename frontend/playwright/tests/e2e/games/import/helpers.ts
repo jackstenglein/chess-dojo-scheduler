@@ -29,6 +29,7 @@ export async function verifyGame(
         lastMove,
         lastMoveClock,
         lastMoveEmt,
+        orientation,
     }: {
         white?: string;
         black?: string;
@@ -38,13 +39,21 @@ export async function verifyGame(
         orientation?: 'white' | 'black';
     },
 ): Promise<void> {
-    // player-header-footer always contains white player info
     if (white) {
-        await expect(getBySel(page, 'player-header-footer')).toContainText(white);
+        await expect(
+            getBySel(
+                page,
+                orientation === 'black' ? 'player-header-header' : 'player-header-footer',
+            ),
+        ).toContainText(white);
     }
-    // player-header-header always contains black player info
     if (black) {
-        await expect(getBySel(page, 'player-header-header')).toContainText(black);
+        await expect(
+            getBySel(
+                page,
+                orientation === 'black' ? 'player-header-footer' : 'player-header-header',
+            ),
+        ).toContainText(black);
     }
     if (lastMove) {
         const moveButton = getBySel(page, 'pgn-text-move-button').last();
@@ -52,10 +61,20 @@ export async function verifyGame(
         await moveButton.click({ force: true });
 
         if (lastMoveClock?.white) {
-            await expect(getBySel(page, 'player-header-footer')).toContainText(lastMoveClock.white);
+            await expect(
+                getBySel(
+                    page,
+                    orientation === 'black' ? 'player-header-header' : 'player-header-footer',
+                ),
+            ).toContainText(lastMoveClock.white);
         }
         if (lastMoveClock?.black) {
-            await expect(getBySel(page, 'player-header-header')).toContainText(lastMoveClock.black);
+            await expect(
+                getBySel(
+                    page,
+                    orientation === 'black' ? 'player-header-footer' : 'player-header-header',
+                ),
+            ).toContainText(lastMoveClock.black);
         }
     }
     if (lastMoveEmt) {
