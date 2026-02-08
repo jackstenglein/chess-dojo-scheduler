@@ -352,7 +352,7 @@ function allStartItems(toggleExpansion: (item: string) => void): NavbarItem[] {
 function NotificationsMenuItem(): JSX.Element {
     const { notifications } = useNotifications();
     return (
-        <MenuItem href='/notifications'>
+        <MenuItem component={Link} href='/notifications'>
             <ListItemIcon>
                 <Badge badgeContent={notifications.length} color='secondary' overlap='circular'>
                     <Notifications />
