@@ -26,6 +26,7 @@ const publicPaths = [
     /^\/profile\/.*\/postmortem\/.*$/,
     /^\/calendar.*$/,
     /^\/live-classes$/,
+    /^\/privacy-policy$/,
 ];
 
 const unauthenticatedPaths = [
