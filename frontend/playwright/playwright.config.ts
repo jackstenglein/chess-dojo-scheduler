@@ -34,10 +34,25 @@ export default defineConfig({
     },
 
     projects: [
+        // Setup project - authenticates and saves session
         { name: 'setup', testMatch: /.*\.setup\.ts$/ },
+
+        // Auth tests - run WITHOUT authentication (testing login/signup flows)
+        {
+            name: 'auth',
+            testMatch: /.*\/auth\/.*\.spec\.ts$/,
+            use: {
+                ...devices['Desktop Chrome'],
+                // No storageState - tests run unauthenticated
+            },
+            // No dependencies - these tests don't need prior auth
+        },
+
+        // E2E tests - run WITH authentication
         {
             name: 'e2e',
             testMatch: /.*\.spec\.ts$/,
+            testIgnore: ['**/auth/**'], // Auth tests handled by 'auth' project
             use: {
                 ...devices['Desktop Chrome'],
                 storageState: '.auth/user.json',
