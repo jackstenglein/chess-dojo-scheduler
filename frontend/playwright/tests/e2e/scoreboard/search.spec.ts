@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, containsAll } from '../../../lib/helpers';
+import { containsAll, getBySel } from '../../../lib/helpers';
 
 const checkboxes = [
     'All Fields',
@@ -35,8 +35,6 @@ test.describe('Search Page', () => {
         await getBySel(page, 'search-query').locator('input').fill('Test Account');
         await page.getByText('All Fields').click();
 
-        await expect(
-            page.getByText('At least one search field is required'),
-        ).toBeVisible();
+        await expect(page.getByText('At least one search field is required')).toBeVisible();
     });
 });

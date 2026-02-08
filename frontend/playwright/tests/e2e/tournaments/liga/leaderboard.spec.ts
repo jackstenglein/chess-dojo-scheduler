@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, containsAll, locatorContainsAll, interceptApi } from '../../../../lib/helpers';
+import { getBySel, interceptApi, locatorContainsAll } from '../../../../lib/helpers';
 
 test.describe('Leaderboard Tab', () => {
     test.beforeEach(async ({ page }) => {
@@ -30,9 +30,7 @@ test.describe('Leaderboard Tab', () => {
         const columns = ['Rank', 'Username', 'Rating', 'Score'];
 
         const leaderboard = getBySel(page, 'leaderboard');
-        await expect(
-            leaderboard.locator('.MuiDataGrid-columnHeader'),
-        ).toHaveCount(columns.length);
+        await expect(leaderboard.locator('.MuiDataGrid-columnHeader')).toHaveCount(columns.length);
 
         await locatorContainsAll(leaderboard, columns);
     });

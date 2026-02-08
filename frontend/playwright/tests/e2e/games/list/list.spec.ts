@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, findBySel, interceptApi } from '../../../../lib/helpers';
+import { findBySel, getBySel } from '../../../../lib/helpers';
 
 test.describe('List Games Page', () => {
     test.beforeEach(async ({ page }) => {
@@ -24,9 +24,7 @@ test.describe('List Games Page', () => {
     });
 
     test('has link to full database', async ({ page }) => {
-        await expect(
-            page.getByText('Download full database (updated daily)'),
-        ).toBeVisible();
+        await expect(page.getByText('Download full database (updated daily)')).toBeVisible();
     });
 
     test('allows searching by cohort by default', async ({ page }) => {
@@ -37,9 +35,7 @@ test.describe('List Games Page', () => {
     });
 
     test('allows searching by player', async ({ page }) => {
-        await page
-            .getByRole('button', { name: 'Search By Player' })
-            .click();
+        await page.getByRole('button', { name: 'Search By Player' }).click();
 
         const searchForm = getBySel(page, 'search-by-player');
         await expect(findBySel(searchForm, 'player-name')).toBeVisible();
@@ -47,9 +43,7 @@ test.describe('List Games Page', () => {
     });
 
     test('allows searching by eco', async ({ page }) => {
-        await page
-            .getByRole('button', { name: 'Search By Opening' })
-            .click();
+        await page.getByRole('button', { name: 'Search By Opening' }).click();
 
         const searchForm = getBySel(page, 'search-by-opening');
         await expect(findBySel(searchForm, 'opening-eco')).toBeVisible();
@@ -57,9 +51,7 @@ test.describe('List Games Page', () => {
     });
 
     test('allows searching current user uploads', async ({ page }) => {
-        await page
-            .getByRole('button', { name: 'Search My Uploads' })
-            .click();
+        await page.getByRole('button', { name: 'Search My Uploads' }).click();
 
         const searchForm = getBySel(page, 'search-by-owner');
         await expect(findBySel(searchForm, 'owner-search-description')).toBeVisible();
@@ -70,9 +62,7 @@ test.describe('List Games Page', () => {
         const table = getBySel(page, 'games-table');
         // Wait for the DataGrid hidden content (measurement area) to be removed
         // before clicking - otherwise the click might hit the hidden duplicate
-        await expect(
-            table.locator('.MuiDataGrid-main--hiddenContent'),
-        ).toHaveCount(0);
+        await expect(table.locator('.MuiDataGrid-main--hiddenContent')).toHaveCount(0);
         // Click a visible row in the main (non-hidden) content area
         await table
             .locator('.MuiDataGrid-main:not(.MuiDataGrid-main--hiddenContent) .MuiDataGrid-row')

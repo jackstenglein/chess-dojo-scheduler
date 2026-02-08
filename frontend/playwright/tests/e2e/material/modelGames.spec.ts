@@ -18,9 +18,7 @@ test.describe('Model Games Tab', () => {
     test('allows switching cohorts', async ({ page }) => {
         await getBySel(page, 'cohort-select').click();
         await page.getByText('1400-1500').click();
-        await expect(getBySel(page, 'pgn-selector')).toContainText(
-            'Ben Wicks - Emma Williams',
-        );
+        await expect(getBySel(page, 'pgn-selector')).toContainText('Ben Wicks - Emma Williams');
 
         await getBySel(page, 'cohort-select').click();
         await page.getByText('1500-1600').click();

@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, interceptApi } from '../../../../lib/helpers';
-import { dateMapper, Event } from '../../../../lib/utils';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getBySel, interceptApi } from '../../../../lib/helpers';
+import { dateMapper, Event } from '../../../../lib/utils';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,10 +13,7 @@ test.describe('Calendar Tab', () => {
         // Read and transform fixture dates
         const fixtureData = JSON.parse(
             fs.readFileSync(
-                path.join(
-                    __dirname,
-                    '../../../fixtures/tournaments/liga/events.json',
-                ),
+                path.join(__dirname, '../../../fixtures/tournaments/liga/events.json'),
                 'utf-8',
             ),
         );
@@ -26,10 +23,7 @@ test.describe('Calendar Tab', () => {
             const endDate = event.endTime.slice(0, 10);
 
             if (dateMapper[startDate]) {
-                event.startTime = event.startTime.replace(
-                    startDate,
-                    dateMapper[startDate],
-                );
+                event.startTime = event.startTime.replace(startDate, dateMapper[startDate]);
             }
             if (dateMapper[endDate]) {
                 event.endTime = event.endTime.replace(endDate, dateMapper[endDate]);

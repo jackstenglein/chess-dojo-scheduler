@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, containsAll } from '../../../lib/helpers';
+import { containsAll, getBySel } from '../../../lib/helpers';
 
 test.describe('Sparring Positions Tab', () => {
     test.beforeEach(async ({ page }) => {

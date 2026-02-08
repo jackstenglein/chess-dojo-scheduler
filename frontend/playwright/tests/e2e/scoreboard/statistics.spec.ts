@@ -30,9 +30,7 @@ test.describe('Statistics Page', () => {
         await expect(getBySel(page, 'chart-title')).toHaveCount(titles.length);
 
         for (const title of titles) {
-            await expect(
-                page.getByRole('heading', { name: title, exact: true }),
-            ).toBeVisible();
+            await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
         }
     });
 });

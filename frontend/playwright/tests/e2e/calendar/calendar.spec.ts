@@ -13,9 +13,7 @@ test.describe('Calendar Page', () => {
     });
 
     test('displays calendar with timezone selector', async ({ page }) => {
-        await expect(
-            page.locator('text=Timezone').first(),
-        ).toBeVisible();
+        await expect(page.locator('text=Timezone').first()).toBeVisible();
     });
 
     test('has calendar filter controls', async ({ page }) => {

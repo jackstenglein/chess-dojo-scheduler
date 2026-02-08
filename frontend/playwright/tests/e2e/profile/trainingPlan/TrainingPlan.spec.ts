@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, interceptApi } from '../../../../lib/helpers';
+import { getBySel } from '../../../../lib/helpers';
 
 test.describe('Training Plan', () => {
     test.beforeEach(async ({ page }) => {

@@ -10,12 +10,8 @@ test.describe('Books Tab', () => {
         await expect(
             page.getByRole('heading', { name: 'Main Recommendations' }).first(),
         ).toBeVisible();
-        await expect(
-            page.getByRole('heading', { name: 'Tactics' }).first(),
-        ).toBeVisible();
-        await expect(
-            page.getByRole('heading', { name: 'Endgames' }).first(),
-        ).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Tactics' }).first()).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Endgames' }).first()).toBeVisible();
     });
 
     test('should have cohort selector', async ({ page }) => {

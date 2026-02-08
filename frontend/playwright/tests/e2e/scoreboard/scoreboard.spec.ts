@@ -33,10 +33,7 @@ test.describe('Scoreboard Page', () => {
         await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible();
 
         const columnGroups = ['User Info', 'Ratings', 'Training Plan', 'Time Spent'];
-        await locatorContainsAll(
-            getBySel(page, 'current-members-scoreboard'),
-            columnGroups,
-        );
+        await locatorContainsAll(getBySel(page, 'current-members-scoreboard'), columnGroups);
     });
 
     test('contains default columns', async ({ page }) => {
@@ -52,9 +49,6 @@ test.describe('Scoreboard Page', () => {
             'Current Rating',
             'Dojo Score',
         ];
-        await locatorContainsAll(
-            getBySel(page, 'current-members-scoreboard'),
-            defaultColumns,
-        );
+        await locatorContainsAll(getBySel(page, 'current-members-scoreboard'), defaultColumns);
     });
 });

@@ -11,9 +11,7 @@ test.describe('Graduations', () => {
             fixture: 'recent/noGraduations.json',
         });
         await page.goto('/recent');
-        await expect(
-            page.getByText('No graduations in the selected timeframe'),
-        ).toBeVisible();
+        await expect(page.getByText('No graduations in the selected timeframe')).toBeVisible();
     });
 
     test('displays graduations table', async ({ page }) => {
