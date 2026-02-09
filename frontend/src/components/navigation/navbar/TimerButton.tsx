@@ -16,6 +16,9 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 
+/** Regex which matches the timer in the title of the page */
+const TIMER_TITLE_REGEX = /^[\d:]+ - /;
+
 /**
  * Renders a timer icon button. When clicked, the button opens a menu
  * which shows the current value of the timer and controls for starting/stopping
@@ -24,9 +27,8 @@ import { useEffect, useState } from 'react';
 export function TimerButton() {
     const { user } = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-    const isRunning = Boolean(user?.timerStartedAt);
-    const isPaused = !isRunning && Boolean(user?.timerSeconds);
+    const timer = useTimer();
+    const { isPaused, isRunning } = timer;
 
     if (!user) {
         return null;
@@ -53,7 +55,7 @@ export function TimerButton() {
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     transformOrigin={{ vertical: 'top', horizontal: 'center' }}
                 >
-                    <TimerDetails />
+                    <TimerDetails timer={timer} />
                 </Menu>
             )}
         </>
@@ -96,7 +98,16 @@ export function TimerMenuItem() {
     );
 }
 
-function useTimer() {
+interface Timer {
+    timerSeconds: number;
+    isRunning: boolean;
+    isPaused: boolean;
+    onStart: () => void;
+    onPause: () => void;
+    onClear: () => void;
+}
+
+function useTimer(): Timer {
     const { user, updateUser } = useAuth();
     const api = useApi();
     const [timerSeconds, setTimerSeconds] = useState(() => getTimerSeconds(user));
@@ -106,8 +117,15 @@ function useTimer() {
 
     useEffect(() => {
         if (isRunning) {
-            const id = setInterval(() => setTimerSeconds(getTimerSeconds(user)), 1000);
+            const id = setInterval(() => {
+                const seconds = getTimerSeconds(user);
+                setTimerSeconds(seconds);
+                document.title =
+                    formatTime(seconds) + ` - ` + document.title.replace(TIMER_TITLE_REGEX, '');
+            }, 1000);
             return () => clearInterval(id);
+        } else {
+            document.title = document.title.replace(TIMER_TITLE_REGEX, '');
         }
     }, [isRunning, setTimerSeconds, user]);
 
@@ -132,8 +150,8 @@ function useTimer() {
     return { timerSeconds, isRunning, isPaused, onStart, onPause, onClear };
 }
 
-function TimerDetails() {
-    const { timerSeconds, isRunning, isPaused, onStart, onPause, onClear } = useTimer();
+function TimerDetails({ timer }: { timer: Timer }) {
+    const { timerSeconds, isRunning, isPaused, onStart, onPause, onClear } = timer;
 
     return (
         <Box sx={{ px: 2 }}>
