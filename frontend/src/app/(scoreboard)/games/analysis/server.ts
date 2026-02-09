@@ -355,11 +355,7 @@ export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult
     const gameData = resp.data.game;
 
     // Unstable endpoint not part of the official API
-    if (
-        gameData?.moveTimestamps === undefined ||
-        gameData?.moveList === undefined ||
-        gameData?.pgnHeaders === undefined
-    ) {
+    if (gameData?.moveList === undefined || gameData?.pgnHeaders === undefined) {
         return {
             error: {
                 statusCode: 500,
@@ -382,23 +378,26 @@ export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult
         encodedMoves.push(gameData.moveList.slice(i, i + 2));
     }
 
-    // Convert to milliseconds
-    const moveTimestamps = gameData.moveTimestamps.split(',').map((n) => Number(n) * 100);
-
     const startingPosition = gameData.pgnHeaders.FEN?.toString();
     const game = new Chess({ fen: startingPosition });
 
-    encodedMoves.forEach((encodedMove, idx) => {
-        const timestamp = moveTimestamps[idx];
-        const clk = msToClk(timestamp);
-        const move = tcn.decode(encodedMove);
-
-        game.move(move as CandidateMove);
-        game.setComment(`[%clk ${clk}]`);
-    });
-
     for (const [key, value] of Object.entries(gameData.pgnHeaders)) {
         game.setHeader(key, value.toString());
+    }
+
+    // Timestamps are in deci-seconds -- convert to milliseconds
+    const moveTimestamps = gameData.moveTimestamps?.split(',').map((n) => Number(n) * 100) ?? [];
+
+    for (let i = 0; i < encodedMoves.length; i++) {
+        const encodedMove = encodedMoves[i];
+        const move = tcn.decode(encodedMove);
+        game.move(move as CandidateMove);
+
+        if (i < moveTimestamps.length) {
+            const timestamp = moveTimestamps[i];
+            const clk = msToClk(timestamp);
+            game.setComment(`[%clk ${clk}]`);
+        }
     }
 
     return { data: game.pgn.render() };
