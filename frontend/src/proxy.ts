@@ -14,9 +14,9 @@ const publicPaths = [
     /^\/tournaments\/open-classical\/info$/,
     /^\/tournaments\/open-classical\/previous$/,
     /^\/courses$/,
-    /^\/material\/books$/,
-    /^\/material\/ratings$/,
-    /^\/material\/guides$/,
+    /^\/learn\/books$/,
+    /^\/learn\/ratings$/,
+    /^\/learn\/guides$/,
     /^\/blog\/?.*$/,
     /^\/coaching$/,
     /^\/dojodigest\/unsubscribe$/,
@@ -26,6 +26,7 @@ const publicPaths = [
     /^\/profile\/.*\/postmortem\/.*$/,
     /^\/calendar.*$/,
     /^\/live-classes$/,
+    /^\/privacy-policy$/,
 ];
 
 const unauthenticatedPaths = [
@@ -41,17 +42,24 @@ const authenticatedRedirects: [RegExp, string][] = [
 ];
 
 const legacyRoutes = [
-    { oldPath: '/books-by-rating', newPath: '/material/books' },
-    { oldPath: '/books', newPath: '/material/books' },
-    { oldPath: '/recommendations', newPath: '/material/books' },
+    { oldPath: '/books-by-rating', newPath: '/learn/books' },
+    { oldPath: '/books', newPath: '/learn/books' },
+    { oldPath: '/recommendations', newPath: '/learn/books' },
     { oldPath: '/training', newPath: '/profile' },
     { oldPath: '/home', newPath: '/profile' },
     { oldPath: '/plans-pricing', newPath: '/prices' },
     { oldPath: '/shop', newPath: 'https://www.chessdojo.shop/shop' },
     { oldPath: '/material/bots', newPath: '/material/guides' },
+    { oldPath: '/material/live-classes', newPath: '/learn/live-classes' },
+    { oldPath: '/material/books', newPath: '/learn/books' },
+    { oldPath: '/material/sparring', newPath: '/learn/sparring' },
+    { oldPath: '/material/modelgames', newPath: '/learn/modelgames' },
+    { oldPath: '/material/memorizegames', newPath: '/learn/memorizegames' },
+    { oldPath: '/material/guides', newPath: '/learn/guides' },
+    { oldPath: '/material/ratings', newPath: '/learn/ratings' },
 ];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const response = NextResponse.next();
 

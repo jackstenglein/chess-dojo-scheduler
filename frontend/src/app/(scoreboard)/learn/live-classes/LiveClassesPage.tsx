@@ -81,7 +81,7 @@ export function LiveClassesPage() {
             const resp = await api.getRecording({ s3Key });
             setPresignedUrls((urls) => ({ ...urls, [s3Key]: { url: resp.data.url } }));
             return resp.data.url;
-        } catch (err) {
+        } catch (_err) {
             setPresignedUrls((urls) => ({ ...urls, [s3Key]: { loading: false } }));
         }
     };

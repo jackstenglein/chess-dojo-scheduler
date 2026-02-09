@@ -59,6 +59,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
             }
 
             if (modifierKeys.includes(event.key) && keydownMap) {
+                // eslint-disable-next-line react-hooks/immutability
                 keydownMap.current[event.key] = true;
             }
 
@@ -136,6 +137,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     const onKeyUp = useCallback(
         (event: KeyboardEvent) => {
             if (modifierKeys.includes(event.key) && keydownMap) {
+                // eslint-disable-next-line react-hooks/immutability
                 keydownMap.current[event.key] = false;
             }
         },
