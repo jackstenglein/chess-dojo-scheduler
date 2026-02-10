@@ -16,7 +16,7 @@ dotenv.config({
     ],
 });
 
-const authFile = '.auth/user.json';
+const authFile = path.join(__dirname, '../../.auth/user.json');
 
 setup('authenticate', async ({ page }) => {
     const username = process.env.AWS_COGNITO_USERNAME ?? '';
