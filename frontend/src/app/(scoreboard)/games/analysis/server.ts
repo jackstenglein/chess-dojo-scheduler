@@ -1,6 +1,5 @@
 'use server';
 
-import { logger } from '@/logging/logger';
 import { CandidateMove, Chess } from '@jackstenglein/chess';
 import tcn from '@savi2w/chess-tcn';
 import axios from 'axios';
@@ -391,9 +390,7 @@ export async function getChesscomGame(gameURL?: string): Promise<PgnImportResult
 
     for (let i = 0; i < encodedMoves.length; i++) {
         const encodedMove = encodedMoves[i];
-        logger.debug(`Encoded move ${i}: ${encodedMove}`);
         const move = tcn.decode(encodedMove);
-        logger.debug(`Move ${i}: ${move.from} - ${move.to}`);
         const gameMove = game.move(move as CandidateMove);
         if (!gameMove) {
             // Chess.com for some reason notates castling in daily games with
