@@ -2,34 +2,31 @@ import { expect, test } from '@playwright/test';
 import { getBySel } from '../../../lib/helpers';
 
 const navbarStartItems = [
-    'Newsfeed',
     'Training Plan',
-    'Scoreboard',
-    'Tournaments',
     'Games',
     'Calendar',
-    'Material',
+    'Tournaments',
     'Live Classes',
-    'Clubs',
-    'Blog',
+    'Learn',
+    'Social',
     'Shop',
 ];
 
-const navbarEndItems = ['Help', 'Notifications', 'navbar-profile-button'];
+const navbarEndItems = ['Help', 'Search Users', 'Timer', 'Notifications', 'navbar-profile-button'];
 
 const viewPortWidths = [
-    { width: 1856, hidden: 0, endHidden: 0 },
-    { width: 1694, hidden: 2, endHidden: 0 },
-    { width: 1599, hidden: 3, endHidden: 0 },
-    { width: 1388, hidden: 4, endHidden: 0 },
-    { width: 1249, hidden: 5, endHidden: 0 },
-    { width: 1116, hidden: 6, endHidden: 0 },
-    { width: 990, hidden: 7, endHidden: 0 },
-    { width: 797, hidden: 8, endHidden: 0 },
-    { width: 790, hidden: 9, endHidden: 0 },
-    { width: 567, hidden: 9, endHidden: 1 },
-    { width: 542, hidden: 9, endHidden: 2 },
-    { width: 449, hidden: 11, endHidden: 3 },
+    { width: 1501, hidden: 0, endHidden: 0 },
+    { width: 1499, hidden: 2, endHidden: 0 },
+    { width: 1340, hidden: 3, endHidden: 0 },
+    { width: 1216, hidden: 4, endHidden: 0 },
+    { width: 999, hidden: 5, endHidden: 0 },
+    { width: 809, hidden: 6, endHidden: 0 },
+    { width: 679, hidden: 6, endHidden: 1 },
+    { width: 639, hidden: 6, endHidden: 2 },
+    { width: 583, hidden: 6, endHidden: 3 },
+    { width: 566, hidden: 6, endHidden: 4 },
+    { width: 541, hidden: 6, endHidden: 5 },
+    { width: 449, hidden: 8, endHidden: 5 },
 ];
 
 test.describe('Navbar (unauthenticated)', () => {
@@ -81,11 +78,7 @@ test.describe('Navbar (authenticated)', () => {
             // Check visible end items
             const visibleEndItems = navbarEndItems.slice(endHidden);
             for (const item of visibleEndItems) {
-                if (item === 'navbar-profile-button') {
-                    await expect(getBySel(page, item)).toBeVisible();
-                } else {
-                    await expect(getBySel(page, item)).toBeVisible();
-                }
+                await expect(getBySel(page, item)).toBeVisible();
             }
 
             // Check hidden items in menu
@@ -95,9 +88,7 @@ test.describe('Navbar (authenticated)', () => {
 
                 const hiddenStartItems = navbarStartItems.slice(navbarStartItems.length - hidden);
                 for (const item of hiddenStartItems) {
-                    // Use regex for "Live Classes" to handle "Live Classes NEW"
-                    const name = item === 'Live Classes' ? /Live Classes/ : item;
-                    await expect(menu.getByRole('menuitem', { name })).toBeVisible();
+                    await expect(menu.getByRole('menuitem', { name: item })).toBeVisible();
                 }
 
                 const hiddenEndItems = navbarEndItems.slice(0, endHidden);

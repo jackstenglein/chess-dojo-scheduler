@@ -4,10 +4,10 @@
  */
 export const env = {
     /** Base URL for API requests */
-    apiBaseUrl: process.env.API_BASE_URL ?? '',
+    apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? '',
 
     /** Number of cohorts in the system */
-    numCohorts: parseInt(process.env.NUM_COHORTS ?? '24', 10),
+    numCohorts: parseInt(process.env.NUM_COHORTS ?? '23', 10),
 
     /** Cognito configuration */
     cognitoRegion: process.env.COGNITO_REGION ?? '',
@@ -18,15 +18,18 @@ export const env = {
     /** Test user credentials */
     cognitoUsername: process.env.AWS_COGNITO_USERNAME ?? '',
     cognitoPassword: process.env.AWS_COGNITO_PASSWORD ?? '',
+
+    /** Test username */
+    dojoUsername: process.env.TEST_DOJO_USERNAME ?? '',
 };
 
 /**
  * Get a typed environment variable.
  * Throws if the variable is required but not set.
  */
-export function getEnv<K extends keyof typeof env>(name: K, required = false): (typeof env)[K] {
+export function getEnv<K extends keyof typeof env>(name: K): (typeof env)[K] {
     const value = env[name];
-    if (required && !value) {
+    if (!value) {
         throw new Error(`Missing required environment variable: ${name}`);
     }
     return value;

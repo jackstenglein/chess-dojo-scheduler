@@ -63,4 +63,10 @@ test.describe('Import Games Page - PGN Text', () => {
         await expect(page).toHaveURL('/games/import');
         await expect(getBySel(page, 'error-snackbar')).toContainText('Invalid PGN');
     });
+
+    test('submits from Chess.com daily game', async ({ page }) => {
+        const pgn = fs.readFileSync(path.join(__dirname, './daily_game.pgn'), 'utf-8');
+        await importPgnText(page, pgn);
+        await verifyGame(page, { white: 'JackStenglein', black: 'carson2626', lastMove: 'Nc5' });
+    });
 });

@@ -1,16 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { getBySel, locatorContainsAll } from '../../../lib/helpers';
+import { getBySel, locatorContainsAll, useFreeTier } from '../../../lib/helpers';
 
 test.describe('Scoreboard Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/scoreboard');
-        // Wait for redirect and scoreboard to fully render
         await page.waitForURL(/\/scoreboard\//);
-        // Dismiss any tutorial dialog that may appear
-        const closeButton = page.locator('[aria-label="Close"]').first();
-        if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await closeButton.click();
-        }
     });
 
     test('redirects to cohort-specific scoreboard', async ({ page }) => {
@@ -32,8 +26,22 @@ test.describe('Scoreboard Page', () => {
         await page.reload();
         await expect(getBySel(page, 'current-members-scoreboard')).toBeVisible();
 
-        const columnGroups = ['User Info', 'Ratings', 'Training Plan', 'Time Spent'];
-        await locatorContainsAll(getBySel(page, 'current-members-scoreboard'), columnGroups);
+        const columnGroups = [
+            'User Info',
+            'Ratings',
+            'Training Plan',
+            'Time Spent',
+            'Games + Analysis',
+            'Tactics',
+            'Middlegames + Strategy',
+            'Endgame',
+            'Opening',
+        ];
+        for (const col of columnGroups) {
+            await expect(
+                getBySel(page, 'current-members-scoreboard').getByText(col, { exact: true }),
+            ).toBeVisible();
+        }
     });
 
     test('contains default columns', async ({ page }) => {
@@ -47,8 +55,30 @@ test.describe('Scoreboard Page', () => {
             'Rating System',
             'Start Rating',
             'Current Rating',
+            'Normalized Dojo Rating',
             'Dojo Score',
+            'Percent Complete',
+            'Cohort Tasks',
+            'Last 7 Days',
+            'Last 30 Days',
+            'Last 90 Days',
+            'Last 365 Days',
+            'Non-Dojo',
         ];
         await locatorContainsAll(getBySel(page, 'current-members-scoreboard'), defaultColumns);
+    });
+});
+
+test.describe('Scoreboard Page (Free Tier)', () => {
+    test.beforeEach(async ({ page }) => {
+        await useFreeTier(page);
+        await page.goto('/scoreboard');
+        await page.waitForURL(/\/scoreboard\//);
+    });
+
+    test('hides free-tier users', async ({ page }) => {
+        await expect(
+            getBySel(page, 'upsell-alert').getByRole('link', { name: 'View Options' }),
+        ).toHaveAttribute('href', /\/prices\?redirect=\/scoreboard\//);
     });
 });

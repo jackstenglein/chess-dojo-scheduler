@@ -1,6 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getEnv } from './env';
 
 /**
  * Select element by data-cy attribute.
@@ -50,9 +51,7 @@ export async function interceptApi(
     urlPath: string,
     response: { fixture?: string; statusCode?: number; body?: unknown },
 ): Promise<void> {
-    // Use glob pattern to match the API URL regardless of base URL.
-    // This handles both direct paths and full URLs with the API gateway domain.
-    await page.route(`**${urlPath}`, async (route) => {
+    await page.route(`${getEnv('apiBaseUrl')}${urlPath}`, async (route) => {
         if (route.request().method() !== method.toUpperCase()) {
             await route.continue();
             return;
@@ -83,4 +82,24 @@ export async function waitForNavigation(
     options?: { timeout?: number },
 ): Promise<void> {
     await expect(page).toHaveURL(urlPattern, { timeout: options?.timeout ?? 15000 });
+}
+
+/**
+ * Intercepts the /user API request to replace the subscription status field
+ * in the response so that the current user is on the free tier.
+ */
+export async function useFreeTier(page: Page) {
+    await page.route(`${getEnv('apiBaseUrl')}/user`, async (route) => {
+        const response = await route.fetch();
+        const body = await response.json();
+        await route.fulfill({
+            response,
+            contentType: 'application/json',
+            body: JSON.stringify({
+                ...body,
+                subscriptionStatus: 'NOT_SUBSCRIBED',
+            }),
+        });
+    });
+    await page.route(`${getEnv('apiBaseUrl')}/user/access/v2`, (route) => route.abort());
 }

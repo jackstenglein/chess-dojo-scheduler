@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { containsAll, getBySel } from '../../../lib/helpers';
+import { containsAll, getBySel, locatorContainsAll } from '../../../lib/helpers';
 
 const checkboxes = [
     'All Fields',
@@ -36,5 +36,29 @@ test.describe('Search Page', () => {
         await page.getByText('All Fields').click();
 
         await expect(page.getByText('At least one search field is required')).toBeVisible();
+    });
+
+    test('shows correct table columns on search', async ({ page }) => {
+        await getBySel(page, 'search-query').locator('input').fill('Test Account');
+
+        await expect(getBySel(page, 'search-results').getByText('Test Account')).toBeVisible();
+        await locatorContainsAll(getBySel(page, 'search-results'), [
+            'Cohort',
+            ...checkboxes.slice(1),
+        ]);
+
+        await page.getByText('All Fields').click();
+        await page.getByText('FIDE ID').first().click();
+        await page.getByText('ECF ID').first().click();
+
+        await expect(
+            getBySel(page, 'search-results').locator('.MuiDataGrid-columnHeader'),
+        ).toHaveCount(4);
+        await locatorContainsAll(getBySel(page, 'search-results'), [
+            'Cohort',
+            'Display Name',
+            'FIDE ID',
+            'ECF ID',
+        ]);
     });
 });

@@ -13,6 +13,7 @@ const testUrls = {
     chesscomAnalysisGame: 'https://www.chess.com/analysis/game/live/108036079387?tab=review',
     chesscomGame: 'https://www.chess.com/game/live/107855985867',
     chesscomGameAlt: 'https://www.chess.com/live/game/107855985867',
+    chesscomDailyGame: 'https://www.chess.com/game/daily/926728269?move=0',
 };
 
 async function importUrl(page: import('@playwright/test').Page, url: string): Promise<void> {
@@ -143,6 +144,15 @@ test.describe('Import Games Page - Import Online Games', () => {
                 black: '0:09:05',
             },
             lastMoveEmt: '00:48',
+        });
+    });
+
+    test('submits Chess.com daily game URL', async ({ page }) => {
+        await importUrl(page, testUrls.chesscomDailyGame);
+        await verifyGame(page, {
+            white: 'JackStenglein',
+            black: 'carson2626',
+            lastMove: 'Nc5',
         });
     });
 

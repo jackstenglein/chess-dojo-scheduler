@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { getBySel } from '../../../../lib/helpers';
 
 test.describe('Model Games Module', () => {
     test('should display course page', async ({ page }) => {
@@ -9,5 +10,7 @@ test.describe('Model Games Module', () => {
         await expect(
             page.getByRole('heading', { name: 'Najdorf Sicilian', exact: true }),
         ).toBeVisible();
+        await expect(getBySel(page, 'pgn-selector')).toBeVisible();
+        await expect(getBySel(page, 'chessground-board')).toBeVisible();
     });
 });

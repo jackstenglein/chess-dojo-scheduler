@@ -1,16 +1,17 @@
 import { expect, test } from '@playwright/test';
-import { getBySel } from '../../../lib/helpers';
+import { getEnv } from '../../../lib/env';
+import { getBySel, useFreeTier } from '../../../lib/helpers';
 
-test.describe('Memorize Games Tab', () => {
+test.describe('Memorize Games Page', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/material/memorizegames');
         // Wait for PGN selector to load
         await expect(getBySel(page, 'pgn-selector-item').first()).toBeVisible();
     });
 
-    test('should have game items', async ({ page }) => {
+    test('should have a game per cohort', async ({ page }) => {
         const count = await getBySel(page, 'pgn-selector-item').count();
-        expect(count).toBeGreaterThan(0);
+        expect(count).toBe(getEnv('numCohorts'));
     });
 
     test('should switch between study/test mode', async ({ page }) => {
@@ -31,5 +32,18 @@ test.describe('Memorize Games Tab', () => {
             // Verify PGN text is visible (game changed)
             await expect(getBySel(page, 'pgn-text-move-button').first()).toBeVisible();
         }
+    });
+});
+
+test.describe('Memorize Games Page (Free Tier)', () => {
+    test.beforeEach(async ({ page }) => {
+        await useFreeTier(page);
+        await page.goto('/material/memorizegames');
+        await expect(getBySel(page, 'pgn-selector-item').first()).toBeVisible();
+    });
+
+    test('should restrict free tier users', async ({ page }) => {
+        await expect(getBySel(page, 'pgn-selector-item')).toHaveCount(3);
+        await expect(getBySel(page, 'upsell-message')).toBeVisible();
     });
 });

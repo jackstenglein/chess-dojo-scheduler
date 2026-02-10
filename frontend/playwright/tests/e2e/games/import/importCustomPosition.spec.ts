@@ -26,4 +26,19 @@ test.describe('Import Games Page - Custom Position', () => {
         await getBySel(page, 'underboard-button-tags').click();
         await expect(page.getByText(fen)).toBeVisible();
     });
+
+    test('submits with custom FEN on blur', async ({ page }) => {
+        const fen = 'r1b2r1k/4qp1p/p1Nppb1Q/4nP2/1p2P3/2N5/PPP4P/2KR1BR1 b - - 5 18';
+
+        const positionEntry = page.getByRole('combobox', { name: /Choose Position or Paste FEN/i });
+        await positionEntry.clear();
+        await positionEntry.fill(fen);
+        await positionEntry.blur();
+        await page.getByRole('button', { name: 'Import' }).click();
+
+        await expect(page).toHaveURL('/games/analysis');
+
+        await getBySel(page, 'underboard-button-tags').click();
+        await expect(page.getByText(fen)).toBeVisible();
+    });
 });

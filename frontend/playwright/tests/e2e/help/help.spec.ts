@@ -24,4 +24,25 @@ test.describe('Help Page', () => {
             'This field is required',
         );
     });
+
+    // test('launches scoreboard tutorial', async ({ page }) => {
+    //     await page.getByText('Launch Scoreboard Page Tutorial').click();
+
+    //     await waitForNavigation(page, /\/scoreboard\//);
+    //     await expect(getBySel(page, 'tutorial-tooltip')).toBeVisible();
+    // });
+
+    // test('launches calendar tutorial', async ({ page }) => {
+    //     await page.getByText('Launch Calendar Page Tutorial').click();
+
+    //     await waitForNavigation(page, '/calendar');
+    //     await expect(getBySel(page, 'tutorial-tooltip')).toBeVisible();
+    // });
+
+    // test('launches games tutorial', async ({ page }) => {
+    //     await page.getByText('Launch Games Page Tutorial').click();
+
+    //     await waitForNavigation(page, '/games');
+    //     await expect(getBySel(page, 'tutorial-tooltip')).toBeVisible();
+    // });
 });
