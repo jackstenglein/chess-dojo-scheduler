@@ -1,0 +1,53 @@
+import {
+    Blog,
+    CreateBlogRequest,
+    GetBlogRequest,
+    UpdateBlogRequest,
+} from '@jackstenglein/chess-dojo-common/src/blog/api';
+import { AxiosResponse } from 'axios';
+import { axiosService } from './axiosService';
+
+/**
+ * Fetches a blog post by owner and id.
+ * @param request The get blog request (owner, id).
+ * @returns The blog post.
+ */
+export function getBlog(request: GetBlogRequest): Promise<AxiosResponse<Blog>> {
+    return axiosService.get<Blog>(`/blog/${request.owner}/${request.id}`, {
+        functionName: 'getBlog',
+    });
+}
+
+/**
+ * Fetches a public blog post by owner and id.
+ * @param request The get blog request (owner, id).
+ * @returns The blog post.
+ */
+export function getPublicBlog(request: GetBlogRequest): Promise<AxiosResponse<Blog>> {
+    return axiosService.get<Blog>(`/public/blog/${request.owner}/${request.id}`, {
+        functionName: 'getPublicBlog',
+    });
+}
+
+/**
+ * Creates a new blog post. The caller must be an admin.
+ * @param request The create blog request (title, subtitle, date, content, optional status).
+ * @returns The created blog post.
+ */
+export function createBlog(request: CreateBlogRequest): Promise<AxiosResponse<Blog>> {
+    return axiosService.post<Blog>('/blog', request, {
+        functionName: 'createBlog',
+    });
+}
+
+/**
+ * Updates an existing blog post. The caller must be the owner or an admin.
+ * @param request The update blog request (owner, id, and optional title, subtitle, date, content, status).
+ * @returns The updated blog post.
+ */
+export function updateBlog(request: UpdateBlogRequest): Promise<AxiosResponse<Blog>> {
+    const { owner, id, ...body } = request;
+    return axiosService.put<Blog>(`/blog/${owner}/${id}`, body, {
+        functionName: 'updateBlog',
+    });
+}
