@@ -1,5 +1,4 @@
 import { getPublicBlog } from '@/api/blogApi';
-import { logger } from '@/logging/logger';
 import { Stack } from '@mui/material';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -22,16 +21,21 @@ export async function generateMetadata({ params }: PageProps<'/blog/[...id]'>): 
     if (!blog) {
         return { title: 'Not Found' };
     }
+    const description = blog.description ?? blog.subtitle;
     return {
         title: blog.title,
-        description: blog.subtitle,
+        description,
+        openGraph: {
+            title: blog.title,
+            description,
+            ...(blog.coverImage && { images: [{ url: blog.coverImage }] }),
+        },
     };
 }
 
 export default async function BlogPage({ params }: PageProps<'/blog/[...id]'>) {
     const { id: idSegments } = await params;
     const id = idSegments.join('/');
-    logger.debug?.(`Fetching blog post: ${id}`);
     const blog = await fetchBlog(id);
 
     if (!blog) {

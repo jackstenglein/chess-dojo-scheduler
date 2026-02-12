@@ -1,10 +1,13 @@
+import { ListBlogsResponse, listPublicBlogs } from '@/api/blogApi';
 import { Link } from '@/components/navigation/Link';
+import { Blog, DOJO_BLOG_OWNER } from '@jackstenglein/chess-dojo-common/src/blog/api';
 import {
     Card,
     CardActionArea,
     CardActions,
     CardContent,
     CardHeader,
+    CardMedia,
     Container,
     Stack,
     Typography,
@@ -13,13 +16,52 @@ import Image from 'next/image';
 import items from './items';
 import ShareButton from './shareButton/ShareButton';
 
+const BLOG_LIST_LIMIT = 50;
+
 /**
  * Renders the main homepage of the blog.
+ * Fetches published blogs from the API (dynamic list), then displays the static list below.
  */
-export default function Blog() {
+export default async function BlogPage() {
+    let dynamicBlogs: Blog[] = [];
+    try {
+        const res = await listPublicBlogs({
+            owner: DOJO_BLOG_OWNER,
+            limit: BLOG_LIST_LIMIT,
+        });
+        const data: ListBlogsResponse = res.data;
+        dynamicBlogs = data.blogs;
+    } catch {
+        // Show static list only if API fails
+    }
+
     return (
         <Container maxWidth='sm' sx={{ py: 5 }}>
             <Stack spacing={3}>
+                {dynamicBlogs.map((blog) => (
+                    <Card key={blog.id}>
+                        <CardActionArea LinkComponent={Link} href={`/blog/${blog.id}`}>
+                            {blog.coverImage && (
+                                <CardMedia
+                                    component='img'
+                                    image={blog.coverImage}
+                                    alt=''
+                                    sx={{ width: '100%', height: 'auto' }}
+                                />
+                            )}
+                            <CardHeader
+                                title={blog.title}
+                                subheader={`${blog.subtitle} • ${blog.date}`}
+                            />
+                            <CardContent>
+                                <Typography variant='body1'>{blog.description}</Typography>
+                            </CardContent>
+                        </CardActionArea>
+                        <CardActions>
+                            <ShareButton title={blog.title} href={`/blog/${blog.id}`} />
+                        </CardActions>
+                    </Card>
+                ))}
                 {items.map((item, i) => (
                     <Card key={item.title}>
                         <CardActionArea LinkComponent={Link} href={item.href}>
@@ -28,7 +70,7 @@ export default function Blog() {
                                     src={item.image.src}
                                     alt={item.image.alt}
                                     style={{ width: '100%', height: 'auto' }}
-                                    priority={i === 0}
+                                    priority={dynamicBlogs.length === 0 && i === 0}
                                 />
                             )}
                             <CardHeader title={item.title} subheader={item.subtitle} />
