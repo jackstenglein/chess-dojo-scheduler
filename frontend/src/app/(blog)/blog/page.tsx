@@ -7,12 +7,12 @@ import {
     CardActions,
     CardContent,
     CardHeader,
-    CardMedia,
     Container,
     Stack,
     Typography,
 } from '@mui/material';
 import Image from 'next/image';
+import { BlogListItem } from './BlogListItem';
 import items from './items';
 import ShareButton from './shareButton/ShareButton';
 
@@ -39,28 +39,7 @@ export default async function BlogPage() {
         <Container maxWidth='sm' sx={{ py: 5 }}>
             <Stack spacing={3}>
                 {dynamicBlogs.map((blog) => (
-                    <Card key={blog.id}>
-                        <CardActionArea LinkComponent={Link} href={`/blog/${blog.id}`}>
-                            {blog.coverImage && (
-                                <CardMedia
-                                    component='img'
-                                    image={blog.coverImage}
-                                    alt=''
-                                    sx={{ width: '100%', height: 'auto' }}
-                                />
-                            )}
-                            <CardHeader
-                                title={blog.title}
-                                subheader={`${blog.subtitle} • ${blog.date}`}
-                            />
-                            <CardContent>
-                                <Typography variant='body1'>{blog.description}</Typography>
-                            </CardContent>
-                        </CardActionArea>
-                        <CardActions>
-                            <ShareButton title={blog.title} href={`/blog/${blog.id}`} />
-                        </CardActions>
-                    </Card>
+                    <BlogListItem key={blog.id} blog={blog} />
                 ))}
                 {items.map((item, i) => (
                     <Card key={item.title}>

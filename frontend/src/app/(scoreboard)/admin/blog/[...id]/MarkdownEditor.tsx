@@ -1,13 +1,14 @@
 'use client';
 
+import { BlogListItem } from '@/app/(blog)/blog/BlogListItem';
 import { Link } from '@/components/navigation/Link';
 import { Box, Container, Stack, Tab, Tabs, TextField, Typography, useTheme } from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Header } from './Header';
+import { Header } from '../../../../(blog)/blog/common/Header';
 
-type EditorMode = 'write' | 'preview' | 'syntax';
+type EditorMode = 'write' | 'preview' | 'syntax' | 'list';
 
 export interface MarkdownEditorProps {
     /** Current markdown content. */
@@ -24,6 +25,12 @@ export interface MarkdownEditorProps {
     title?: string;
     /** Blog subtitle shown above the content in Preview. */
     subtitle?: string;
+    /** Short description shown in the List preview tab and on the blog list page. */
+    description?: string;
+    /** Optional cover image URL shown in the List preview tab and on the blog list page. */
+    coverImage?: string;
+    /** Publication date (e.g. ISO date string) shown in the List preview tab subheader. */
+    date?: string;
 }
 
 /**
@@ -38,6 +45,9 @@ export function MarkdownEditor({
     disabled = false,
     title,
     subtitle,
+    description,
+    coverImage,
+    date,
 }: MarkdownEditorProps) {
     const [mode, setMode] = useState<EditorMode>('write');
     const theme = useTheme();
@@ -51,6 +61,7 @@ export function MarkdownEditor({
             <Tabs value={mode} onChange={handleTabChange} sx={{ minHeight: 40 }}>
                 <Tab label='Write' value='write' />
                 <Tab label='Preview' value='preview' />
+                <Tab label='List preview' value='list' />
                 <Tab label='Syntax' value='syntax' />
             </Tabs>
 
@@ -76,6 +87,25 @@ export function MarkdownEditor({
                         },
                     }}
                 />
+            ) : mode === 'list' ? (
+                <Box
+                    sx={{
+                        minHeight,
+                        px: 2,
+                        py: 2,
+                        borderRadius: 1,
+                        bgcolor: 'action.hover',
+                        border: `1px solid ${theme.palette.divider}`,
+                        overflow: 'auto',
+                    }}
+                >
+                    <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                        How this post appears on the blog list page:
+                    </Typography>
+                    <Container maxWidth='sm' disableGutters>
+                        <BlogListItem blog={{ title, subtitle, date, description, coverImage }} />
+                    </Container>
+                </Box>
             ) : mode === 'syntax' ? (
                 <Box
                     sx={{
