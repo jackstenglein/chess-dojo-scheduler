@@ -1,12 +1,15 @@
 'use client';
 
 import { BlogListItem } from '@/app/(blog)/blog/BlogListItem';
+import { GameViewer } from '@/app/(blog)/blog/player-spotlight/GameViewer';
 import { Link } from '@/components/navigation/Link';
 import { Box, Container, Stack, Tab, Tabs, TextField, Typography, useTheme } from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Header } from '../../../../(blog)/blog/common/Header';
+
+const GAME_LINK_PREFIX = '/game:';
 
 type EditorMode = 'write' | 'preview' | 'syntax' | 'list';
 
@@ -247,6 +250,25 @@ function MarkdownSyntaxHelp() {
 
             <Box>
                 <Typography variant='body2' fontWeight={600} color='text.secondary' gutterBottom>
+                    Game viewer
+                </Typography>
+                <Typography
+                    variant='body2'
+                    component='div'
+                    sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}
+                >
+                    {'[View game](game:cohortId/gameId)'}
+                </Typography>
+                <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5 }}>
+                    A link with URL {code(`${GAME_LINK_PREFIX}:cohortId/gameId`)} (cohort and game
+                    ID from the Dojo) is rendered as an embedded interactive game viewer. Replace
+                    cohortId and gameId with the actual cohort and game IDs. Note that the leading
+                    slash is required.
+                </Typography>
+            </Box>
+
+            <Box>
+                <Typography variant='body2' fontWeight={600} color='text.secondary' gutterBottom>
                     Lists
                 </Typography>
                 <Typography
@@ -294,6 +316,21 @@ function MarkdownSyntaxHelp() {
             </Typography>
         </Stack>
     );
+}
+
+/** Parses game:cohort/id href into { cohort, id } for GameViewer, or undefined if not a game link. */
+function getGameViewerParams(href: string | undefined): { cohort: string; id: string } | undefined {
+    if (!href?.startsWith(GAME_LINK_PREFIX)) {
+        return undefined;
+    }
+    const rest = href.slice(GAME_LINK_PREFIX.length).trim();
+    const slash = rest.indexOf('/');
+    if (slash <= 0) {
+        return undefined;
+    }
+    const cohort = rest.slice(0, slash).trim();
+    const id = rest.slice(slash + 1).trim();
+    return cohort && id ? { cohort, id } : undefined;
 }
 
 /** Extracts YouTube video ID from watch, embed, or short URLs. */
@@ -360,6 +397,17 @@ export function BlogMarkdown({ children }: { children: string }) {
                     </Typography>
                 ),
                 a: (props) => {
+                    const gameViewerParams = getGameViewerParams(props.href);
+                    if (gameViewerParams) {
+                        return (
+                            <Box sx={{ my: 2 }}>
+                                <GameViewer
+                                    cohort={gameViewerParams.cohort}
+                                    id={gameViewerParams.id}
+                                />
+                            </Box>
+                        );
+                    }
                     const videoId = getYouTubeVideoId(props.href);
                     if (videoId) {
                         return (
