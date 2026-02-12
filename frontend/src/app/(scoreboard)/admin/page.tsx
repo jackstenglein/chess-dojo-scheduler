@@ -8,6 +8,7 @@ export default function Page() {
             <Divider />
             <Stack sx={{ mt: 2 }} spacing={1}>
                 <Link href='/admin/game-review'>Update Game Review Cohorts</Link>
+                <Link href='/admin/blog'>Blog posts</Link>
                 <Link href='/admin/blog/new'>Create Blog Post</Link>
             </Stack>
         </Container>

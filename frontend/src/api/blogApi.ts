@@ -2,10 +2,31 @@ import {
     Blog,
     CreateBlogRequest,
     GetBlogRequest,
+    ListBlogsRequest,
     UpdateBlogRequest,
 } from '@jackstenglein/chess-dojo-common/src/blog/api';
 import { AxiosResponse } from 'axios';
 import { axiosService } from './axiosService';
+
+export interface ListBlogsResponse {
+    blogs: Blog[];
+    lastEvaluatedKey?: string;
+}
+
+/**
+ * Lists blog posts for an owner in descending order of date.
+ * @param request The list request (owner, optional limit, optional startKey).
+ * @returns The list of blogs and an optional pagination token.
+ */
+export function listBlogs({
+    owner,
+    ...request
+}: ListBlogsRequest): Promise<AxiosResponse<ListBlogsResponse>> {
+    return axiosService.get<ListBlogsResponse>(`/blog/list/${owner}`, {
+        params: request,
+        functionName: 'listBlogs',
+    });
+}
 
 /**
  * Fetches a blog post by owner and id.
