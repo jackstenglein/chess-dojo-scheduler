@@ -2,10 +2,10 @@ import { getPublicBlog } from '@/api/blogApi';
 import { Stack } from '@mui/material';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { BlogMarkdown } from '../../../(scoreboard)/admin/blog/[...id]/MarkdownEditor';
 import { Container } from '../common/Container';
 import { Footer } from '../common/Footer';
 import { Header } from '../common/Header';
-import { BlogMarkdown } from '../common/MarkdownEditor';
 
 const BLOG_OWNER = 'chessdojo';
 

@@ -2,7 +2,7 @@
 
 import { createBlog, getBlog, updateBlog } from '@/api/blogApi';
 import { RequestSnackbar, useRequest } from '@/api/Request';
-import { MarkdownEditor } from '@/app/(blog)/blog/common/MarkdownEditor';
+import { MarkdownEditor } from '@/app/(scoreboard)/admin/blog/[...id]/MarkdownEditor';
 import { AuthStatus, useAuth } from '@/auth/Auth';
 import { Link } from '@/components/navigation/Link';
 import { useRouter } from '@/hooks/useRouter';
@@ -206,6 +206,9 @@ export function EditBlogPage({ id }: { id?: string }) {
                     minHeight={400}
                     title={title}
                     subtitle={subtitle}
+                    description={description}
+                    coverImage={coverImage}
+                    date={date?.toISODate() ?? ''}
                 />
 
                 <Stack direction='row' gap={2} justifyContent='flex-end'>
