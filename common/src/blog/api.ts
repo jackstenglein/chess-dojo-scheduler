@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+/** The username of the blog owner for the Chess Dojo blog. */
+export const DOJO_BLOG_OWNER = 'chessdojo';
+
 /** Blog post status. */
 export const BlogStatusSchema = z.enum(['DRAFT', 'PUBLISHED']);
 /** Blog post status values (e.g. BlogStatuses.DRAFT, BlogStatuses.PUBLISHED). */
@@ -61,6 +64,19 @@ export const getBlogRequestSchema = z.object({
 
 /** A request to get a blog post. */
 export type GetBlogRequest = z.infer<typeof getBlogRequestSchema>;
+
+/** Verifies the type of a request to list blog posts by owner. */
+export const listBlogsRequestSchema = z.object({
+    /** The username of the blog owner. */
+    owner: z.string(),
+    /** Optional limit on the number of items to return. */
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    /** Optional pagination token (opaque string from previous response). */
+    startKey: z.string().optional(),
+});
+
+/** A request to list blog posts by owner (descending by date). */
+export type ListBlogsRequest = z.infer<typeof listBlogsRequestSchema>;
 
 /** Verifies the type of a request to update a blog post. */
 export const updateBlogRequestSchema = z.object({

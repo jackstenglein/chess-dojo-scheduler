@@ -21,6 +21,32 @@ provider:
   deploymentMethod: direct
 
 functions:
+  list:
+    handler: list.handler
+    events:
+      - httpApi:
+          path: /public/blog/list/{owner}
+          method: get
+      - httpApi:
+          path: /blog/list/{owner}
+          method: get
+          authorizer:
+            type: jwt
+            id: ${param:apiAuthorizer}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::Join:
+              - ''
+              - - !GetAtt BlogsTable.Arn
+                - '/index/OwnerDateIndex'
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: ${param:UsersTableArn}
+
   get:
     handler: get.handler
     events:
@@ -101,11 +127,22 @@ resources:
             AttributeType: S
           - AttributeName: id
             AttributeType: S
+          - AttributeName: date
+            AttributeType: S
         KeySchema:
           - AttributeName: owner
             KeyType: HASH
           - AttributeName: id
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: OwnerDateIndex
+            KeySchema:
+              - AttributeName: owner
+                KeyType: HASH
+              - AttributeName: date
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
   Outputs:
     BlogsTableArn:
