@@ -24,6 +24,10 @@ export const BlogSchema = z.object({
     title: z.string(),
     /** The subtitle of the blog post. */
     subtitle: z.string(),
+    /** Short overview of what the blog post is about (used in metadata and in list preview). */
+    description: z.string(),
+    /** Optional URL of a cover image (used in list preview and Open Graph). */
+    coverImage: z.url().optional(),
     /** When the blog post was created (ISO date string). */
     createdAt: z.string(),
     /** When the blog post was last updated (ISO date string). */
@@ -43,6 +47,10 @@ export const createBlogRequestSchema = z.object({
     title: z.string(),
     /** The subtitle of the blog post. */
     subtitle: z.string(),
+    /** Short overview of what the blog post is about (used in metadata and in list preview). */
+    description: z.string(),
+    /** Optional URL of a cover image (used in list preview / Open Graph). */
+    coverImage: z.url().optional(),
     /** The publication or display date (ISO date string). */
     date: z.string(),
     /** The markdown content of the blog post. */
@@ -88,6 +96,10 @@ export const updateBlogRequestSchema = z.object({
     title: z.string().optional(),
     /** The subtitle of the blog post. */
     subtitle: z.string().optional(),
+    /** Short overview of what the blog post is about (used in metadata). */
+    description: z.string().optional(),
+    /** Optional URL of a cover image (used in metadata / Open Graph). */
+    coverImage: z.url().optional(),
     /** The publication or display date (ISO date string). */
     date: z.string().optional(),
     /** The markdown content of the blog post. */

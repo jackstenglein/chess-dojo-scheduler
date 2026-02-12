@@ -7,6 +7,7 @@ import {
     BlogStatuses,
     CreateBlogRequest,
     createBlogRequestSchema,
+    DOJO_BLOG_OWNER,
 } from '@jackstenglein/chess-dojo-common/src/blog/api';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import {
@@ -55,10 +56,12 @@ async function createBlog(request: CreateBlogRequest): Promise<Blog> {
     const status = request.status ?? BlogStatuses.DRAFT;
 
     const blog: Blog = {
-        owner: 'chessdojo',
+        owner: DOJO_BLOG_OWNER,
         id,
         title: request.title,
         subtitle: request.subtitle,
+        description: request.description,
+        coverImage: request.coverImage,
         date: request.date,
         content: request.content,
         createdAt: updatedAt,

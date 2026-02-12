@@ -39,9 +39,14 @@ export function EditBlogPage({ id }: { id?: string }) {
     const [slug, setSlug] = useState('');
     const [title, setTitle] = useState('');
     const [subtitle, setSubtitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [coverImage, setCoverImage] = useState('');
     const [date, setDate] = useState<DateTime | null>(null);
     const [status, setStatus] = useState<BlogStatus>(BlogStatuses.DRAFT);
     const [content, setContent] = useState('');
+
+    const isInvalid =
+        !title.trim() || !subtitle.trim() || !date?.isValid || !slug.trim() || !description.trim();
 
     useEffect(() => {
         if (auth.status !== AuthStatus.Loading && !auth.user?.isAdmin) {
@@ -60,6 +65,8 @@ export function EditBlogPage({ id }: { id?: string }) {
                 setSlug(blog.id);
                 setTitle(blog.title);
                 setSubtitle(blog.subtitle);
+                setDescription(blog.description ?? '');
+                setCoverImage(blog.coverImage ?? '');
                 setDate(blog.date ? DateTime.fromISO(blog.date) : null);
                 setStatus(blog.status);
                 setContent(blog.content);
@@ -69,7 +76,7 @@ export function EditBlogPage({ id }: { id?: string }) {
     }, [id, auth.user?.isAdmin, getRequest]);
 
     const handleSave = () => {
-        if (!title.trim() || !date?.isValid || !slug.trim()) {
+        if (isInvalid) {
             return;
         }
 
@@ -80,6 +87,8 @@ export function EditBlogPage({ id }: { id?: string }) {
             id: slug.trim(),
             title: title.trim(),
             subtitle: subtitle.trim(),
+            description: description.trim(),
+            coverImage: coverImage.trim(),
             date: date.toISODate() ?? '',
             content,
             status,
@@ -131,7 +140,7 @@ export function EditBlogPage({ id }: { id?: string }) {
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder='e.g. dojo-digest-27'
-                    helperText='The page URL as a child of /blog/. For example, enter your-slug for the URL /blog/your-slug'
+                    helperText='The page URL as a child of /blog/. For example, enter your-slug for the URL /blog/your-slug. This cannot be changed after creation.'
                     fullWidth
                     required
                     disabled={!isCreate}
@@ -152,6 +161,27 @@ export function EditBlogPage({ id }: { id?: string }) {
                     onChange={(e) => setSubtitle(e.target.value)}
                     placeholder='e.g. Dojo Digest 27'
                     fullWidth
+                    required
+                />
+
+                <TextField
+                    label='Description'
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    helperText='Short overview of what the blog post is about (used in metadata and in list preview)'
+                    fullWidth
+                    required
+                    multiline
+                    minRows={2}
+                />
+
+                <TextField
+                    label='Cover image URL'
+                    value={coverImage}
+                    onChange={(e) => setCoverImage(e.target.value)}
+                    placeholder='https://...'
+                    fullWidth
+                    helperText='Optional URL of a cover image (used in list preview and when sharing on social media). Should be 1200x630 for best social media preview.'
                 />
 
                 <DatePicker label='Date' value={date} onChange={(newValue) => setDate(newValue)} />
@@ -185,7 +215,7 @@ export function EditBlogPage({ id }: { id?: string }) {
                     <Button
                         variant='contained'
                         onClick={handleSave}
-                        disabled={!title.trim() || !date?.isValid || !slug.trim()}
+                        disabled={isInvalid}
                         loading={updateRequest.isLoading()}
                     >
                         {isCreate ? 'Create post' : 'Update post'}

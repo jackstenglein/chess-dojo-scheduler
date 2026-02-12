@@ -29,6 +29,21 @@ export function listBlogs({
 }
 
 /**
+ * Lists public blog posts for an owner in descending order of date (published only).
+ * @param request The list request (owner, optional limit, optional startKey).
+ * @returns The list of blogs and an optional pagination token.
+ */
+export function listPublicBlogs({
+    owner,
+    ...request
+}: ListBlogsRequest): Promise<AxiosResponse<ListBlogsResponse>> {
+    return axiosService.get<ListBlogsResponse>(`/public/blog/list/${owner}`, {
+        params: request,
+        functionName: 'listPublicBlogs',
+    });
+}
+
+/**
  * Fetches a blog post by owner and id.
  * @param request The get blog request (owner, id).
  * @returns The blog post.

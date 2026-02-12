@@ -32,6 +32,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const hasUpdates =
             request.title !== undefined ||
             request.subtitle !== undefined ||
+            request.description !== undefined ||
+            request.coverImage !== undefined ||
             request.date !== undefined ||
             request.content !== undefined ||
             request.status !== undefined;
@@ -39,7 +41,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage:
-                    'At least one of title, subtitle, date, content, or status is required',
+                    'At least one of title, subtitle, description, coverImage, date, content, or status is required',
             });
         }
 
@@ -71,6 +73,8 @@ async function updateBlog(request: UpdateBlogRequest): Promise<Blog> {
             .key('id', request.id)
             .set('title', request.title)
             .set('subtitle', request.subtitle)
+            .set('description', request.description)
+            .set('coverImage', request.coverImage)
             .set('date', request.date)
             .set('content', request.content)
             .set('status', request.status)
