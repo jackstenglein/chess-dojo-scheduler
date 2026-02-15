@@ -1,21 +1,20 @@
-
 import { CustomTask, Requirement } from '@/database/requirement';
 import LoadingPage from '@/loading/LoadingPage';
 import { CategoryColors, themeRequirementCategory } from '@/style/ThemeProvider';
 import { displayRequirementCategoryShort } from '@jackstenglein/chess-dojo-common/src/database/requirement';
 import { Check, ExpandMore } from '@mui/icons-material';
-import { 
-    alpha, 
-    Box, 
-    ButtonBase, 
-    Card, 
-    Chip, 
-    Grid, 
-    Stack, 
-    Typography,
+import {
     Accordion,
+    AccordionDetails,
     AccordionSummary,
-    AccordionDetails
+    alpha,
+    Box,
+    ButtonBase,
+    Card,
+    Chip,
+    Grid,
+    Stack,
+    Typography,
 } from '@mui/material';
 import { use, useMemo, useState } from 'react';
 import { taskTitle } from '../daily/DailyTrainingPlan';
@@ -39,7 +38,6 @@ export function WeeklyTrainingPlan() {
         timeline,
     });
 
-
     const [expanded, setExpanded] = useState<boolean>(true);
 
     const [selectedTask, setSelectedTask] = useState<Requirement | CustomTask>();
@@ -61,8 +59,8 @@ export function WeeklyTrainingPlan() {
 
     return (
         <Stack spacing={2} width={1}>
-            <Accordion 
-                expanded={expanded} 
+            <Accordion
+                expanded={expanded}
                 onChange={handleAccordionChange}
                 sx={{
                     '&:before': {
