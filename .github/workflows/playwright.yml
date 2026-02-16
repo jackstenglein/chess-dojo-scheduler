@@ -57,6 +57,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }}
         with:
+          working-directory: frontend
           name: playwright-report
           path: playwright-report/
           retention-days: 14
