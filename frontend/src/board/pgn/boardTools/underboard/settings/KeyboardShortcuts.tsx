@@ -457,7 +457,7 @@ const KeyboardShortcuts = ({
         const handleHotkeysToggle = (event: KeyboardEvent) => {
             if (event.shiftKey && event.key.toLowerCase() === 'd') {
                 event.preventDefault();
-                setShowHotkeysModal(prev => !prev);
+                setShowHotkeysModal((prev) => !prev);
             }
         };
 
@@ -633,9 +633,7 @@ const KeyboardShortcuts = ({
                 fullWidth
             >
                 <DialogTitle>HotKeys Menu</DialogTitle>
-                <DialogContent>
-                    {shortcutsGrid}
-                </DialogContent>
+                <DialogContent>{shortcutsGrid}</DialogContent>
                 <DialogActions>
                     <Button onClick={() => setShowHotkeysModal(false)}>Close</Button>
                 </DialogActions>
