@@ -257,11 +257,11 @@ function MarkdownSyntaxHelp() {
                     component='div'
                     sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}
                 >
-                    {'[View game](game:cohortId/gameId)'}
+                    [View game]({GAME_LINK_PREFIX}cohortId/gameId)
                 </Typography>
                 <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5 }}>
-                    A link with URL {code(`${GAME_LINK_PREFIX}:cohortId/gameId`)} (cohort and game
-                    ID from the Dojo) is rendered as an embedded interactive game viewer. Replace
+                    A link with URL {code(`${GAME_LINK_PREFIX}cohortId/gameId`)} (cohort and game ID
+                    from the Dojo) is rendered as an embedded interactive game viewer. Replace
                     cohortId and gameId with the actual cohort and game IDs. Note that the leading
                     slash is required.
                 </Typography>
