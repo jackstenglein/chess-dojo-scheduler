@@ -38,6 +38,7 @@ jobs:
         run: npm ci
       
       - name: Install Playwright Browsers
+        working-directory: frontend
         run: npx playwright install --with-deps
 
       - name: Build Frontend
@@ -45,6 +46,7 @@ jobs:
         run: npm run build:test
 
       - name: Run Tests
+        working-directory: frontend
         run: npm run playwright:test
         env:
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
