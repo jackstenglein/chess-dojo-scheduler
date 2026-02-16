@@ -1,17 +1,17 @@
-name: Cypress Tests
+name: Playwright Tests
 
 on: pull_request
 
 jobs:
-  cypress-run:
+  playwright-run:
     timeout-minutes: 30
     runs-on: ubuntu-22.04
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: lts/*
 
       - name: Print Versions
         run: |
@@ -19,7 +19,7 @@ jobs:
           npm --version
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Copied from https://nextjs.org/docs/pages/building-your-application/deploying/ci-build-caching#github-actions
       - uses: actions/cache@v4
@@ -36,31 +36,28 @@ jobs:
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci
+      
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
       - name: Build Frontend
         working-directory: frontend
         run: npm run build:test
 
-      - name: Cypress Run
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: frontend
-          build: npx cypress info
-          start: npm run start:build
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 300
-          record: false
-          command: npm run cy:parallel
+      - name: Run Tests
+        run: npm run playwright:test
         env:
           AWS_COGNITO_USERNAME: ${{ secrets.AWS_COGNITO_USERNAME }}
           AWS_COGNITO_PASSWORD: ${{ secrets.AWS_COGNITO_PASSWORD }}
+          CI: true
 
-      - name: Save Cypress Screenshots
-        uses: actions/upload-artifact@v4
-        if: failure()
+      - name: Save Playwright Report
+        uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
         with:
-          name: screenshots
-          path: frontend/cypress/screenshots
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
       
       # - name: Check Coverage
       #   working-directory: frontend
