@@ -439,9 +439,6 @@ export interface KeyboardShortcutsProps {
     hideReset?: boolean;
 }
 
-/**
- * @returns A component for viewing and editing keyboard shortcuts.
- */
 const KeyboardShortcuts = ({
     actions = Object.values(ShortcutAction),
     hideReset,
@@ -453,6 +450,22 @@ const KeyboardShortcuts = ({
 
     const [editAction, setEditAction] = useState<ShortcutAction>();
     const [editKey, setEditKey] = useState<string>();
+    const [showHotkeysModal, setShowHotkeysModal] = useState(false);
+
+    // Handle Shift + D to toggle hotkeys modal
+    useEffect(() => {
+        const handleHotkeysToggle = (event: KeyboardEvent) => {
+            if (event.shiftKey && event.key.toLowerCase() === 'd') {
+                event.preventDefault();
+                setShowHotkeysModal(prev => !prev);
+            }
+        };
+
+        window.addEventListener('keydown', handleHotkeysToggle);
+        return () => {
+            window.removeEventListener('keydown', handleHotkeysToggle);
+        };
+    }, []);
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
@@ -530,8 +543,8 @@ const KeyboardShortcuts = ({
         setKeyBindings(ShortcutBindings.default);
     };
 
-    return (
-        <Stack>
+    const shortcutsGrid = (
+        <>
             <Typography variant='h6'>Keyboard Shortcuts</Typography>
             <Typography variant='subtitle2' color='text.secondary'>
                 Keyboard shortcuts are disabled while editing text fields (comments, clock times,
@@ -606,6 +619,27 @@ const KeyboardShortcuts = ({
                     </Grid>
                 )}
             </Grid>
+        </>
+    );
+
+    return (
+        <Stack>
+            {shortcutsGrid}
+
+            <Dialog
+                open={showHotkeysModal}
+                onClose={() => setShowHotkeysModal(false)}
+                maxWidth='md'
+                fullWidth
+            >
+                <DialogTitle>HotKeys Menu</DialogTitle>
+                <DialogContent>
+                    {shortcutsGrid}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowHotkeysModal(false)}>Close</Button>
+                </DialogActions>
+            </Dialog>
             <Dialog
                 open={!!editAction}
                 onClose={onCloseEditor}
