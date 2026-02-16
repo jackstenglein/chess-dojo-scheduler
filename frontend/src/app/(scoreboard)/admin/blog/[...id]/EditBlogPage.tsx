@@ -41,7 +41,7 @@ export function EditBlogPage({ id }: { id?: string }) {
     const [subtitle, setSubtitle] = useState('');
     const [description, setDescription] = useState('');
     const [coverImage, setCoverImage] = useState('');
-    const [date, setDate] = useState<DateTime | null>(null);
+    const [date, setDate] = useState<DateTime | null>(() => DateTime.now());
     const [status, setStatus] = useState<BlogStatus>(BlogStatuses.DRAFT);
     const [content, setContent] = useState('');
 

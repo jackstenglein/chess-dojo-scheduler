@@ -70,6 +70,7 @@ export function MarkdownEditor({
 
             {mode === 'write' ? (
                 <TextField
+                    data-cy='markdown-editor'
                     multiline
                     fullWidth
                     value={value}
@@ -92,6 +93,7 @@ export function MarkdownEditor({
                 />
             ) : mode === 'list' ? (
                 <Box
+                    data-cy='markdown-list-preview'
                     sx={{
                         minHeight,
                         px: 2,
