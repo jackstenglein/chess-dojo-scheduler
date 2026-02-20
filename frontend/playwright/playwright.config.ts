@@ -20,7 +20,7 @@ const isCI = !!process.env.CI;
 export default defineConfig({
     testDir: './tests',
     testIgnore: ['**/*.test.ts', '**/node_modules/**'],
-    timeout: 120000,
+    timeout: 10000,
     fullyParallel: true,
     forbidOnly: isCI,
     retries: isCI ? 2 : 0,
@@ -34,20 +34,35 @@ export default defineConfig({
     },
 
     projects: [
+        // Setup project - authenticates and saves session
         { name: 'setup', testMatch: /.*\.setup\.ts$/ },
+
+        // Auth tests - run WITHOUT authentication (testing login/signup flows)
+        {
+            name: 'auth',
+            testMatch: /.*\/auth\/.*\.spec\.ts$/,
+            use: {
+                ...devices['Desktop Chrome'],
+                // No storageState - tests run unauthenticated
+            },
+            // No dependencies - these tests don't need prior auth
+        },
+
+        // E2E tests - run WITH authentication
         {
             name: 'e2e',
             testMatch: /.*\.spec\.ts$/,
+            testIgnore: ['**/auth/**'], // Auth tests handled by 'auth' project
             use: {
                 ...devices['Desktop Chrome'],
-                storageState: '.auth/user.json',
+                storageState: path.join(__dirname, '.auth/user.json'),
             },
             dependencies: ['setup'],
         },
     ],
 
     webServer: {
-        command: 'npm run start:test',
+        command: 'npm run start:build',
         url: 'http://localhost:3000',
         reuseExistingServer: !isCI,
         cwd: path.join(__dirname, '..'),
