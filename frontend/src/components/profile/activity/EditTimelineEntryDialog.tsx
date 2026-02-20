@@ -2,6 +2,7 @@ import { useRequirement } from '@/api/cache/requirements';
 import { RequestSnackbar } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
 import { TimelineEntry } from '@/database/timeline';
+import { CustomTask } from '@/database/requirement';
 import LoadingPage from '@/loading/LoadingPage';
 import {
     Box,
@@ -15,7 +16,7 @@ import {
 } from '@mui/material';
 import { ProgressHistoryItem, useProgressHistoryEditor } from '../trainingPlan/ProgressHistory';
 
-export function EditTimelinEntryDialog({
+export function EditTimelineEntryDialog({
     entry,
     onClose,
 }: {
@@ -23,7 +24,18 @@ export function EditTimelinEntryDialog({
     onClose: () => void;
 }) {
     const { user } = useAuth();
-    const { requirement } = useRequirement(entry.requirementId);
+    
+    // For custom requirements, fetch from user's customTasks instead of using useRequirement API
+    const customTask = entry.isCustomRequirement 
+        ? user?.customTasks?.find((t: CustomTask) => t.id === entry.requirementId)
+        : undefined;
+    
+    // For regular requirements, use the existing useRequirement hook which handles caching
+    // Note: We don't need the request from useRequirement since useProgressHistoryEditor handles its own request
+    const { requirement: regularRequirement } = useRequirement(entry.requirementId);
+    
+    // Use custom task if it's a custom requirement, otherwise use regular requirement
+    const requirement = entry.isCustomRequirement ? customTask : regularRequirement;
 
     const {
         errors,
