@@ -70,16 +70,9 @@ const NotificationButton = () => {
                 }}
             >
                 <MenuList>
-                    {notifications.map((n) => (
-                        <NotificationListItem key={n.id} notification={n} menuItem />
-                    ))}
-                    {notifications.length === 0 && (
-                        <MenuItem onClick={handleClose}>No notifications</MenuItem>
-                    )}
                     {notifications.length > 0 && (
                         <>
-                            <Divider />
-                            <Stack direction='row' justifyContent='center' sx={{ pt: 1 }}>
+                            <Stack direction='row' justifyContent='center' sx={{ pb: 1 }}>
                                 {clearRequest.isLoading() ? (
                                     <CircularProgress size={24} />
                                 ) : (
@@ -92,7 +85,14 @@ const NotificationButton = () => {
                                     </Button>
                                 )}
                             </Stack>
+                            <Divider />
                         </>
+                    )}
+                    {notifications.map((n) => (
+                        <NotificationListItem key={n.id} notification={n} menuItem />
+                    ))}
+                    {notifications.length === 0 && (
+                        <MenuItem onClick={handleClose}>No notifications</MenuItem>
                     )}
                 </MenuList>
             </Menu>

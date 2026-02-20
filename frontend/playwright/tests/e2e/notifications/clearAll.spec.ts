@@ -1,77 +1,93 @@
 import { expect, test } from '@playwright/test';
 
+const FAKE_NOTIFICATION = {
+    id: 'GAME_COMMENT|2000-2100|test-game-id',
+    type: 'GAME_COMMENT',
+    updatedAt: '2026-01-01T00:00:00Z',
+    count: 1,
+    gameCommentMetadata: {
+        cohort: '2000-2100',
+        id: 'test-game-id',
+        headers: { White: 'Alice', Black: 'Bob' },
+    },
+};
+
+function mockNotifications(
+    page: import('@playwright/test').Page,
+    notifications: typeof FAKE_NOTIFICATION[] = [],
+) {
+    return page.route('**/user/notifications', (route) => {
+        if (route.request().method() === 'GET') {
+            return route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    notifications,
+                    lastEvaluatedKey: '',
+                }),
+            });
+        }
+        if (route.request().method() === 'DELETE') {
+            return route.fulfill({ status: 200, contentType: 'application/json', body: 'null' });
+        }
+        return route.continue();
+    });
+}
+
 test.describe('Clear All Notifications', () => {
-    test('notifications page shows Clear All button when notifications exist', async ({
+    test('shows Clear All button on notifications page when notifications exist', async ({
         page,
     }) => {
+        await mockNotifications(page, [FAKE_NOTIFICATION]);
         await page.goto('/notifications');
-        await page.waitForLoadState('networkidle');
 
-        const notifications = page.locator('[class*="MuiStack-root"] > [class*="MuiStack-root"]');
-        const clearAllButton = page.getByRole('button', { name: 'Clear All' });
-
-        // If notifications exist, the Clear All button should be visible
-        const notificationCount = await notifications.count();
-        if (notificationCount > 0) {
-            await expect(clearAllButton).toBeVisible();
-        } else {
-            await expect(clearAllButton).not.toBeVisible();
-        }
+        await expect(page.getByRole('button', { name: 'Clear All' })).toBeVisible();
     });
 
-    test('notifications page hides Clear All button when no notifications exist', async ({
+    test('hides Clear All button on notifications page when no notifications exist', async ({
         page,
     }) => {
+        await mockNotifications(page, []);
         await page.goto('/notifications');
-        await page.waitForLoadState('networkidle');
 
-        const noNotificationsText = page.getByText('No notifications');
-
-        // If "No notifications" text is shown, Clear All should not be visible
-        if (await noNotificationsText.isVisible()) {
-            const clearAllButton = page.getByRole('button', { name: 'Clear All' });
-            await expect(clearAllButton).not.toBeVisible();
-        }
+        await expect(page.getByText('No notifications')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Clear All' })).not.toBeVisible();
     });
 
     test('clicking Clear All removes all notifications from the page', async ({ page }) => {
+        await mockNotifications(page, [FAKE_NOTIFICATION]);
         await page.goto('/notifications');
-        await page.waitForLoadState('networkidle');
 
         const clearAllButton = page.locator('[data-cy="clear-all-notifications"]');
+        await expect(clearAllButton).toBeVisible();
+        await clearAllButton.click();
 
-        // Only run the clear-all test if the button is present (i.e., notifications exist)
-        if (await clearAllButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await clearAllButton.click();
-
-            // Wait for notifications to be cleared
-            await expect(page.getByText('No notifications')).toBeVisible({ timeout: 15000 });
-
-            // Clear All button should no longer be visible
-            await expect(clearAllButton).not.toBeVisible();
-        }
+        await expect(page.getByText('No notifications')).toBeVisible({ timeout: 15000 });
+        await expect(clearAllButton).not.toBeVisible();
     });
 
-    test('navbar dropdown shows Clear All button when notifications exist', async ({ page }) => {
+    test('dropdown shows Clear All above notifications when they exist', async ({ page }) => {
+        await mockNotifications(page, [FAKE_NOTIFICATION]);
         await page.goto('/');
-        await page.waitForLoadState('networkidle');
 
-        // Open the notifications dropdown
         const notificationButton = page.locator('[data-cy="Notifications"]');
         await notificationButton.click();
 
-        // Wait for the menu to appear
         const menu = page.locator('#notifications-menu');
         await expect(menu).toBeVisible();
+        await expect(menu.getByRole('button', { name: 'Clear All' })).toBeVisible();
+    });
 
-        const clearAllButton = menu.getByRole('button', { name: 'Clear All' });
-        const noNotificationsItem = menu.getByText('No notifications');
+    test('dropdown hides Clear All when no notifications exist', async ({ page }) => {
+        await mockNotifications(page, []);
+        await page.goto('/');
 
-        // If there are notifications, Clear All should be visible; otherwise it should not
-        if (await noNotificationsItem.isVisible().catch(() => false)) {
-            await expect(clearAllButton).not.toBeVisible();
-        } else {
-            await expect(clearAllButton).toBeVisible();
-        }
+        const notificationButton = page.locator('[data-cy="Notifications"]');
+        await notificationButton.click();
+
+        const menu = page.locator('#notifications-menu');
+        await expect(menu).toBeVisible();
+        await expect(menu.getByText('No notifications')).toBeVisible();
+        await expect(menu.getByRole('button', { name: 'Clear All' })).not.toBeVisible();
     });
 });
