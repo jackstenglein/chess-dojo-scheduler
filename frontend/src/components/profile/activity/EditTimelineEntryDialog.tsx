@@ -58,6 +58,32 @@ export function EditTimelineEntryDialog({
     const index = items.findIndex((v) => v.entry.id === entry.id);
 
     if (!requirement) {
+        // Check if this is a custom requirement that wasn't found in user's customTasks
+        if (entry.isCustomRequirement && !customTask) {
+            // Show error for missing custom task instead of infinite loading
+            return (
+                <Dialog
+                    open
+                    onClose={onClose}
+                    fullWidth
+                    maxWidth='md'
+                >
+                    <DialogTitle>Update {entry.requirementName}?</DialogTitle>
+                    <DialogContent>
+                        <Typography color='error' sx={{ mt: 2 }}>
+                            Unable to load this custom task. It may have been deleted or you may not have access to it.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={onClose}>
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            );
+        }
+        
+        // For regular requirements still loading or not found, show loading
         return (
             <Dialog
                 open
