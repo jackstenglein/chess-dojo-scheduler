@@ -1,192 +1,179 @@
-import { useChess } from '@/board/pgn/PgnBoard';
-import { ENGINE_LINE_COUNT, ENGINE_NAME, engines, LineEval } from '@/stockfish/engine/engine';
-import { useEval } from '@/stockfish/hooks/useEval';
-import Icon from '@/style/Icon';
-import { Box, Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
-import { useState } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
-import { EvaluationSection } from './EvaluationSection';
-import { formatLineEval } from './LineEval';
-import Settings from './Settings';
+import Board from '@/board/Board';
+import { EngineInfo, LineEval } from '@/stockfish/engine/engine';
+import { useChessDB, ChessDbPv } from '@/stockfish/hooks/useChessDb';
+import { List, Paper, Popper, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import { Key } from 'chessground/types';
+import { useRef, useState } from 'react';
+import { ChessContext, useChess } from '../../PgnBoard';
+import LineEvaluation from './LineEval';
 
-export default function EngineSection() {
-    const [engineName] = useLocalStorage(ENGINE_NAME.Key, ENGINE_NAME.Default);
-    let engineInfo = engines.find((e) => e.name === engineName);
-    if (!engineInfo) {
-        engineInfo = engines[0];
-    }
-
-    const [linesNumber] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
-
-    const [enabled, setEnabled] = useState(false);
-    const evaluation = useEval(enabled, engineInfo.name);
-
-    const { chess } = useChess();
-    const isGameOver = chess?.isGameOver();
-
-    const engineLines = evaluation?.lines?.length
-        ? evaluation.lines
-        : (Array.from({ length: Math.max(1, linesNumber) }).map((_, i) => ({
-              fen: '',
-              pv: [],
-              depth: 0,
-              multiPv: i + 1,
-          })) as LineEval[]);
-
-    const resultPercentages = engineLines[0]?.resultPercentages;
-
-    return (
-        <Paper
-            elevation={6}
-            sx={{
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-                borderBottom: '1px solid',
-                borderBottomColor: 'divider',
-            }}
-        >
-            <Stack sx={{ p: 1, containerType: 'inline-size' }}>
-                <Stack direction='row' alignItems='center'>
-                    <Tooltip title='Toggle Engine' disableInteractive>
-                        <Switch
-                            checked={enabled}
-                            onChange={(e) => {
-                                setEnabled((prev) => !prev);
-                                e.currentTarget.blur();
-                            }}
-                            sx={{ mr: 1 }}
-                        />
-                    </Tooltip>
-
-                    {enabled && !isGameOver && (
-                        <Stack sx={{ mr: 2 }} alignItems='center'>
-                            <Typography variant='h5'>{formatLineEval(engineLines[0])}</Typography>
-                            <Tooltip
-                                title="The engine's expected Win / Draw / Loss percentages"
-                                disableInteractive
-                            >
-                                <Typography variant='caption' sx={{ whiteSpace: 'nowrap' }}>
-                                    {resultPercentages?.win ?? '?'} /{' '}
-                                    {resultPercentages?.draw ?? '?'} /{' '}
-                                    {resultPercentages?.loss ?? '?'}
-                                </Typography>
-                            </Tooltip>
-                        </Stack>
-                    )}
-
-                    <Stack sx={{ flexGrow: 1, lineHeight: '1.2', color: 'text.secondary' }}>
-                        <Stack direction='row'>
-                            <Typography variant='caption' sx={{ display: { '@288': 'none' } }}>
-                                {engineInfo.extraShortName}
-                            </Typography>
-                            <Typography
-                                variant='caption'
-                                sx={{ display: { '@': 'none', '@288': 'initial' } }}
-                            >
-                                {engineInfo.shortName}
-                            </Typography>
-
-                            <Tooltip title={engineInfo.techDescription} disableInteractive>
-                                <Typography
-                                    color='dojoOrange'
-                                    variant='caption'
-                                    sx={{
-                                        display: {
-                                            '@': 'none',
-                                            '@351': 'initial',
-                                        },
-                                    }}
-                                >
-                                    <Icon
-                                        name={engineInfo.name}
-                                        sx={{
-                                            verticalAlign: 'middle',
-                                            ml: 0.75,
-                                            mr: 0.5,
-                                            fontSize: 15,
-                                        }}
-                                    />
-                                    {engineInfo.tech}
-                                </Typography>
-                            </Tooltip>
-                        </Stack>
-
-                        {enabled ? (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: {
-                                        '@': 'column',
-                                        '@319': 'row',
-                                    },
-                                }}
-                            >
-                                {isGameOver ? (
-                                    <Typography variant='caption'>Game Over</Typography>
-                                ) : (
-                                    <>
-                                        <Typography variant='caption'>
-                                            Depth {engineLines[0].depth}
-                                        </Typography>
-                                        <Typography
-                                            variant='caption'
-                                            sx={{
-                                                whiteSpace: 'pre',
-                                                display: {
-                                                    '@': 'none',
-                                                    '@319': 'initial',
-                                                },
-                                            }}
-                                        >
-                                            {' • '}
-                                        </Typography>
-                                        <NodesPerSecond nps={engineLines[0].nps} />
-                                    </>
-                                )}
-                            </Box>
-                        ) : (
-                            <Typography variant='caption'>{engineInfo.location}</Typography>
-                        )}
-                    </Stack>
-
-                    <Settings />
-                </Stack>
-
-                {enabled && !isGameOver && (
-                    <Stack>
-                        {isGameOver ? (
-                            <Typography align='center' fontSize='0.9rem'>
-                                Game is over
-                            </Typography>
-                        ) : (
-                            <EvaluationSection
-                                engineInfo={engineInfo}
-                                allLines={engineLines}
-                                maxLines={linesNumber}
-                            />
-                        )}
-                    </Stack>
-                )}
-            </Stack>
-        </Paper>
-    );
+interface HoverMove {
+    fen: string;
+    from: Key;
+    to: Key;
 }
 
-function NodesPerSecond({ nps }: { nps?: number }) {
-    if (!nps) {
-        return null;
-    }
+export const EvaluationSection = ({
+    engineInfo,
+    allLines,
+    maxLines,
+}: {
+    engineInfo: EngineInfo;
+    allLines: LineEval[];
+    maxLines: number;
+}) => {
+    const anchorRef = useRef<HTMLUListElement>(null);
+    const [hoverMove, setHoverMove] = useState<HoverMove>();
+    const { board } = useChess();
+    const { pv, pvLoading } = useChessDB();
 
-    let text = '';
-    if (nps > 1_000_000) {
-        text = `${Math.round(nps / 100_000) / 10} Mn/s`;
-    } else {
-        text = `${Math.round(nps / 100) / 10} Kn/s`;
-    }
+    const onMouseOver = (event: React.MouseEvent<HTMLElement>) => {
+        const element = event.target as HTMLElement;
+        if (element.dataset.fen && element.dataset.from && element.dataset.to) {
+            setHoverMove({
+                fen: element.dataset.fen,
+                from: element.dataset.from as Key,
+                to: element.dataset.to as Key,
+            });
+        }
+    };
+
+    const onMouseLeave = () => {
+        setHoverMove(undefined);
+    };
 
     return (
-        <Tooltip title='Nodes (positions searched) per second' disableInteractive>
-            <Typography variant='caption'>{text}</Typography>
-        </Tooltip>
+        <>
+            <List
+                ref={anchorRef}
+                sx={{ pb: 0 }}
+                onMouseOver={onMouseOver}
+                onMouseLeave={onMouseLeave}
+            >
+                {Array.from({ length: maxLines }).map((_, i) => (
+                    <LineEvaluation engineInfo={engineInfo} key={i} line={allLines[i]} isTop={i === 0} />
+                ))}
+            </List>
+
+            <CloudEvalSection pv={pv} loading={pvLoading} />
+
+            <Popper
+                open={Boolean(anchorRef.current && hoverMove)}
+                anchorEl={anchorRef.current}
+                placement='bottom'
+                sx={{ zIndex: '1300' }}
+            >
+                {hoverMove && (
+                    <Paper
+                        elevation={12}
+                        sx={{
+                            width:
+                                Math.floor(
+                                    (anchorRef.current?.getBoundingClientRect().width ?? 0) / 4,
+                                ) * 4,
+                            maxWidth: '368px',
+                            aspectRatio: '1 / 1',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <ChessContext.Provider value={{ config: { initKey: hoverMove.fen } }}>
+                            <Board
+                                config={{
+                                    fen: hoverMove.fen,
+                                    lastMove: [hoverMove.from, hoverMove.to],
+                                    viewOnly: true,
+                                    orientation: board?.state.orientation,
+                                }}
+                            />
+                        </ChessContext.Provider>
+                    </Paper>
+                )}
+            </Popper>
+        </>
+    );
+};
+
+function CloudEvalSection({ pv, loading }: { pv: ChessDbPv | null; loading: boolean }) {
+    const scoreNum = pv?.score ?? 0;
+    const isBlack = scoreNum < 0;
+    const scoreLabel = isNaN(scoreNum)
+        ? '?'
+        : `${scoreNum > 0 ? '+' : ''}${(scoreNum / 100).toFixed(2)}`;
+
+    return (
+        <Stack
+            direction='row'
+            alignItems='center'
+            spacing={1}
+            sx={{
+                mt: 0.5,
+                pt: 0.5,
+                borderTop: '1px solid',
+                borderTopColor: 'divider',
+                minHeight: '28px',
+            }}
+        >
+            <Tooltip title='Chess Cloud Database evaluation' disableInteractive>
+                <Typography
+                    variant='caption'
+                    sx={{ color: 'text.secondary', whiteSpace: 'nowrap', fontStyle: 'italic' }}
+                >
+                    CDB
+                </Typography>
+            </Tooltip>
+
+            {loading ? (
+                <Skeleton variant='rounded' animation='wave' width={240} height={18} />
+            ) : !pv ? (
+                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+                    Not in cloud database
+                </Typography>
+            ) : (
+                <>
+                    <Tooltip title={`Depth ${pv.depth}`} disableInteractive>
+                        <Stack
+                            alignItems='center'
+                            justifyContent='center'
+                            sx={{
+                                px: 0.75,
+                                py: '1px',
+                                minWidth: '45px',
+                                height: '23px',
+                                backgroundColor: isBlack ? 'black' : 'white',
+                                borderRadius: '5px',
+                                border: '1px solid',
+                                borderColor: '#424242',
+                                cursor: 'default',
+                            }}
+                        >
+                            <Typography
+                                component='span'
+                                sx={{
+                                    pt: '2px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 'bold',
+                                    color: isBlack ? 'white' : 'black',
+                                }}
+                            >
+                                {scoreLabel}
+                            </Typography>
+                        </Stack>
+                    </Tooltip>
+
+                    <Typography
+                        variant='caption'
+                        sx={{
+                            flexGrow: 1,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontSize: '0.9rem',
+                        }}
+                    >
+                        {pv.pvSAN.slice(0, 10).join(' ')}
+                    </Typography>
+                </>
+            )}
+        </Stack>
     );
 }

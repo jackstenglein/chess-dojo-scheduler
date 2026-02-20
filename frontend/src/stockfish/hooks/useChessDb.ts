@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { getChessDbCache, setChessDbCache } from "@/api/cache/chessdb";
 import { validateFen } from "chess.js";
 import { ChessDbMove } from "@/api/cache/chessdb";
+import { useChess } from "@/board/pgn/PgnBoard";
 
 interface ChessDbResponse {
   status: string;
@@ -36,7 +37,8 @@ export function getChessDbNoteWord(note: string): string {
   }
 }
 
-export function useChessDB(fen: string) {
+export function useChessDB() {
+  const { chess } = useChess();
   const [data, setData] = useState<ChessDbMove[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +46,8 @@ export function useChessDB(fen: string) {
   const [pv, setPv] = useState<ChessDbPv | null>(null);
   const [pvLoading, setPvLoading] = useState(false);
   const [pvError, setPvError] = useState<string | null>(null);
+
+  const fen = chess?.fen() ?? "";
 
   const queueAnalysis = useCallback(async (fenString: string): Promise<void> => {
     if (!fenString.trim() || !validateFen(fenString)) return;
@@ -175,20 +179,24 @@ export function useChessDB(fen: string) {
   );
 
   useEffect(() => {
+    if (!chess || !fen) return;
     void fetchChessDBData(fen);
     void fetchPv(fen);
-  }, [fen, fetchChessDBData, fetchPv]);
+  }, [fen, chess, fetchChessDBData, fetchPv]);
 
   const refetch = useCallback(() => {
+    if (!fen) return;
     void fetchChessDBData(fen);
     void fetchPv(fen);
   }, [fen, fetchChessDBData, fetchPv]);
 
   const requestAnalysis = useCallback(() => {
+    if (!fen) return;
     void queueAnalysis(fen);
   }, [fen, queueAnalysis]);
 
   const refetchPv = useCallback(() => {
+    if (!fen) return;
     void fetchPv(fen);
   }, [fen, fetchPv]);
 
