@@ -51,7 +51,6 @@ export function FullTrainingPlanGraduationItem({
 
     const onOpen = () => {
         if (disabled) return;
-        // Just for testing: block graduation (show upsell). Restore: useFreeTier() and if (isFreeTier)
         if (isFreeTier) {
             setUpsellOpen(true);
         } else {
