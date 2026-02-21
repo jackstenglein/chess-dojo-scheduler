@@ -62,7 +62,7 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: 'npm run start:test',
+        command: 'npm run start:build',
         url: 'http://localhost:3000',
         reuseExistingServer: !isCI,
         cwd: path.join(__dirname, '..'),
