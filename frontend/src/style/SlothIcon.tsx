@@ -1,9 +1,6 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
 import { forwardRef } from 'react';
 
-// Sloth by Lewen Design from Noun Project
-// https://thenounproject.com/browse/icons/term/sloth/
-// Licensed under CC BY 3.0
 export const SlothIcon = forwardRef<SVGSVGElement, SvgIconProps>(function SlothIcon(
     props: SvgIconProps,
     ref,
