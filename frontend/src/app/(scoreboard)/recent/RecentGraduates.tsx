@@ -66,8 +66,6 @@ function getAnnotatedGamesCount(graduation: Graduation): number {
     if (!progress?.counts) {
         return 0;
     }
-
-    // Prefer cohort-specific graduation count, then fall back to all-cohorts if present.
     return progress.counts[graduation.previousCohort] ?? progress.counts.ALL_COHORTS ?? 0;
 }
 
@@ -223,7 +221,6 @@ const RecentGraduates = () => {
 
     const graduations = useMemo(() => {
         const gs = request.data ?? [];
-
         return getUniqueGraduations(
             gs.filter((g) => g.createdAt >= timeframe.minDate && g.createdAt < timeframe.maxDate),
         );
