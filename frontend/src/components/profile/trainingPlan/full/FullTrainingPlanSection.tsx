@@ -22,12 +22,16 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import CustomTaskEditor from '../CustomTaskEditor';
 import { ScheduleClassicalGame } from '../ScheduleClassicalGame';
 import { SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
 import { TrainingPlanIcon } from '../TrainingPlanIcon';
+import { FullTrainingPlanGraduationItem } from './FullTrainingPlanGraduationItem';
 import { FullTrainingPlanItem } from './FullTrainingPlanItem';
+
+/** Fake requirement id for the graduation task in the full training plan. */
+export const GRADUATION_TASK_ID = 'GRADUATION_TASK';
 
 /** A section in the training plan view. */
 export interface Section {
@@ -80,13 +84,6 @@ export function FullTrainingPlanSection({
 }: TrainingPlanSectionProps) {
     const isFreeTier = useFreeTier();
     const [showCustomTaskEditor, setShowCustomTaskEditor] = useState(false);
-
-    const hiddenTaskCount = useMemo(() => {
-        if (!isFreeTier) {
-            return 0;
-        }
-        return section.uncompletedTasks.filter((r) => isRequirement(r) && !r.isFree).length;
-    }, [section.uncompletedTasks, isFreeTier]);
 
     return (
         <Accordion
@@ -204,20 +201,6 @@ export function FullTrainingPlanSection({
                         Add Custom Task
                     </Button>
                 )}
-
-                {isFreeTier &&
-                    section.category !== RequirementCategory.NonDojo &&
-                    hiddenTaskCount > 0 && (
-                        <Stack mt={2} spacing={2} alignItems='center'>
-                            <Typography>
-                                Unlock {hiddenTaskCount} more task
-                                {hiddenTaskCount > 1 ? 's' : ''} by upgrading to a full account
-                            </Typography>
-                            <Button variant='outlined' href='/prices'>
-                                View Prices
-                            </Button>
-                        </Stack>
-                    )}
             </AccordionDetails>
 
             <CustomTaskEditor
@@ -253,6 +236,17 @@ function TaskList({
             {tasks.map((r) => {
                 if (r.id === SCHEDULE_CLASSICAL_GAME_TASK_ID) {
                     return <ScheduleClassicalGame key={r.id} hideChip />;
+                }
+                if (r.id === GRADUATION_TASK_ID) {
+                    return (
+                        <FullTrainingPlanGraduationItem
+                            key={r.id}
+                            requirement={r as Requirement}
+                            user={user}
+                            cohort={cohort}
+                            isCurrentUser={isCurrentUser}
+                        />
+                    );
                 }
                 if (isFreeTier && isRequirement(r) && !r.isFree) {
                     return null;

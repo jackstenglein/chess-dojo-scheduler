@@ -1,45 +1,30 @@
-import { EventType, setUserProperties, trackEvent } from '@/analytics/events';
-import { useApi } from '@/api/Api';
-import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useFreeTier } from '@/auth/Auth';
 import { formatRatingSystem, getCurrentRating, shouldPromptGraduation } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { Help, NotInterested } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
 import {
-    Button,
     Card,
     CardActionArea,
     CardActions,
     CardContent,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     Grid,
     IconButton,
     Stack,
-    TextField,
     Tooltip,
     Typography,
 } from '@mui/material';
 import { use, useState } from 'react';
+import { GraduationDialog } from '../GraduationDialog';
 import { TrainingPlanContext } from '../TrainingPlanTab';
 
 export function GraduationTask() {
     const { user, isCurrentUser, skippedTaskIds, toggleSkip } = use(TrainingPlanContext);
     const shouldGraduate = shouldPromptGraduation(user);
 
-    const [comments, setComments] = useState('');
-    const request = useRequest<string>();
-    const api = useApi();
     const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
-    // const [showShareDialog, setShareDialog] = useState(false);
-    // const [graduation, setGraduation] = useState<Graduation>();
 
     if (!shouldGraduate || skippedTaskIds?.includes('graduation')) {
         return null;
@@ -51,29 +36,6 @@ export function GraduationTask() {
         } else {
             setShowGraduationDialog(true);
         }
-    };
-
-    const onGraduate = () => {
-        if (!user) {
-            return;
-        }
-        request.onStart();
-        api.graduate(comments)
-            .then((response) => {
-                // setGraduation(response.data.graduation);
-                request.onSuccess('Congratulations! You have successfully graduated!');
-                trackEvent(EventType.Graduate, {
-                    previous_cohort: response.data.graduation.previousCohort,
-                    new_cohort: response.data.graduation.newCohort,
-                    dojo_score: response.data.graduation.score,
-                });
-                setUserProperties({ ...user, ...response.data.userUpdate });
-                setShowGraduationDialog(false);
-                // setShareDialog(!user?.enableZenMode);
-            })
-            .catch((err) => {
-                request.onFailure(err);
-            });
     };
 
     return (
@@ -125,57 +87,11 @@ export function GraduationTask() {
                 </Card>
             </Grid>
 
-            <RequestSnackbar request={request} showSuccess />
-            <Dialog
+            <GraduationDialog
                 open={showGraduationDialog}
-                onClose={request.isLoading() ? undefined : () => setShowGraduationDialog(false)}
-                fullWidth
-            >
-                <DialogTitle>Graduate from {user?.dojoCohort}?</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2}>
-                        <DialogContentText>
-                            This will move you to the next cohort and add a badge to your profile.
-                            You will also be added to the list of recent graduates, and Jesse will
-                            review your profile in the next grad show on Twitch. If you just want to
-                            look at tasks from other cohorts, use the dropdown in the training plan
-                            instead.
-                        </DialogContentText>
-                        <DialogContentText>
-                            Optionally add comments on what was most helpful about the program, what
-                            could be improved, etc. This will be visible to all other members of the
-                            Dojo.
-                        </DialogContentText>
-                        <TextField
-                            label='Comments'
-                            value={comments}
-                            onChange={(event) => setComments(event.target.value)}
-                            multiline
-                            minRows={3}
-                            maxRows={3}
-                            fullWidth
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={() => setShowGraduationDialog(false)}
-                        disabled={request.isLoading()}
-                    >
-                        Cancel
-                    </Button>
-                    <LoadingButton loading={request.isLoading()} onClick={onGraduate}>
-                        Graduate
-                    </LoadingButton>
-                </DialogActions>
-            </Dialog>
-            {/* {!!graduation && (
-                <GraduationShareDialog
-                    open={showShareDialog}
-                    graduation={graduation}
-                    onClose={() => setShareDialog(false)}
-                />
-            )} */}
+                onClose={() => setShowGraduationDialog(false)}
+                user={user}
+            />
             <UpsellDialog
                 open={upsellDialogOpen}
                 onClose={setUpsellDialogOpen}
