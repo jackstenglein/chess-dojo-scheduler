@@ -37,13 +37,10 @@ describe('notificationApi', () => {
             const id = 'GAME_COMMENT|2000-2100|abc123';
             const encodedId = btoa(id);
             deleteNotification('test-token', id);
-            expect(axiosService.delete).toHaveBeenCalledWith(
-                `/user/notifications/${encodedId}`,
-                {
-                    headers: { Authorization: 'Bearer test-token' },
-                    functionName: 'deleteNotification',
-                },
-            );
+            expect(axiosService.delete).toHaveBeenCalledWith(`/user/notifications/${encodedId}`, {
+                headers: { Authorization: 'Bearer test-token' },
+                functionName: 'deleteNotification',
+            });
         });
     });
 

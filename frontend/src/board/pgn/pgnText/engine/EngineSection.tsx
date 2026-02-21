@@ -1,5 +1,12 @@
 import { useChess } from '@/board/pgn/PgnBoard';
-import { ENGINE_LINE_COUNT, ENGINE_NAME, engines, LineEval } from '@/stockfish/engine/engine';
+import {
+    CLOUD_EVAL_ENABLED,
+    ENGINE_LINE_COUNT,
+    ENGINE_NAME,
+    engines,
+    LineEval,
+} from '@/stockfish/engine/engine';
+import { useChessDB } from '@/stockfish/hooks/useChessDb';
 import { useEval } from '@/stockfish/hooks/useEval';
 import Icon from '@/style/Icon';
 import { Box, Paper, Stack, Switch, Tooltip, Typography } from '@mui/material';
@@ -17,12 +24,15 @@ export default function EngineSection() {
     }
 
     const [linesNumber] = useLocalStorage(ENGINE_LINE_COUNT.Key, ENGINE_LINE_COUNT.Default);
+    const [showCloudEval] = useLocalStorage(CLOUD_EVAL_ENABLED.Key, CLOUD_EVAL_ENABLED.Default);
 
     const [enabled, setEnabled] = useState(false);
     const evaluation = useEval(enabled, engineInfo.name);
 
     const { chess } = useChess();
     const isGameOver = chess?.isGameOver();
+
+    const { pv: chessDbPv, pvLoading: chessDbLoading } = useChessDB();
 
     const engineLines = evaluation?.lines?.length
         ? evaluation.lines
@@ -34,6 +44,12 @@ export default function EngineSection() {
           })) as LineEval[]);
 
     const resultPercentages = engineLines[0]?.resultPercentages;
+
+    const cloudScoreNum = chessDbPv?.score ?? null;
+    const cloudScoreLabel =
+        cloudScoreNum !== null
+            ? `${cloudScoreNum > 0 ? '+' : ''}${(cloudScoreNum / 100).toFixed(2)}`
+            : null;
 
     return (
         <Paper
@@ -75,7 +91,7 @@ export default function EngineSection() {
                     )}
 
                     <Stack sx={{ flexGrow: 1, lineHeight: '1.2', color: 'text.secondary' }}>
-                        <Stack direction='row'>
+                        <Stack direction='row' alignItems='center'>
                             <Typography variant='caption' sx={{ display: { '@288': 'none' } }}>
                                 {engineInfo.extraShortName}
                             </Typography>
@@ -90,12 +106,7 @@ export default function EngineSection() {
                                 <Typography
                                     color='dojoOrange'
                                     variant='caption'
-                                    sx={{
-                                        display: {
-                                            '@': 'none',
-                                            '@351': 'initial',
-                                        },
-                                    }}
+                                    sx={{ display: { '@': 'none', '@351': 'initial' } }}
                                 >
                                     <Icon
                                         name={engineInfo.name}
@@ -109,19 +120,42 @@ export default function EngineSection() {
                                     {engineInfo.tech}
                                 </Typography>
                             </Tooltip>
+
+                            {showCloudEval && !isGameOver && cloudScoreLabel && (
+                                <Tooltip
+                                    title={`Chess Cloud DB eval (depth ${chessDbPv?.depth ?? '?'})`}
+                                    disableInteractive
+                                >
+                                    <Typography
+                                        variant='caption'
+                                        sx={{
+                                            ml: 1,
+                                            px: 0.5,
+                                            borderRadius: '3px',
+                                            backgroundColor:
+                                                (cloudScoreNum ?? 0) < 0 ? 'black' : 'white',
+                                            color: (cloudScoreNum ?? 0) < 0 ? 'white' : 'black',
+                                            border: '1px solid',
+                                            borderColor: '#424242',
+                                            fontWeight: 'bold',
+                                            fontSize: '0.75rem',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        CDB {cloudScoreLabel}
+                                    </Typography>
+                                </Tooltip>
+                            )}
                         </Stack>
 
-                        {enabled ? (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: {
-                                        '@': 'column',
-                                        '@319': 'row',
-                                    },
-                                }}
-                            >
-                                {isGameOver ? (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: { '@': 'column', '@319': 'row' },
+                            }}
+                        >
+                            {enabled ? (
+                                isGameOver ? (
                                     <Typography variant='caption'>Game Over</Typography>
                                 ) : (
                                     <>
@@ -132,21 +166,18 @@ export default function EngineSection() {
                                             variant='caption'
                                             sx={{
                                                 whiteSpace: 'pre',
-                                                display: {
-                                                    '@': 'none',
-                                                    '@319': 'initial',
-                                                },
+                                                display: { '@': 'none', '@319': 'initial' },
                                             }}
                                         >
                                             {' • '}
                                         </Typography>
                                         <NodesPerSecond nps={engineLines[0].nps} />
                                     </>
-                                )}
-                            </Box>
-                        ) : (
-                            <Typography variant='caption'>{engineInfo.location}</Typography>
-                        )}
+                                )
+                            ) : (
+                                <Typography variant='caption'>{engineInfo.location}</Typography>
+                            )}
+                        </Box>
                     </Stack>
 
                     <Settings />
@@ -154,17 +185,13 @@ export default function EngineSection() {
 
                 {enabled && !isGameOver && (
                     <Stack>
-                        {isGameOver ? (
-                            <Typography align='center' fontSize='0.9rem'>
-                                Game is over
-                            </Typography>
-                        ) : (
-                            <EvaluationSection
-                                engineInfo={engineInfo}
-                                allLines={engineLines}
-                                maxLines={linesNumber}
-                            />
-                        )}
+                        <EvaluationSection
+                            engineInfo={engineInfo}
+                            allLines={engineLines}
+                            maxLines={linesNumber}
+                            chessDbpv={chessDbPv}
+                            chessDbLoading={chessDbLoading}
+                        />
                     </Stack>
                 )}
             </Stack>
@@ -173,9 +200,7 @@ export default function EngineSection() {
 }
 
 function NodesPerSecond({ nps }: { nps?: number }) {
-    if (!nps) {
-        return null;
-    }
+    if (!nps) return null;
 
     let text = '';
     if (nps > 1_000_000) {
