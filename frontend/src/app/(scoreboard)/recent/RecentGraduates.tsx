@@ -59,6 +59,17 @@ function getTimeframeOptions() {
 }
 
 const timeframeOptions = getTimeframeOptions();
+const ANNOTATED_GAMES_TASK_ID = '4d23d689-1284-46e6-b2a2-4b4bfdc37174';
+
+function getAnnotatedGamesCount(graduation: Graduation): number {
+    const progress = graduation.progress?.[ANNOTATED_GAMES_TASK_ID];
+    if (!progress?.counts) {
+        return 0;
+    }
+
+    // Prefer cohort-specific graduation count, then fall back to all-cohorts if present.
+    return progress.counts[graduation.previousCohort] ?? progress.counts.ALL_COHORTS ?? 0;
+}
 
 const graduateTableColumns: GridColDef<Graduation>[] = [
     {
@@ -148,6 +159,19 @@ const graduateTableColumns: GridColDef<Graduation>[] = [
         renderCell: (params) => (
             <Stack height='30px' justifyContent='center'>
                 {params.formattedValue}
+            </Stack>
+        ),
+    },
+    {
+        field: 'gamesAnnotated',
+        headerName: 'Games Annotated',
+        headerAlign: 'center',
+        align: 'center',
+        flex: 1,
+        valueGetter: (_value, row) => getAnnotatedGamesCount(row),
+        renderCell: (params) => (
+            <Stack height='30px' justifyContent='center'>
+                {params.value}
             </Stack>
         ),
     },

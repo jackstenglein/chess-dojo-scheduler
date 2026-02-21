@@ -30,7 +30,15 @@ describe('Graduations', () => {
         });
         cy.visit('/recent');
 
-        const columns = ['Name', 'Graduated', 'Old Cohort', 'New Cohort', 'Dojo Score', 'Date'];
+        const columns = [
+            'Name',
+            'Graduated',
+            'Old Cohort',
+            'New Cohort',
+            'Dojo Score',
+            'Games Annotated',
+            'Date',
+        ];
 
         cy.getBySel('recent-graduates-table')
             .get('.MuiDataGrid-columnHeaders')
