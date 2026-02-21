@@ -1,5 +1,11 @@
 import { useChess } from '@/board/pgn/PgnBoard';
-import { ENGINE_LINE_COUNT, ENGINE_NAME, engines, LineEval, CLOUD_EVAL_ENABLED } from '@/stockfish/engine/engine';
+import {
+    CLOUD_EVAL_ENABLED,
+    ENGINE_LINE_COUNT,
+    ENGINE_NAME,
+    engines,
+    LineEval,
+} from '@/stockfish/engine/engine';
 import { useChessDB } from '@/stockfish/hooks/useChessDb';
 import { useEval } from '@/stockfish/hooks/useEval';
 import Icon from '@/style/Icon';
@@ -104,7 +110,12 @@ export default function EngineSection() {
                                 >
                                     <Icon
                                         name={engineInfo.name}
-                                        sx={{ verticalAlign: 'middle', ml: 0.75, mr: 0.5, fontSize: 15 }}
+                                        sx={{
+                                            verticalAlign: 'middle',
+                                            ml: 0.75,
+                                            mr: 0.5,
+                                            fontSize: 15,
+                                        }}
                                     />
                                     {engineInfo.tech}
                                 </Typography>
@@ -121,7 +132,8 @@ export default function EngineSection() {
                                             ml: 1,
                                             px: 0.5,
                                             borderRadius: '3px',
-                                            backgroundColor: (cloudScoreNum ?? 0) < 0 ? 'black' : 'white',
+                                            backgroundColor:
+                                                (cloudScoreNum ?? 0) < 0 ? 'black' : 'white',
                                             color: (cloudScoreNum ?? 0) < 0 ? 'white' : 'black',
                                             border: '1px solid',
                                             borderColor: '#424242',

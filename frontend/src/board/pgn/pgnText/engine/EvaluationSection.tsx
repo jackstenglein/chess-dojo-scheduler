@@ -1,16 +1,24 @@
-import Board from '@/board/Board';
+import Board, { useReconcile } from '@/board/Board';
 import { logger } from '@/logging/logger';
-import { EngineInfo, LineEval } from '@/stockfish/engine/engine';
-import { CLOUD_EVAL_ENABLED } from '@/stockfish/engine/engine';
+import { CLOUD_EVAL_ENABLED, EngineInfo, LineEval } from '@/stockfish/engine/engine';
 import { ChessDbPv, useChessDB } from '@/stockfish/hooks/useChessDb';
 import { Chess, Color, Move } from '@jackstenglein/chess';
-import { Box, List, ListItem, Paper, Popper, Skeleton, styled, Tooltip, Typography } from '@mui/material';
+import {
+    Box,
+    List,
+    ListItem,
+    Paper,
+    Popper,
+    Skeleton,
+    styled,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { Key } from 'chessground/types';
 import { useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { ChessContext, useChess } from '../../PgnBoard';
 import LineEvaluation from './LineEval';
-import { useReconcile } from '@/board/Board';
 
 interface HoverMove {
     fen: string;
@@ -57,7 +65,12 @@ export const EvaluationSection = ({
                 onMouseLeave={onMouseLeave}
             >
                 {Array.from({ length: maxLines }).map((_, i) => (
-                    <LineEvaluation engineInfo={engineInfo} key={i} line={allLines[i]} isTop={i === 0} />
+                    <LineEvaluation
+                        engineInfo={engineInfo}
+                        key={i}
+                        line={allLines[i]}
+                        isTop={i === 0}
+                    />
                 ))}
                 {cloudEvalEnabled && <CloudEvalSection pv={pv} loading={pvLoading} />}
             </List>
@@ -140,9 +153,7 @@ function CloudEvalSection({ pv, loading }: { pv: ChessDbPv | null; loading: bool
 
     const scoreNum = pv?.score ?? 0;
     const isBlack = scoreNum < 0;
-    const scoreLabel = !pv
-        ? '?'
-        : `${scoreNum > 0 ? '+' : ''}${(scoreNum / 100).toFixed(2)}`;
+    const scoreLabel = !pv ? '?' : `${scoreNum > 0 ? '+' : ''}${(scoreNum / 100).toFixed(2)}`;
 
     const moves = pv && currentFen ? cloudPvToMoves(currentFen, pv.pv) : [];
     const lastMove = moves.filter(Boolean).at(-1);
