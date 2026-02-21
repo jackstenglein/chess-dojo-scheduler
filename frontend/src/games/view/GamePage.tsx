@@ -25,8 +25,10 @@ import { Box } from '@mui/material';
 import { useEffect } from 'react';
 import { MissingGameDataPreflight } from '../edit/MissingGameDataPreflight';
 import PgnErrorBoundary from './PgnErrorBoundary';
+import { useRouter } from 'next/navigation';
 
 const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
+    const router = useRouter();
     const api = useApi();
     const request = useRequest<Game>();
     const featureRequest = useRequest();
@@ -54,7 +56,7 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
                     request.onSuccess(game);
                 })
                 .catch((err) => {
-                    request.onFailure(err);
+                    router.replace('/404');
                 });
         }
     }, [request, api, cohort, id]);

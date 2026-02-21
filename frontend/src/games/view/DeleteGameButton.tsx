@@ -10,6 +10,7 @@ import {
     DialogTitle,
     IconButton,
     IconButtonProps,
+    TextField,
     Tooltip,
 } from '@mui/material';
 import { useState } from 'react';
@@ -86,9 +87,13 @@ export function DeleteGamesDialog({
     const request = useRequest();
     const router = useRouter();
 
+    const [confirmText, setConfirmText] = useState('');
+    const isConfirmed = confirmText.trim().toLowerCase() === 'delete';
+
     const handleClose = () => {
         onClose();
         request.reset();
+        setConfirmText('');
     };
 
     const onDelete = async () => {
@@ -126,23 +131,44 @@ export function DeleteGamesDialog({
                 Permanently Delete{games.length !== 1 ? ` ${games.length}` : ''} Game
                 {games.length !== 1 ? 's' : ''}?
             </DialogTitle>
+
             <DialogContent>
                 Are you sure you want to delete {games.length === 1 ? 'this game' : 'these games'}?
                 This action cannot be undone.
+
+                <TextField
+                    autoFocus
+                    margin='normal'
+                    fullWidth
+                    label='Type "delete" to confirm'
+                    value={confirmText}
+                    onChange={(e) => setConfirmText(e.target.value)}
+                    disabled={request.isLoading()}
+                    error={confirmText.length > 0 && !isConfirmed}
+                    helperText={
+                        confirmText.length > 0 && !isConfirmed
+                            ? 'This will permanently delete all copies of this game (even in other folders)'
+                            : ' '
+                    }
+                />
             </DialogContent>
+
             <DialogActions>
                 <Button disabled={request.isLoading()} onClick={handleClose}>
                     Cancel
                 </Button>
+
                 <LoadingButton
                     data-cy='delete-game-confirm-button'
                     color='error'
                     loading={request.isLoading()}
                     onClick={onDelete}
+                    disabled={request.isLoading() || !isConfirmed}
                 >
                     Delete
                 </LoadingButton>
             </DialogActions>
+
             <RequestSnackbar request={request} />
         </Dialog>
     );
