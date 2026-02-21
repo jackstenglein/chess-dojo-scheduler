@@ -14,6 +14,8 @@ import { Game, PositionComment } from '@/database/game';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
 import { logger } from '@/logging/logger';
+import { isAxiosError } from 'axios';
+import { notFound } from 'next/navigation';
 import { Chess, EventType as ChessEventType, Move } from '@jackstenglein/chess';
 import {
     GameHeader,
@@ -61,6 +63,10 @@ const GamePage = ({ cohort, id }: { cohort: string; id: string }) => {
 
     if (status === AuthStatus.Loading) {
         return <LoadingPage />;
+    }
+
+    if (request.isFailure() && isAxiosError(request.error) && request.error.response?.status === 404) {
+        notFound();
     }
 
     const onSave = (headers: GameHeader, orientation: GameOrientation) => {
