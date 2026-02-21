@@ -83,7 +83,7 @@ export function useChessDB() {
             }
 
             const encodedFen = encodeURIComponent(fenString);
-            const pvUrl = `https://www.chessdb.cn/cdb.php?action=querypv&board=${encodedFen}&json=1`;
+            const pvUrl = `https://www.chessdb.cn/cdb.php?action=querypv&board=${encodedFen}&stable=1&json=1`;
             const response = await fetch(pvUrl);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: Failed to fetch PV`);
