@@ -1,4 +1,11 @@
-import { ChessDbMove, getChessDbCache, setChessDbCache } from '@/api/cache/chessdb';
+import {
+    ChessDbCacheEntry,
+    ChessDbMove,
+    ChessDbPv,
+    getChessDbCache,
+    setChessDbMovesCache,
+    setChessDbPvCache,
+} from '@/api/cache/chessdb';
 import { useChess } from '@/board/pgn/PgnBoard';
 import { validateFen } from 'chess.js';
 import { useCallback, useEffect, useState } from 'react';
@@ -10,13 +17,6 @@ interface ChessDbResponse {
 
 interface ChessDbPvResponse {
     status: string;
-    score: number;
-    depth: number;
-    pv: string[];
-    pvSAN: string[];
-}
-
-export interface ChessDbPv {
     score: number;
     depth: number;
     pv: string[];
@@ -76,6 +76,12 @@ export function useChessDB() {
         setPvError(null);
 
         try {
+            const cached = await getChessDbCache(fenString);
+            if (cached?.pv) {
+                setPv(cached.pv);
+                return cached.pv;
+            }
+
             const encodedFen = encodeURIComponent(fenString);
             const pvUrl = `https://www.chessdb.cn/cdb.php?action=querypv&board=${encodedFen}&json=1`;
             const response = await fetch(pvUrl);
@@ -96,6 +102,7 @@ export function useChessDB() {
                 pvSAN: responseData.pvSAN ?? [],
             };
 
+            await setChessDbPvCache(fenString, pvData);
             setPv(pvData);
             return pvData;
         } catch (err) {
@@ -124,10 +131,10 @@ export function useChessDB() {
             setError(null);
 
             try {
-                const cached = (await getChessDbCache(fenString)) as ChessDbMove[] | null;
-                if (cached) {
-                    setData(cached);
-                    return cached;
+                const cached = (await getChessDbCache(fenString)) as ChessDbCacheEntry | null;
+                if (cached?.moves) {
+                    setData(cached.moves);
+                    return cached.moves;
                 }
 
                 const encodedFen = encodeURIComponent(fenString);
@@ -163,7 +170,7 @@ export function useChessDB() {
                     };
                 });
 
-                await setChessDbCache(fenString, processedMoves);
+                await setChessDbMovesCache(fenString, processedMoves);
                 setData(processedMoves);
                 return processedMoves;
             } catch (err) {

@@ -32,7 +32,7 @@ export default function EngineSection() {
     const { chess } = useChess();
     const isGameOver = chess?.isGameOver();
 
-    const { pv: cloudPv } = useChessDB();
+    const { pv: chessDbPv, pvLoading: chessDbLoading } = useChessDB();
 
     const engineLines = evaluation?.lines?.length
         ? evaluation.lines
@@ -45,7 +45,7 @@ export default function EngineSection() {
 
     const resultPercentages = engineLines[0]?.resultPercentages;
 
-    const cloudScoreNum = cloudPv?.score ?? null;
+    const cloudScoreNum = chessDbPv?.score ?? null;
     const cloudScoreLabel =
         cloudScoreNum !== null
             ? `${cloudScoreNum > 0 ? '+' : ''}${(cloudScoreNum / 100).toFixed(2)}`
@@ -123,7 +123,7 @@ export default function EngineSection() {
 
                             {showCloudEval && !isGameOver && cloudScoreLabel && (
                                 <Tooltip
-                                    title={`Chess Cloud DB eval (depth ${cloudPv?.depth ?? '?'})`}
+                                    title={`Chess Cloud DB eval (depth ${chessDbPv?.depth ?? '?'})`}
                                     disableInteractive
                                 >
                                     <Typography
@@ -189,6 +189,8 @@ export default function EngineSection() {
                             engineInfo={engineInfo}
                             allLines={engineLines}
                             maxLines={linesNumber}
+                            chessDbpv={chessDbPv}
+                            chessDbLoading={chessDbLoading}
                         />
                     </Stack>
                 )}
