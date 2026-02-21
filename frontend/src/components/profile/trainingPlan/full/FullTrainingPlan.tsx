@@ -8,7 +8,12 @@ import {
     RequirementStatus,
     ScoreboardDisplay,
 } from '@/database/requirement';
-import { dojoCohorts } from '@/database/user';
+import {
+    dojoCohorts,
+    getCurrentRating,
+    getMinRatingBoundary,
+    getRatingBoundary,
+} from '@/database/user';
 import LoadingPage from '@/loading/LoadingPage';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
@@ -33,11 +38,6 @@ import {
 } from '@mui/material';
 import { use, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import {
-    getCurrentRating,
-    getMinRatingBoundary,
-    getRatingBoundary,
-} from '@/database/user';
 import { getUpcomingGameSchedule, SCHEDULE_CLASSICAL_GAME_TASK_ID } from '../suggestedTasks';
 import { TrainingPlanContext } from '../TrainingPlanTab';
 import { FullTrainingPlanSection, GRADUATION_TASK_ID, Section } from './FullTrainingPlanSection';

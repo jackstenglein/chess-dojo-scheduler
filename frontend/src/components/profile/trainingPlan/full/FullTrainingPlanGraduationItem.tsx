@@ -1,5 +1,7 @@
 'use client';
 
+import { useFreeTier } from '@/auth/Auth';
+import { Requirement } from '@/database/requirement';
 import {
     dojoCohorts,
     formatRatingSystem,
@@ -7,8 +9,8 @@ import {
     getMinRatingBoundary,
     getRatingBoundary,
     shouldPromptGraduation,
+    User,
 } from '@/database/user';
-import { Requirement } from '@/database/requirement';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import ScoreboardProgress from '@/scoreboard/ScoreboardProgress';
 import { RatingSystemIcon } from '@/style/RatingSystemIcons';
@@ -16,7 +18,6 @@ import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
 import { Lock } from '@mui/icons-material';
 import { Box, Divider, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { useState } from 'react';
-import { User } from '@/database/user';
 import { GraduationDialog } from '../GraduationDialog';
 
 interface FullTrainingPlanGraduationItemProps {
@@ -32,6 +33,7 @@ export function FullTrainingPlanGraduationItem({
     cohort,
     isCurrentUser,
 }: FullTrainingPlanGraduationItemProps) {
+    const isFreeTier = useFreeTier();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [upsellOpen, setUpsellOpen] = useState(false);
 
@@ -50,7 +52,7 @@ export function FullTrainingPlanGraduationItem({
     const onOpen = () => {
         if (disabled) return;
         // Just for testing: block graduation (show upsell). Restore: useFreeTier() and if (isFreeTier)
-        if (true) {
+        if (isFreeTier) {
             setUpsellOpen(true);
         } else {
             setDialogOpen(true);
@@ -61,9 +63,7 @@ export function FullTrainingPlanGraduationItem({
         <>
             <Tooltip
                 title={
-                    disabled
-                        ? 'Reach the required rating for your cohort to unlock graduation'
-                        : ''
+                    disabled ? 'Reach the required rating for your cohort to unlock graduation' : ''
                 }
                 followCursor
             >
@@ -79,90 +79,67 @@ export function FullTrainingPlanGraduationItem({
                             opacity: disabled ? 0.6 : 1,
                         }}
                     >
-                        <Grid
-                            size={9}
-                            display='flex'
-                            flexDirection='column'
-                            rowGap='0.25rem'
-                        >
+                        <Grid size={9} display='flex' flexDirection='column' rowGap='0.25rem'>
                             <Stack direction='row' alignItems='center' spacing={1}>
                                 {disabled && (
-                                    <Lock
-                                        sx={{ color: 'text.secondary', fontSize: 20 }}
-                                    />
+                                    <Lock sx={{ color: 'text.secondary', fontSize: 20 }} />
                                 )}
-                                <Typography fontWeight='bold'>
-                                    {requirement.name}
-                                </Typography>
+                                <Typography fontWeight='bold'>{requirement.name}</Typography>
                             </Stack>
-                            {showRatingProgress && (() => {
-                                const nextCohort =
-                                    dojoCohorts[dojoCohorts.indexOf(cohort) + 1];
-                                return (
-                                    <Stack width={1}>
-                                        <Stack
-                                            direction='row'
-                                            alignItems='center'
-                                            gap={0.5}
-                                        >
-                                            <RatingSystemIcon
-                                                system={user.ratingSystem}
-                                                size='small'
-                                            />
-                                            <Typography
-                                                variant='body2'
-                                                color='text.secondary'
-                                                sx={{ fontWeight: 'bold' }}
-                                            >
-                                                {formatRatingSystem(
-                                                    user.ratingSystem,
+                            {showRatingProgress &&
+                                (() => {
+                                    const nextCohort = dojoCohorts[dojoCohorts.indexOf(cohort) + 1];
+                                    return (
+                                        <Stack width={1}>
+                                            <Stack direction='row' alignItems='center' gap={0.5}>
+                                                <RatingSystemIcon
+                                                    system={user.ratingSystem}
+                                                    size='small'
+                                                />
+                                                <Typography
+                                                    variant='body2'
+                                                    color='text.secondary'
+                                                    sx={{ fontWeight: 'bold' }}
+                                                >
+                                                    {formatRatingSystem(user.ratingSystem)}
+                                                </Typography>
+                                            </Stack>
+                                            <Stack direction='row' alignItems='center' gap={0.5}>
+                                                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                                                    <ScoreboardProgress
+                                                        value={currentRating}
+                                                        min={minRatingBoundary}
+                                                        max={graduationBoundary}
+                                                        label={`${currentRating} / ${graduationBoundary}`}
+                                                        sx={{
+                                                            height: '6px',
+                                                            borderRadius: '2px',
+                                                        }}
+                                                    />
+                                                </Box>
+                                                {nextCohort && (
+                                                    <CohortIcon
+                                                        cohort={nextCohort}
+                                                        tooltip={
+                                                            disabled
+                                                                ? ''
+                                                                : `Next graduation: from ${cohort} to ${nextCohort}`
+                                                        }
+                                                        size={20}
+                                                        sx={{ marginTop: '-3px' }}
+                                                    />
                                                 )}
-                                            </Typography>
+                                            </Stack>
                                         </Stack>
-                                        <Stack
-                                            direction='row'
-                                            alignItems='center'
-                                            gap={0.5}
-                                        >
-                                            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                                                <ScoreboardProgress
-                                                    value={currentRating}
-                                                    min={minRatingBoundary}
-                                                    max={graduationBoundary}
-                                                    label={`${currentRating} / ${graduationBoundary}`}
-                                                    sx={{
-                                                        height: '6px',
-                                                        borderRadius: '2px',
-                                                    }}
-                                                />
-                                            </Box>
-                                            {nextCohort && (
-                                                <CohortIcon
-                                                    cohort={nextCohort}
-                                                    tooltip={
-                                                        disabled
-                                                            ? ''
-                                                            : `Next graduation: from ${cohort} to ${nextCohort}`
-                                                    }
-                                                    size={20}
-                                                    sx={{ marginTop: '-3px' }}
-                                                />
-                                            )}
-                                        </Stack>
-                                    </Stack>
-                                );
-                            })()}
+                                    );
+                                })()}
                         </Grid>
                     </Grid>
                     <Divider />
                 </Stack>
             </Tooltip>
 
-            <GraduationDialog
-                open={dialogOpen}
-                onClose={() => setDialogOpen(false)}
-                user={user}
-            />
+            <GraduationDialog open={dialogOpen} onClose={() => setDialogOpen(false)} user={user} />
             <UpsellDialog
                 open={upsellOpen}
                 onClose={setUpsellOpen}

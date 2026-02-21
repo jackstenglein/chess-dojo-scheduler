@@ -1,3 +1,4 @@
+import { useFreeTier } from '@/auth/Auth';
 import { formatRatingSystem, getCurrentRating, shouldPromptGraduation } from '@/database/user';
 import CohortIcon from '@/scoreboard/CohortIcon';
 import UpsellDialog, { RestrictedAction } from '@/upsell/UpsellDialog';
@@ -21,6 +22,7 @@ export function GraduationTask() {
     const { user, isCurrentUser, skippedTaskIds, toggleSkip } = use(TrainingPlanContext);
     const shouldGraduate = shouldPromptGraduation(user);
 
+    const isFreeTier = useFreeTier();
     const [upsellDialogOpen, setUpsellDialogOpen] = useState(false);
     const [showGraduationDialog, setShowGraduationDialog] = useState(false);
 
@@ -29,8 +31,7 @@ export function GraduationTask() {
     }
 
     const onOpen = () => {
-        // Just for testing: block graduation (show upsell). Restore: if (useFreeTier())
-        if (true) {
+        if (isFreeTier) {
             setUpsellDialogOpen(true);
         } else {
             setShowGraduationDialog(true);
