@@ -1,6 +1,5 @@
 import { getGame } from '@/api/gameApi';
 import { defaultMetadata } from '@/app/(scoreboard)/defaultMetadata';
-import { notFound } from 'next/navigation';
 import { getConfig } from '@/config';
 import { Game, GameResult } from '@/database/game';
 import GamePage from '@/games/view/GamePage';

@@ -14,21 +14,27 @@ import { deleteAllNotifications, deleteNotification, listNotifications } from '.
 describe('notificationApi', () => {
     describe('listNotifications', () => {
         it('calls GET /user/notifications with auth header', () => {
-            listNotifications('test-token');
-            expect(axiosService.get).toHaveBeenCalledWith('/user/notifications', {
-                params: { startKey: undefined },
-                headers: { Authorization: 'Bearer test-token' },
-                functionName: 'listNotifications',
-            });
+            void listNotifications('test-token');
+            expect(axiosService.get.bind(axiosService)).toHaveBeenCalledWith(
+                '/user/notifications',
+                {
+                    params: { startKey: undefined },
+                    headers: { Authorization: 'Bearer test-token' },
+                    functionName: 'listNotifications',
+                },
+            );
         });
 
         it('passes startKey as a query param', () => {
-            listNotifications('test-token', 'some-key');
-            expect(axiosService.get).toHaveBeenCalledWith('/user/notifications', {
-                params: { startKey: 'some-key' },
-                headers: { Authorization: 'Bearer test-token' },
-                functionName: 'listNotifications',
-            });
+            void listNotifications('test-token', 'some-key');
+            expect(axiosService.get.bind(axiosService)).toHaveBeenCalledWith(
+                '/user/notifications',
+                {
+                    params: { startKey: 'some-key' },
+                    headers: { Authorization: 'Bearer test-token' },
+                    functionName: 'listNotifications',
+                },
+            );
         });
     });
 
@@ -36,8 +42,8 @@ describe('notificationApi', () => {
         it('calls DELETE /user/notifications/{base64Id} with auth header', () => {
             const id = 'GAME_COMMENT|2000-2100|abc123';
             const encodedId = btoa(id);
-            deleteNotification('test-token', id);
-            expect(axiosService.delete).toHaveBeenCalledWith(
+            void deleteNotification('test-token', id);
+            expect(axiosService.delete.bind(axiosService)).toHaveBeenCalledWith(
                 `/user/notifications/${encodedId}`,
                 {
                     headers: { Authorization: 'Bearer test-token' },
@@ -49,11 +55,14 @@ describe('notificationApi', () => {
 
     describe('deleteAllNotifications', () => {
         it('calls DELETE /user/notifications with auth header', () => {
-            deleteAllNotifications('test-token');
-            expect(axiosService.delete).toHaveBeenCalledWith('/user/notifications', {
-                headers: { Authorization: 'Bearer test-token' },
-                functionName: 'deleteAllNotifications',
-            });
+            void deleteAllNotifications('test-token');
+            expect(axiosService.delete.bind(axiosService)).toHaveBeenCalledWith(
+                '/user/notifications',
+                {
+                    headers: { Authorization: 'Bearer test-token' },
+                    functionName: 'deleteAllNotifications',
+                },
+            );
         });
     });
 });

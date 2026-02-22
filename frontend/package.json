@@ -23,7 +23,7 @@
         "test:cypress": "cypress run",
         "test:playwright": "playwright test --config=playwright/playwright.config.ts",
         "test:playwright:ui": "playwright test --config=playwright/playwright.config.ts --ui",
-        "lint": "npm run lint:types && eslint .",
+        "lint": "npm run lint:types && eslint . --quiet",
         "lint:cypress": "eslint cypress",
         "lint:fix": "eslint --fix .",
         "lint:types": "tsc --noEmit",
