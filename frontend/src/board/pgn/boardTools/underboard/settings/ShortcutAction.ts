@@ -105,6 +105,6 @@ export const ShortcutBindings = {
         [ShortcutAction.InsertNullMove]: { modifier: '', key: '' },
         [ShortcutAction.InsertEngineMove]: { modifier: '', key: 'Space' },
         [ShortcutAction.NextPuzzle]: { modifier: '', key: 'Space' },
-        [ShortcutAction.ViewKey]: { modifier: '', key: '' },
+        [ShortcutAction.ViewKey]: { modifier: '', key: 'd' },
     },
 } as const;

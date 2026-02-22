@@ -1,14 +1,8 @@
-
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { ShortcutAction } from './ShortcutAction';
-import KeyboardShortcuts from './KeyboardShortcuts';
 import { BlockBoardKeyboardShortcuts } from '@/board/pgn/PgnBoard';
+import CloseIcon from '@mui/icons-material/Close';
+import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import KeyboardShortcuts from './KeyboardShortcuts';
+import { ShortcutAction } from './ShortcutAction';
 
 export interface DisplayKeyboardShortcutsDialogProps {
     /** Whether the dialog is open. */
@@ -33,7 +27,9 @@ const DisplayKeyboardShortcutsDialog = ({
         <Dialog
             open={open}
             onClose={() => setOpen(false)}
-            className={BlockBoardKeyboardShortcuts}
+            classes={{
+                container: BlockBoardKeyboardShortcuts,
+            }}
             maxWidth='sm'
             fullWidth
         >

@@ -215,11 +215,13 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     }
 
     return (
-        <>
-        <VariationDialog move={variationDialogMove} setMove={setVariationDialogMove} />;
+    <>
+        {variationDialogMove && (
+            <VariationDialog move={variationDialogMove} setMove={setVariationDialogMove} />
+        )}
         <DisplayKeyboardShortcutsDialog open={viewKeyDialog} setOpen={setViewKeyDialog} />
-        </>
-    )
+    </>
+);
 };
 
 export default KeyboardHandler;
