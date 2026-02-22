@@ -15,14 +15,14 @@ export interface DisplayKeyboardShortcutsDialogProps {
     open: boolean;
     /** Callback to open/close the dialog. */
     setOpen: (open: boolean) => void;
-    /** The actions to display. Defaults to all actions. */
+    /** The actions to display. Defaults to all actions. that are optional */
     actions?: ShortcutAction[];
 }
 
 /**
  * A dialog that renders the full KeyboardShortcuts editor.
  * Accepts open/setOpen for controlled visibility and an optional actions
- * filter that is forwarded to KeyboardShortcuts.
+ * filter that is forwarded to KeyboardShortcuts
  */
 const DisplayKeyboardShortcutsDialog = ({
     open,
