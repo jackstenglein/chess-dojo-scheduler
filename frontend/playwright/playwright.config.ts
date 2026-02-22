@@ -11,6 +11,7 @@ dotenv.config({
     path: [
         path.join(__dirname, '../.env.test.local'),
         path.join(__dirname, '../.env.local'),
+        path.join(__dirname, '../.env.test'),
         path.join(__dirname, '../.env'),
     ],
 });
@@ -24,13 +25,14 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: isCI,
     retries: isCI ? 2 : 0,
-    workers: isCI ? 1 : undefined,
+    workers: isCI ? 3 : undefined,
     reporter: 'html',
 
     use: {
         baseURL: 'http://localhost:3000',
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
+        timezoneId: 'Etc/GMT+0',
     },
 
     projects: [
