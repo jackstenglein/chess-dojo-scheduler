@@ -73,6 +73,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Insert Top Engine Move';
         case ShortcutAction.NextPuzzle:
             return 'Next Puzzle';
+        case ShortcutAction.ViewKey:
+            return 'View Keys Dialog'    
     }
 }
 
@@ -127,6 +129,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Inserts the top engine move into the game (note: the engine must be running).';
         case ShortcutAction.NextPuzzle:
             return 'Goes to the next puzzle (has no effect outside of puzzles).';
+        case ShortcutAction.ViewKey:
+            return 'Opens shortcut keys dialog'    
     }
 }
 
@@ -153,6 +157,11 @@ interface ShortcutHandlerOptions {
      * instead of going to that move.
      */
     setVariationDialogMove?: (move: Move) => void;
+
+    /**
+     * A function that is takes care of opening the entire view key dialog
+     */
+    setViewKeysDialog?: (view: boolean) => void;
 
     /**
      * The API for imperatively interacting with the underboard.
@@ -360,6 +369,10 @@ function handleInsertEngineMove({ opts }: ShortcutHandlerProps) {
     opts?.addEngineMove?.();
 }
 
+function handleViewKeyAction({ opts }: ShortcutHandlerProps) {
+    opts?.setViewKeysDialog?.(true)
+}
+
 /**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
@@ -385,6 +398,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
     [ShortcutAction.InsertNullMove]: handleInsertNullMove,
     [ShortcutAction.InsertEngineMove]: handleInsertEngineMove,
+    [ShortcutAction.ViewKey]: handleViewKeyAction,
     [ShortcutAction.NextPuzzle]: () => null, // This action is a special case handled by the CheckmatePuzzlePage component.
 };
 
