@@ -16,6 +16,7 @@ import {
     VariationBehavior,
     VariationBehaviorKey,
 } from './boardTools/underboard/settings/ViewerSettings';
+import DisplayKeyboardShortcutsDialog from './boardTools/underboard/settings/ShortCutKeyBoardDialog';
 
 const SCROLL_THROTTLE_DELAY = 250; // milliseconds
 
@@ -29,6 +30,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
     const reconcile = useReconcile();
     const [variationBehavior] = useLocalStorage(VariationBehaviorKey, VariationBehavior.Dialog);
     const [variationDialogMove, setVariationDialogMove] = useState<Move | null>(null);
+    const [viewKeyDialog, setViewKeyDialog] = useState<boolean>(false);
     const [keyBindings] = useLocalStorage(ShortcutBindings.key, ShortcutBindings.default);
     const [scrollToMove] = useLocalStorage(ScrollToMove.key, ScrollToMove.default);
 
@@ -111,6 +113,7 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
                 opts: {
                     underboardApi: underboardRef.current,
                     toggleOrientation,
+                    setViewKeysDialog: setViewKeyDialog,
                     setVariationDialogMove:
                         variationBehavior === VariationBehavior.Dialog
                             ? setVariationDialogMove
@@ -211,7 +214,12 @@ const KeyboardHandler: React.FC<KeyboardHandlerProps> = ({ underboardRef }) => {
         return null;
     }
 
-    return <VariationDialog move={variationDialogMove} setMove={setVariationDialogMove} />;
+    return (
+        <>
+        <VariationDialog move={variationDialogMove} setMove={setVariationDialogMove} />;
+        <DisplayKeyboardShortcutsDialog open={viewKeyDialog} setOpen={setViewKeyDialog} />
+        </>
+    )
 };
 
 export default KeyboardHandler;

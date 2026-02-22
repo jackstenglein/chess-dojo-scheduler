@@ -73,6 +73,8 @@ function displayShortcutAction(action: ShortcutAction): string {
             return 'Insert Top Engine Move';
         case ShortcutAction.NextPuzzle:
             return 'Next Puzzle';
+        case ShortcutAction.ViewKey:
+            return 'View Keys Dialog'    
     }
 }
 
@@ -127,6 +129,8 @@ function shortcutActionDescription(action: ShortcutAction): string {
             return 'Inserts the top engine move into the game (note: the engine must be running).';
         case ShortcutAction.NextPuzzle:
             return 'Goes to the next puzzle (has no effect outside of puzzles).';
+        case ShortcutAction.ViewKey:
+            return 'Opens shortcut keys dialog'    
     }
 }
 
@@ -153,6 +157,11 @@ interface ShortcutHandlerOptions {
      * instead of going to that move.
      */
     setVariationDialogMove?: (move: Move) => void;
+
+    /**
+     * A function that is takes care of opening the entire view key dialog
+     */
+    setViewKeysDialog?: (view: boolean) => void;
 
     /**
      * The API for imperatively interacting with the underboard.
@@ -360,6 +369,10 @@ function handleInsertEngineMove({ opts }: ShortcutHandlerProps) {
     opts?.addEngineMove?.();
 }
 
+function handleViewKeyAction({ opts }: ShortcutHandlerProps) {
+    opts?.setViewKeysDialog?.(true)
+}
+
 /**
  * Maps ShortcutActions to their handler functions. Not all ShortcutActions are included.
  */
@@ -385,6 +398,7 @@ export const keyboardShortcutHandlers: Record<ShortcutAction, ShortcutHandler> =
     [ShortcutAction.UnfocusTextField]: handleUnfocusTextField,
     [ShortcutAction.InsertNullMove]: handleInsertNullMove,
     [ShortcutAction.InsertEngineMove]: handleInsertEngineMove,
+    [ShortcutAction.ViewKey]: handleViewKeyAction,
     [ShortcutAction.NextPuzzle]: () => null, // This action is a special case handled by the CheckmatePuzzlePage component.
 };
 
@@ -439,6 +453,9 @@ export interface KeyboardShortcutsProps {
     hideReset?: boolean;
 }
 
+/**
+ * @returns A component for viewing and editing keyboard shortcuts.
+ */
 const KeyboardShortcuts = ({
     actions = Object.values(ShortcutAction),
     hideReset,
@@ -450,22 +467,6 @@ const KeyboardShortcuts = ({
 
     const [editAction, setEditAction] = useState<ShortcutAction>();
     const [editKey, setEditKey] = useState<string>();
-    const [showHotkeysModal, setShowHotkeysModal] = useState(false);
-
-    // Handle Shift + D to toggle hotkeys modal
-    useEffect(() => {
-        const handleHotkeysToggle = (event: KeyboardEvent) => {
-            if (event.shiftKey && event.key.toLowerCase() === 'd') {
-                event.preventDefault();
-                setShowHotkeysModal((prev) => !prev);
-            }
-        };
-
-        window.addEventListener('keydown', handleHotkeysToggle);
-        return () => {
-            window.removeEventListener('keydown', handleHotkeysToggle);
-        };
-    }, []);
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
@@ -543,8 +544,8 @@ const KeyboardShortcuts = ({
         setKeyBindings(ShortcutBindings.default);
     };
 
-    const shortcutsGrid = (
-        <>
+    return (
+        <Stack>
             <Typography variant='h6'>Keyboard Shortcuts</Typography>
             <Typography variant='subtitle2' color='text.secondary'>
                 Keyboard shortcuts are disabled while editing text fields (comments, clock times,
@@ -619,25 +620,6 @@ const KeyboardShortcuts = ({
                     </Grid>
                 )}
             </Grid>
-        </>
-    );
-
-    return (
-        <Stack>
-            {shortcutsGrid}
-
-            <Dialog
-                open={showHotkeysModal}
-                onClose={() => setShowHotkeysModal(false)}
-                maxWidth='md'
-                fullWidth
-            >
-                <DialogTitle>HotKeys Menu</DialogTitle>
-                <DialogContent>{shortcutsGrid}</DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setShowHotkeysModal(false)}>Close</Button>
-                </DialogActions>
-            </Dialog>
             <Dialog
                 open={!!editAction}
                 onClose={onCloseEditor}
