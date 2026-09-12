@@ -1,6 +1,7 @@
 import { SolitaireAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBanner';
 import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
+import { isWorkingCopy } from '@/components/profile/trainingPlan/study/copies';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Card, Stack } from '@mui/material';
@@ -68,12 +69,14 @@ const PgnTextBody = () => {
 };
 
 export function PgnTextBanners() {
-    const { unsaved, game, isOwner } = useGame();
+    const { unsaved, silentUnsaved, game, isOwner } = useGame();
 
     return (
         <>
-            {game?.unlisted && isOwner && <UnpublishedGameBanner dismissable />}
-            {unsaved && <UnsavedGameBanner dismissable />}
+            {game?.unlisted && isOwner && !isWorkingCopy(game.headers) && (
+                <UnpublishedGameBanner dismissable />
+            )}
+            {unsaved && !silentUnsaved && <UnsavedGameBanner dismissable />}
             <SaveAllVariationsButton />
         </>
     );
