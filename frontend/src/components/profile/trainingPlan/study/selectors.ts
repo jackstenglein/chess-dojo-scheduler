@@ -43,6 +43,11 @@ export function taskTitle(task: Requirement | CustomTask, cohort: string): strin
     return task.name.replaceAll('{{count}}', String(count));
 }
 
+/** Remove a trailing "s" for labels such as "exercise 421". Assumes regular English plurals. */
+export function singularUnit(unit: string): string {
+    return unit.endsWith('s') ? unit.slice(0, -1) : unit;
+}
+
 /** The item keys marked done for this task, from the student's timeline. */
 export function doneKeys(entries: TimelineEntry[], taskId: string): Set<string> {
     const keys = new Set<string>();

@@ -20,6 +20,7 @@ import {
     presetMode,
     resolveMode,
     sideToMove,
+    singularUnit,
     taskCohort,
     taskTitle,
 } from './selectors';
@@ -344,11 +345,17 @@ describe('cohortSlice and pointerDone', () => {
     });
 });
 
-describe('taskTitle', () => {
+describe('taskTitle and singularUnit', () => {
     it('puts the cohort count into the name', () => {
         expect(taskTitle(polgarM2, '1000-1100')).toBe('Solve Polgar M2s through Problem 650');
         expect(taskTitle(polgarM2, '2400+')).toBe('Solve Polgar M2s through Problem 3718');
         expect(taskTitle(masterGames, '1500-1600')).toBe('Study Master Games');
+    });
+
+    it('names one of the unit', () => {
+        expect(singularUnit('exercises')).toBe('exercise');
+        expect(singularUnit('pages')).toBe('page');
+        expect(singularUnit('')).toBe('');
     });
 });
 

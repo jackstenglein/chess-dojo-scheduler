@@ -2,7 +2,7 @@ import { EventType, trackEvent } from '@/analytics/events';
 import { useApi } from '@/api/Api';
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import { useAuth } from '@/auth/Auth';
-import { useTimelineContext } from '@/components/profile/activity/useTimeline';
+import { useOptionalTimelineContext } from '@/components/profile/activity/useTimeline';
 import { CohortSelect } from '@/components/ui/CohortSelect';
 import { canOpenCourse, Course, CourseType } from '@/database/course';
 import {
@@ -113,6 +113,9 @@ interface CustomTaskEditorProps {
     open: boolean;
     onClose: () => void;
     initialCategory: CustomTaskCategory;
+    /** Prefills a new task's material, for a course chosen elsewhere. Ignored when editing. */
+    initialMaterial?: TaskMaterial;
+    initialName?: string;
 }
 
 const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
@@ -120,16 +123,18 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
     open,
     onClose,
     initialCategory,
+    initialMaterial,
+    initialName,
 }) => {
     const t = useTranslations('profile.trainingPlan.customTask');
     const tCommon = useTranslations('profile.trainingPlan.common');
     const request = useRequest();
     const api = useApi();
     const { user } = useAuth();
-    const { resetRequest: resetTimeline } = useTimelineContext();
+    const resetTimeline = useOptionalTimelineContext()?.resetRequest;
 
     const [category, setCategory] = useState(task?.category ?? initialCategory);
-    const [name, setName] = useState(task?.name ?? '');
+    const [name, setName] = useState(task?.name ?? initialName ?? '');
     const [description, setDescription] = useState(task?.description ?? '');
     const [cohorts, setCohorts] = useState([ALL_COHORTS]);
     const [startCount, setStartCount] = useState(
@@ -149,7 +154,9 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
         isOtherCountType ? task?.progressBarSuffix || '' : '',
     );
     const [trackCountPerCohort, setTrackCountPerCohort] = useState(false);
-    const [material, setMaterial] = useState<TaskMaterial | undefined>(task?.material?.[0]);
+    const [material, setMaterial] = useState<TaskMaterial | undefined>(
+        task ? task.material?.[0] : initialMaterial,
+    );
     const [homeDirectory, setHomeDirectory] = useState<Directory>();
     const [courses, setCourses] = useState<Course[]>([]);
     const materialRequest = useRequest();
@@ -308,7 +315,7 @@ const CustomTaskEditor: React.FC<CustomTaskEditorProps> = ({
                 });
                 request.onSuccess();
                 if (task && task.category !== category) {
-                    resetTimeline();
+                    resetTimeline?.();
                 }
                 onClose();
             })

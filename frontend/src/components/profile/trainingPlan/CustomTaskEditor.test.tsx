@@ -86,6 +86,7 @@ const mocks = vi.hoisted(() => ({
         onFailure: vi.fn(),
         isLoading: () => false,
     },
+    timeline: undefined as { resetRequest: ReturnType<typeof vi.fn> } | undefined,
 }));
 
 vi.mock('@/api/Api', () => ({
@@ -102,7 +103,7 @@ vi.mock('@/auth/Auth', () => ({
 }));
 
 vi.mock('@/components/profile/activity/useTimeline', () => ({
-    useTimelineContext: () => ({ resetRequest: vi.fn() }),
+    useOptionalTimelineContext: () => mocks.timeline,
 }));
 
 vi.mock('@/analytics/events', () => ({
@@ -124,6 +125,7 @@ describe('CustomTaskEditor', () => {
         mocks.request.onFailure.mockReset();
         mocks.auth.user.customTasks = [task];
         mocks.auth.user.subscriptionStatus = SubscriptionStatus.Subscribed;
+        mocks.timeline = { resetRequest: vi.fn() };
     });
 
     afterEach(() => {
@@ -223,6 +225,32 @@ describe('CustomTaskEditor', () => {
         expect(screen.getByText('Courses')).toBeTruthy();
     });
 
+    it('starts from a course chosen elsewhere and saves it as the material', async () => {
+        renderWithIntl(
+            <CustomTaskEditor
+                open
+                onClose={vi.fn()}
+                initialCategory={RequirementCategory.Opening}
+                initialName='Najdorf Sicilian'
+                initialMaterial={{ kind: 'COURSE', courseType: 'OPENING', courseId: 'course-1' }}
+            />,
+        );
+        expect(screen.getByDisplayValue('Najdorf Sicilian')).toBeTruthy();
+        await waitFor(() =>
+            expect(screen.getByTestId('custom-task-material-select').textContent).toContain(
+                'Najdorf Sicilian (Starter (1200-1800))',
+            ),
+        );
+        fireEvent.click(screen.getByTestId('custom-task-submit-button'));
+
+        const saved = await savedTasks();
+        expect(saved[1].name).toBe('Najdorf Sicilian');
+        expect(saved[1].category).toBe(RequirementCategory.Opening);
+        expect(saved[1].material).toEqual([
+            { kind: 'COURSE', courseType: 'OPENING', courseId: 'course-1' },
+        ]);
+    });
+
     it('saves the chosen folder as the task material', async () => {
         renderWithIntl(
             <CustomTaskEditor open onClose={vi.fn()} initialCategory={RequirementCategory.Games} />,
@@ -320,5 +348,46 @@ describe('CustomTaskEditor', () => {
 
         const saved = await savedTasks();
         expect(saved[0].material).toEqual(elsewhere.material);
+    });
+
+    async function chooseCategory(name: string) {
+        fireEvent.mouseDown(screen.getByRole('combobox', { name: /Category/ }));
+        fireEvent.click(await screen.findByRole('option', { name }));
+    }
+
+    it('reloads the timeline when an edit moves the task to another category', async () => {
+        renderWithIntl(
+            <CustomTaskEditor
+                task={task}
+                open
+                onClose={vi.fn()}
+                initialCategory={RequirementCategory.Games}
+            />,
+        );
+        await chooseCategory('Opening');
+        fireEvent.click(screen.getByTestId('custom-task-submit-button'));
+
+        const saved = await savedTasks();
+        expect(saved[0].category).toBe(RequirementCategory.Opening);
+        await waitFor(() => expect(mocks.timeline?.resetRequest).toHaveBeenCalledTimes(1));
+    });
+
+    it('saves the same edit where no timeline provider is mounted', async () => {
+        mocks.timeline = undefined;
+        const onClose = vi.fn();
+        renderWithIntl(
+            <CustomTaskEditor
+                task={task}
+                open
+                onClose={onClose}
+                initialCategory={RequirementCategory.Games}
+            />,
+        );
+        await chooseCategory('Opening');
+        fireEvent.click(screen.getByTestId('custom-task-submit-button'));
+
+        const saved = await savedTasks();
+        expect(saved[0].category).toBe(RequirementCategory.Opening);
+        await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
     });
 });

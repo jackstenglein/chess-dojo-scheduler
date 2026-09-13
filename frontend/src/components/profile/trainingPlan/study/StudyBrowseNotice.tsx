@@ -27,8 +27,8 @@ export function StudyBrowseNotice() {
                     {t('browse.notice')}
                 </Typography>
             </Stack>
-            <Button component={Link} href='/profile?view=progress' size='small'>
-                {t('backToPlan')}
+            <Button component={Link} href='/study' size='small'>
+                {t('browse.toReader')}
             </Button>
         </Stack>
     );
