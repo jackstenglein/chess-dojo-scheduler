@@ -5,7 +5,7 @@ import { StudySessionState } from '@/components/profile/trainingPlan/study/useSt
 import { Timer, TimerContext } from '@/components/timer/TimerContext';
 import { renderWithIntl } from '@/i18n/intl.test';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { cleanup, fireEvent, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { ReactNode, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudyPage } from './StudyPage';
@@ -26,7 +26,7 @@ vi.mock('@/components/profile/trainingPlan/study/useStudy', () => ({
     useStudy: mocks.useStudy,
 }));
 vi.mock('@/loading/LoadingPage', () => ({ default: () => <div data-testid='loading' /> }));
-// The panel is the board's only right tab. Render it in place of the board. The PGN parses
+// The panel is the board's only right tab. Render it so the test can press Done. The PGN parses
 // first, so a malformed PGN throws here as it does from the board.
 vi.mock('@/board/pgn/PgnBoard', async () => {
     const { Chess } = await import('@jackstenglein/chess');
@@ -115,6 +115,9 @@ function readyOn(mapping: BookMapping) {
         mapping,
         done: new Set<string>(),
         historyComplete: true,
+        markItemDone: vi.fn().mockResolvedValue(undefined),
+        undoMark: vi.fn().mockResolvedValue(undefined),
+        canUndo: false,
     } as unknown as StudySessionState;
     mocks.useStudy.mockReturnValue({
         status: 'ready',
@@ -166,6 +169,9 @@ describe('StudyPage: a malformed PGN', () => {
             mapping: { mapped: false, startCount: 0, unit: '' },
             done: new Set<string>(),
             historyComplete: true,
+            markItemDone: vi.fn().mockResolvedValue(undefined),
+            undoMark: vi.fn().mockResolvedValue(undefined),
+            canUndo: false,
         } as unknown as StudySessionState;
         // A hook whose select works, so the page opens the item the member picks.
         mocks.useStudy.mockImplementation(() => {
@@ -232,5 +238,26 @@ describe('StudyPage: the catalog header', () => {
         readyOn({ mapped: false, startCount: 30, unit: 'pages' });
         const unmapped = await screen.findByTestId('study-catalog-progress');
         expect(unmapped.textContent).toBe('0 of 2 studied');
+    });
+});
+
+describe('StudyPage: Done in read mode', () => {
+    beforeEach(() => {
+        mocks.searchParams = new URLSearchParams();
+        mocks.useStudy.mockReset();
+    });
+
+    afterEach(() => {
+        cleanup();
+    });
+
+    it('posts the mark with no dialog, even for a book counted in pages, once for two quick presses', async () => {
+        const session = readyOn({ mapped: false, startCount: 30, unit: 'pages' });
+        const done = await screen.findByTestId('study-mark-done');
+        fireEvent.click(done);
+        fireEvent.click(done);
+        await waitFor(() => expect(session.markItemDone).toHaveBeenCalledWith(first));
+        expect(session.markItemDone).toHaveBeenCalledTimes(1);
+        expect(screen.queryByRole('dialog')).toBeNull();
     });
 });

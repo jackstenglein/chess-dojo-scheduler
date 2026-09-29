@@ -1,6 +1,6 @@
 'use client';
 
-import { RequestSnackbar } from '@/api/Request';
+import { RequestSnackbar, useRequest } from '@/api/Request';
 import PurchaseCoursePage from '@/app/[locale]/(scoreboard)/courses/[type]/[id]/[chapter]/[module]/PurchaseCoursePage';
 import { useAuth, useFreeTier } from '@/auth/Auth';
 import PgnBoard from '@/board/pgn/PgnBoard';
@@ -111,6 +111,7 @@ function StudyReadyView({ study }: { study: StudyReady }) {
     const tNav = useTranslations('navbar');
     const [blockedSelect, setBlockedSelect] = useState(false);
     const [catalogOpen, setCatalogOpen] = useLocalStorage('study.catalogOpen', true);
+    const markRequest = useRequest();
 
     // The board's own guard only covers a saved game; until the copy exists, this page holds the edits.
     const guard = useNavigationGuard({ enabled: study.pendingEdits });
@@ -122,6 +123,7 @@ function StudyReadyView({ study }: { study: StudyReady }) {
     }, [study.pendingEdits]);
 
     const { session, book, current, board, select } = study;
+    const isDone = session?.done.has(current.key) ?? false;
     const hasCopy = Boolean(board?.context.game) && current.kind === 'canonical';
     const targetReached =
         session?.mapping.unit && session.currentCount >= session.totalCount
@@ -131,6 +133,21 @@ function StudyReadyView({ study }: { study: StudyReady }) {
     const onSelect = (item: StudyItem) => {
         if (!select(item)) setBlockedSelect(true);
     };
+    // The hook marks the item as it was when Done was pressed, even if the member moves on
+    // while the post or the count refresh is pending.
+    const mark = () => {
+        if (!session) return;
+        markRequest.onStart();
+        session.markItemDone(current).then(() => markRequest.onSuccess(), markRequest.onFailure);
+    };
+    const onMarkDone = () => {
+        if (!markRequest.isLoading()) mark();
+    };
+    const onUndo = () => {
+        if (!session || markRequest.isLoading()) return;
+        markRequest.onStart();
+        session.undoMark(current.key).then(() => markRequest.onSuccess(), markRequest.onFailure);
+    };
 
     const panel = (
         <StudyPanel
@@ -138,6 +155,15 @@ function StudyReadyView({ study }: { study: StudyReady }) {
             current={current}
             session={session}
             hasCopy={hasCopy}
+            isDone={isDone}
+            mark={
+                session && {
+                    canUndo: session.canUndo,
+                    saving: markRequest.isLoading(),
+                    onUndo,
+                }
+            }
+            onMarkDone={onMarkDone}
             onSelect={onSelect}
         />
     );
@@ -186,6 +212,7 @@ function StudyReadyView({ study }: { study: StudyReady }) {
             </StudyLayout>
 
             <RequestSnackbar request={study.copyRequest} />
+            <RequestSnackbar request={markRequest} />
 
             <Dialog open={blockedSelect} onClose={() => setBlockedSelect(false)}>
                 <DialogTitle>{t('session.savingTitle')}</DialogTitle>
