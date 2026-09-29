@@ -489,8 +489,9 @@ describe('useStudy: the board for the current item', () => {
         const { study } = await ready(KEY_A);
         await waitFor(() => expect(study().board).toBeDefined());
         expect(study().board).toMatchObject({
-            key: KEY_A,
+            key: `${KEY_A}:read`,
             pgn: PGN_A,
+            mode: { kind: 'read' },
             disableExport: true,
             context: { isOwner: true, unsaved: true, silentUnsaved: true },
         });
@@ -608,7 +609,7 @@ describe('useStudy: the first-change copy', () => {
         expect(study().pendingEdits).toBe(false);
         expect(study().workedOn.has(KEY_A)).toBe(true);
         expect(study().board?.pgn).toBe(PGN_A);
-        expect(study().board?.key).toBe(KEY_A);
+        expect(study().board?.key).toBe(`${KEY_A}:read`);
     });
 
     it('runs a second update for an edit made during the first and flips once', async () => {
@@ -727,7 +728,7 @@ describe('useStudy: the first-change copy', () => {
         act(() => {
             study().select(study().book.chapters[1].items[0]);
         });
-        await waitFor(() => expect(study().board?.key).toBe(KEY_B));
+        await waitFor(() => expect(study().board?.key).toBe(`${KEY_B}:read`));
         act(() => {
             study().select(study().book.chapters[0].items[0]);
         });
@@ -916,6 +917,161 @@ describe("useStudy: the board's own saves", () => {
         act(() => study().board?.context.onUpdateGame?.({ ...copy, updatedAt: 'copy-a-v2' }));
         await waitFor(() => expect(study().board?.context.game?.updatedAt).toBe('copy-a-v2'));
         expect(ref?.current).toBe('copy-a-v2');
+    });
+});
+
+describe('useStudy: the mode of each item', () => {
+    const PUZZLE =
+        '[Event "Problem 7"]\n[FEN "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"]\n[SetUp "1"]\n\n1. Ra8# *';
+
+    it('presets solve from a position start and read from a game, keyed by mode', async () => {
+        mocks.api.getCourse.mockImplementation((_type: string, id: string) =>
+            Promise.resolve({
+                data: {
+                    course:
+                        id === 'p1'
+                            ? {
+                                  ...part1,
+                                  chapters: [
+                                      {
+                                          name: 'Problems',
+                                          modules: [
+                                              { ...pgnModule('p1-m0', PUZZLE), name: 'Problem 7' },
+                                              { ...pgnModule('p1-m1', PGN_A), name: 'Game 8' },
+                                          ],
+                                      },
+                                  ],
+                              }
+                            : part2,
+                    isBlocked: false,
+                },
+            }),
+        );
+        const { study } = await ready(null, POLGAR_SOURCE);
+        await waitFor(() => expect(study().board).toBeDefined());
+        const puzzle = study().current;
+        expect(study().board).toMatchObject({
+            key: `${puzzle.key}:solve`,
+            mode: { kind: 'solve', playBothSides: false },
+        });
+
+        act(() => {
+            study().setMode(puzzle, 'read');
+        });
+        expect(study().board).toMatchObject({ key: `${puzzle.key}:read`, mode: { kind: 'read' } });
+
+        const game = study().book.chapters[0].items[1];
+        act(() => {
+            study().select(game);
+        });
+        await waitFor(() => expect(study().board?.key).toBe(`${game.key}:read`));
+        expect(study().board?.mode).toEqual({ kind: 'read' });
+        act(() => {
+            study().setMode(game, 'solve');
+        });
+        expect(study().board).toMatchObject({
+            key: `${game.key}:solve`,
+            mode: { kind: 'solve', playBothSides: false },
+        });
+    });
+});
+
+describe('useStudy: the mode switch and unsaved edits', () => {
+    it('refuses a mode change while edits are pending and changes nothing', async () => {
+        mocks.api.createGame.mockRejectedValue(new Error('boom'));
+        const { study } = await ready(KEY_A);
+        await waitFor(() => expect(study().board).toBeDefined());
+        let changed: boolean | undefined;
+        act(() => {
+            changed = study().setMode(study().current, 'solve');
+        });
+        expect(changed).toBe(true);
+        expect(study().board?.key).toBe(`${KEY_A}:solve`);
+        act(() => {
+            changed = study().setMode(study().current, 'read');
+        });
+        expect(changed).toBe(true);
+        expect(study().board?.key).toBe(`${KEY_A}:read`);
+
+        const chess = attachBoard(study(), PGN_A);
+        act(() => {
+            chess.move('e4');
+        });
+        await waitFor(() => expect(study().pendingEdits).toBe(true));
+        act(() => {
+            changed = study().setMode(study().current, 'solve');
+        });
+        expect(changed).toBe(false);
+        expect(study().board?.key).toBe(`${KEY_A}:read`);
+        expect(study().board?.mode).toEqual({ kind: 'read' });
+    });
+});
+
+describe('useStudy: the PGN a remounted board loads', () => {
+    it('carries the edits and headers of a first-edit copy through a mode round trip', async () => {
+        mocks.api.createGame.mockImplementation((req: { pgnText: string }) =>
+            Promise.resolve({ data: copyOf('copy-a', KEY_A, req.pgnText) }),
+        );
+        mocks.api.updateGame.mockImplementation(
+            (_c: string, id: string, req: { pgnText: string }) =>
+                Promise.resolve({ data: copyOf(id, KEY_A, req.pgnText) }),
+        );
+        const { study } = await ready(KEY_A);
+        await waitFor(() => expect(study().board).toBeDefined());
+        expect(study().board?.latestPgn()).toBe(PGN_A);
+        const chess = attachBoard(study(), PGN_A);
+        act(() => {
+            chess.move('e4');
+        });
+        await waitFor(() => expect(study().board?.context.game).toBeDefined());
+        expect(study().pendingEdits).toBe(false);
+
+        act(() => {
+            expect(study().setMode(study().current, 'solve')).toBe(true);
+        });
+        act(() => {
+            expect(study().setMode(study().current, 'read')).toBe(true);
+        });
+        expect(study().board?.key).toBe(`${KEY_A}:read`);
+        expect(study().board?.pgn).toBe(PGN_A);
+        const latest = study().board?.latestPgn();
+        expect(latest).toContain(`[StudyItem "${KEY_A}"]`);
+        expect(latest).toMatch(/\[StudyStamp "[0-9a-f]{12}"\]/);
+        expect(latest).toContain('1. e4');
+
+        act(() => {
+            study().select(study().book.chapters[1].items[0]);
+        });
+        await waitFor(() => expect(study().board?.key).toBe(`${KEY_B}:read`));
+        expect(study().board?.latestPgn()).toBe(PGN_B);
+    });
+
+    it('carries the edits of an existing copy through a mode round trip after the board saved', async () => {
+        const copyPgn = PGN_A.replace('\n\n', `\n[StudyItem "${KEY_A}"]\n\n`);
+        const copy = copyOf('copy-a', KEY_A, copyPgn);
+        mocks.api.listGamesByOwner.mockResolvedValue({ data: { games: [copy] } });
+        mocks.api.getGame.mockResolvedValue({ data: copy });
+        const { study } = await ready(KEY_A);
+        await waitFor(() => expect(study().board?.context.game?.id).toBe('copy-a'));
+        const chess = attachBoard(study(), copyPgn);
+        act(() => {
+            chess.move('e4');
+        });
+        // The board's own save moves the version ref and leaves the loaded game as it was.
+        const ref = study().board?.context.updatedAtRef;
+        if (ref) ref.current = 'copy-a-v2';
+
+        act(() => {
+            study().setMode(study().current, 'solve');
+        });
+        act(() => {
+            study().setMode(study().current, 'read');
+        });
+        expect(study().board?.pgn).toBe(copyPgn);
+        const latest = study().board?.latestPgn();
+        expect(latest).toContain(`[StudyItem "${KEY_A}"]`);
+        expect(latest).toContain('1. e4');
+        expect(study().board?.context.updatedAtRef?.current).toBe('copy-a-v2');
     });
 });
 

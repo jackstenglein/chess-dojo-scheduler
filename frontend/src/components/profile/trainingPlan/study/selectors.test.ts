@@ -17,6 +17,9 @@ import {
     doneKeys,
     isWorkbook,
     pointerDone,
+    presetMode,
+    resolveMode,
+    sideToMove,
     taskCohort,
     taskTitle,
 } from './selectors';
@@ -346,5 +349,58 @@ describe('taskTitle', () => {
         expect(taskTitle(polgarM2, '1000-1100')).toBe('Solve Polgar M2s through Problem 650');
         expect(taskTitle(polgarM2, '2400+')).toBe('Solve Polgar M2s through Problem 3718');
         expect(taskTitle(masterGames, '1500-1600')).toBe('Study Master Games');
+    });
+});
+
+describe('presetMode: the mode an item asks for in its own PGN', () => {
+    const POSITION =
+        '[Event "Problem 307"]\n[White "Mate in two"]\n[Result "*"]\n' +
+        '[FEN "r1bq3r/pp1nbkp1/2p1p2p/8/2BP4/1PN3P1/P3QP1P/3R1RK1 w - - 0 20"]\n[SetUp "1"]\n\n' +
+        '20. Qxe6+ Kf8 21. Qf7# *\n';
+    const GAME = '[Event "A"]\n[White "Keres"]\n[Black "Smyslov"]\n[Result "*"]\n\n1. e4 e5 *';
+
+    it('presets solve for a position start', () => {
+        expect(presetMode(POSITION)).toEqual({ kind: 'solve', playBothSides: false });
+    });
+
+    it('presets read for a game from the initial position', () => {
+        expect(presetMode(GAME)).toEqual({ kind: 'read' });
+        const startFen =
+            '[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]\n[SetUp "1"]\n\n1. e4 *';
+        expect(presetMode(startFen)).toEqual({ kind: 'read' });
+    });
+
+    it('lets a StudyMode tag decide', () => {
+        expect(presetMode('[StudyMode "solve"]\n' + GAME)).toEqual({
+            kind: 'solve',
+            playBothSides: false,
+        });
+        expect(presetMode('[StudyMode "read"]\n' + POSITION)).toEqual({ kind: 'read' });
+        expect(presetMode('[StudyMode "memorize"]\n' + GAME)).toEqual({
+            kind: 'solve',
+            playBothSides: true,
+        });
+    });
+
+    it('reads a tag only from the header block', () => {
+        const commented = GAME.replace('1. e4 e5 *', '1. e4 {\n[StudyMode "solve"]\n} e5 *');
+        expect(presetMode(commented)).toEqual({ kind: 'read' });
+    });
+
+    it('names the side to move from the FEN', () => {
+        expect(sideToMove(POSITION)).toBe('white');
+        expect(sideToMove(POSITION.replace(' w - - 0 20', ' b - - 0 20'))).toBe('black');
+        expect(sideToMove(GAME)).toBe('white');
+    });
+
+    it('applies an override without losing a memorize preset', () => {
+        const memorize = { kind: 'solve', playBothSides: true } as const;
+        expect(resolveMode(memorize, undefined)).toEqual(memorize);
+        expect(resolveMode(memorize, 'solve')).toEqual(memorize);
+        expect(resolveMode(memorize, 'read')).toEqual({ kind: 'read' });
+        expect(resolveMode({ kind: 'read' }, 'solve')).toEqual({
+            kind: 'solve',
+            playBothSides: false,
+        });
     });
 });

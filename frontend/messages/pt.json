@@ -4331,6 +4331,18 @@
             "savingBody": "Your edits are still being saved. Try again in a moment.",
             "unsavedBody": "Your edits could not be saved yet. Make another edit to retry, or reload the page to discard them.",
             "targetReached": "Target reached: {total} {unit}"
+        },
+        "solve": {
+            "whiteToMove": "White to move",
+            "blackToMove": "Black to move",
+            "prompt": "Find the mate and play it on the board. The moves stay hidden until you solve it.",
+            "showSolution": "Show solution",
+            "wrong": "Not that one. Try again.",
+            "correct": "Correct.",
+            "solved": "Solved.",
+            "modeSwitch": "Read or solve",
+            "read": "Read",
+            "solve": "Solve"
         }
     }
 }

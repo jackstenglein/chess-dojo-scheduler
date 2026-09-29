@@ -44,9 +44,11 @@ function renderPanel(overrides: Partial<StudyPanelProps> = {}, timerValue = time
         session,
         hasCopy: false,
         isDone: false,
+        solveStatus: { kind: 'prompt', toMove: 'white' },
         mark: { canUndo: false, saving: false, onUndo: vi.fn() },
         onMarkDone: vi.fn(),
         onSelect: vi.fn(),
+        onSetMode: vi.fn(),
         ...overrides,
     };
     const tree = (p: StudyPanelProps) => (
@@ -63,19 +65,93 @@ function renderPanel(overrides: Partial<StudyPanelProps> = {}, timerValue = time
 
 afterEach(cleanup);
 
+describe('StudyPanel in solve mode', () => {
+    it('shows the side to move and Show solution instead of the move list, with Done off', () => {
+        const { props } = renderPanel();
+        expect(screen.getByText('White to move')).toBeVisible();
+        expect(screen.queryByTestId('pgn-text')).toBeNull();
+        expect(screen.getByTestId('study-mark-done')).toBeDisabled();
+        expect(screen.getByTestId('study-next')).toBeEnabled();
+        fireEvent.click(screen.getByTestId('study-show-solution'));
+        expect(props.onSetMode).toHaveBeenCalledWith('read');
+    });
+
+    it("shows the author's feedback after a wrong move", () => {
+        renderPanel({
+            solveStatus: { kind: 'wrong', toMove: 'black', feedback: 'The king slips away.' },
+        });
+        expect(screen.getByText('Black to move')).toBeVisible();
+        expect(screen.getByText('The king slips away.')).toBeVisible();
+        expect(screen.getByTestId('study-mark-done')).toBeDisabled();
+    });
+
+    it('keeps Done off while the solve is posting and offers it once the post failed', () => {
+        renderPanel({
+            solveStatus: { kind: 'complete' },
+            mark: { canUndo: false, saving: true, onUndo: vi.fn() },
+        });
+        expect(screen.getByTestId('study-mark-done')).toBeDisabled();
+        cleanup();
+
+        const { props } = renderPanel({ solveStatus: { kind: 'complete' } });
+        expect(screen.getByTestId('study-solve-card')).toHaveTextContent(/^Solved\.$/);
+        expect(screen.getByTestId('study-mark-done')).toBeEnabled();
+        expect(screen.queryByTestId('study-mark-next')).toBeNull();
+        fireEvent.click(screen.getByTestId('study-mark-done'));
+        expect(props.onMarkDone).toHaveBeenCalledTimes(1);
+    });
+
+    it('swaps Done for Undo and makes Next primary once solved and marked, with only the status on the card', () => {
+        const onUndo = vi.fn();
+        const { props } = renderPanel({
+            isDone: true,
+            solveStatus: { kind: 'complete' },
+            mark: { canUndo: true, saving: false, onUndo },
+        });
+        expect(screen.getByTestId('study-solve-card')).toHaveTextContent(/^Solved\.$/);
+        expect(screen.queryByTestId('study-mark-done')).toBeNull();
+        fireEvent.click(screen.getByTestId('study-undo-mark'));
+        expect(onUndo).toHaveBeenCalledTimes(1);
+        const next = screen.getByTestId('study-mark-next');
+        expect(next).toHaveClass('MuiButton-contained');
+        fireEvent.click(next);
+        expect(props.onSelect).toHaveBeenCalledWith(second);
+    });
+
+    it('keeps Undo in the footer when the member comes back to an item they solved', () => {
+        const onUndo = vi.fn();
+        renderPanel({ isDone: true, mark: { canUndo: true, saving: false, onUndo } });
+        expect(screen.getByText('White to move')).toBeVisible();
+        expect(screen.queryByTestId('study-mark-done')).toBeNull();
+        expect(screen.getByTestId('study-mark-next')).toHaveClass('MuiButton-contained');
+        fireEvent.click(screen.getByTestId('study-undo-mark'));
+        expect(onUndo).toHaveBeenCalledTimes(1);
+    });
+
+    it('flips the mode from the footer switch', () => {
+        const { props } = renderPanel();
+        fireEvent.click(screen.getByTestId('study-mode-read'));
+        expect(props.onSetMode).toHaveBeenCalledWith('read');
+    });
+});
+
 describe('StudyPanel in read mode', () => {
     it('keeps the move list and Prev, Done, Next before a mark', () => {
-        renderPanel();
+        const { props } = renderPanel({ solveStatus: undefined });
         expect(screen.getByTestId('pgn-text')).toBeInTheDocument();
+        expect(screen.queryByTestId('study-solve-card')).toBeNull();
         expect(screen.getByTestId('study-prev')).toBeDisabled();
         expect(screen.getByTestId('study-mark-done')).toBeEnabled();
         expect(screen.getByTestId('study-next')).toBeEnabled();
         expect(screen.queryByTestId('study-undo-mark')).toBeNull();
         expect(screen.queryByTestId('study-mark-next')).toBeNull();
+        fireEvent.click(screen.getByTestId('study-mode-solve'));
+        expect(props.onSetMode).toHaveBeenCalledWith('solve');
     });
 
     it('keeps Done off while the mark posts', () => {
         renderPanel({
+            solveStatus: undefined,
             mark: { canUndo: false, saving: true, onUndo: vi.fn() },
         });
         expect(screen.getByTestId('study-mark-done')).toBeDisabled();
@@ -85,6 +161,7 @@ describe('StudyPanel in read mode', () => {
     it('swaps Done for Undo and makes Next the primary action once marked', () => {
         const onUndo = vi.fn();
         const { props } = renderPanel({
+            solveStatus: undefined,
             isDone: true,
             mark: { canUndo: true, saving: false, onUndo },
         });
@@ -102,6 +179,7 @@ describe('StudyPanel in read mode', () => {
 
     it('keeps Undo off while the undo posts', () => {
         renderPanel({
+            solveStatus: undefined,
             isDone: true,
             mark: { canUndo: true, saving: true, onUndo: vi.fn() },
         });
@@ -112,6 +190,7 @@ describe('StudyPanel in read mode', () => {
     it('offers Undo with the chevron still off on the last item', () => {
         renderPanel({
             current: second,
+            solveStatus: undefined,
             isDone: true,
             mark: { canUndo: true, saving: false, onUndo: vi.fn() },
         });
@@ -122,6 +201,7 @@ describe('StudyPanel in read mode', () => {
 
     it('brings Done and the chevron back once the mark is undone', () => {
         const { rerender } = renderPanel({
+            solveStatus: undefined,
             isDone: true,
             mark: { canUndo: true, saving: false, onUndo: vi.fn() },
         });

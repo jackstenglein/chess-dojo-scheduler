@@ -5,14 +5,17 @@ import PurchaseCoursePage from '@/app/[locale]/(scoreboard)/courses/[type]/[id]/
 import { useAuth, useFreeTier } from '@/auth/Auth';
 import PgnBoard from '@/board/pgn/PgnBoard';
 import { CustomUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
+import { AreaSizes, getSizes } from '@/board/pgn/resize';
 import { Link } from '@/components/navigation/Link';
+import { SolveBoard, SolveStatus } from '@/components/profile/trainingPlan/study/SolveBoard';
 import { StudyCatalog } from '@/components/profile/trainingPlan/study/StudyCatalog';
 import { StudyLayout } from '@/components/profile/trainingPlan/study/StudyLayout';
 import { StudyPanel } from '@/components/profile/trainingPlan/study/StudyPanel';
 import { StudyItem } from '@/components/profile/trainingPlan/study/book';
-import { taskTitle } from '@/components/profile/trainingPlan/study/selectors';
+import { sideToMove, taskTitle } from '@/components/profile/trainingPlan/study/selectors';
 import {
     StudyBoard,
+    StudyMode,
     StudyReady,
     StudySource,
     useStudy,
@@ -21,9 +24,13 @@ import { GameContext } from '@/context/useGame';
 import PgnErrorBoundary from '@/games/view/PgnErrorBoundary';
 import { useNextSearchParams } from '@/hooks/useNextSearchParams';
 import LoadingPage from '@/loading/LoadingPage';
+import { useLightMode } from '@/style/useLightMode';
+import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { MenuBook } from '@mui/icons-material';
 import {
+    Box,
     Button,
+    Card,
     Container,
     Dialog,
     DialogActions,
@@ -34,7 +41,7 @@ import {
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useNavigationGuard } from 'next-navigation-guard';
-import { useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 const READER_TAB = 'reader';
@@ -133,6 +140,9 @@ function StudyReadyView({ study }: { study: StudyReady }) {
     const onSelect = (item: StudyItem) => {
         if (!select(item)) setBlockedSelect(true);
     };
+    const onSetMode = (kind: StudyMode['kind']) => {
+        if (!study.setMode(current, kind)) setBlockedSelect(true);
+    };
     // The hook marks the item as it was when Done was pressed, even if the member moves on
     // while the post or the count refresh is pending.
     const mark = () => {
@@ -143,19 +153,24 @@ function StudyReadyView({ study }: { study: StudyReady }) {
     const onMarkDone = () => {
         if (!markRequest.isLoading()) mark();
     };
+    // An item already marked done gets no second post. The pane calls this once per board.
+    const onSolveComplete = () => {
+        if (!isDone) mark();
+    };
     const onUndo = () => {
         if (!session || markRequest.isLoading()) return;
         markRequest.onStart();
         session.undoMark(current.key).then(() => markRequest.onSuccess(), markRequest.onFailure);
     };
 
-    const panel = (
+    const renderPanel = (status?: SolveStatus) => (
         <StudyPanel
             book={book}
             current={current}
             session={session}
             hasCopy={hasCopy}
             isDone={isDone}
+            solveStatus={status}
             mark={
                 session && {
                     canUndo: session.canUndo,
@@ -165,6 +180,7 @@ function StudyReadyView({ study }: { study: StudyReady }) {
             }
             onMarkDone={onMarkDone}
             onSelect={onSelect}
+            onSetMode={onSetMode}
         />
     );
 
@@ -174,7 +190,7 @@ function StudyReadyView({ study }: { study: StudyReady }) {
             name: READER_TAB,
             tooltip: tNav('reader'),
             icon: <MenuBook />,
-            element: panel,
+            element: renderPanel(),
         },
     ];
 
@@ -202,11 +218,20 @@ function StudyReadyView({ study }: { study: StudyReady }) {
                     <LoadingPage />
                 ) : (
                     <PgnErrorBoundary key={board.key} pgn={board.pgn}>
-                        <ReadPane
-                            board={board}
-                            rightTabs={rightTabs}
-                            onInitialize={study.onBoardInitialize}
-                        />
+                        {board.mode.kind === 'solve' ? (
+                            <SolvePane
+                                board={board}
+                                playBothSides={board.mode.playBothSides}
+                                panel={renderPanel}
+                                onComplete={onSolveComplete}
+                            />
+                        ) : (
+                            <ReadPane
+                                board={board}
+                                rightTabs={rightTabs}
+                                onInitialize={study.onBoardInitialize}
+                            />
+                        )}
                     </PgnErrorBoundary>
                 )}
             </StudyLayout>
@@ -267,5 +292,86 @@ function ReadPane({
                 allowDeleteBefore
             />
         </GameContext.Provider>
+    );
+}
+
+/**
+ * The solve board and its panel, sized with the read layout's rule so the two modes line
+ * up with the catalog the same way. The status lives here, with the board it describes, so
+ * a remount starts at the prompt.
+ */
+function SolvePane({
+    board,
+    playBothSides,
+    panel,
+    onComplete,
+}: {
+    board: StudyBoard;
+    playBothSides: boolean;
+    panel: (status: SolveStatus) => ReactNode;
+    onComplete: () => void;
+}) {
+    const light = useLightMode();
+    const paneRef = useRef<HTMLDivElement>(null);
+    const [sizes, setSizes] = useState<AreaSizes>();
+    const [pgn] = useState(board.latestPgn);
+    // The board reports the side to move once it mounts. Until then the PGN header names it.
+    const [status, setStatus] = useState<SolveStatus>(() => ({
+        kind: 'prompt',
+        toMove: sideToMove(pgn),
+    }));
+    const completed = useRef(false);
+    const onSolved = () => {
+        if (completed.current) return;
+        completed.current = true;
+        onComplete();
+    };
+    const measure = useCallback(() => {
+        const width = paneRef.current?.getBoundingClientRect().width ?? 0;
+        setSizes(getSizes(width, false, true, { showPgn: true }));
+    }, []);
+    useEffect(measure, [measure]);
+    useWindowSizeEffect(measure);
+
+    return (
+        <Stack
+            ref={paneRef}
+            direction='row'
+            data-testid='study-solve-pane'
+            data-board-key={board.key}
+            sx={{
+                width: 1,
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                rowGap: 0.5,
+                columnGap: { xs: 0.5, md: 1 },
+            }}
+        >
+            {sizes && (
+                <>
+                    <Box sx={{ width: sizes.board.width, height: sizes.board.width }}>
+                        <SolveBoard
+                            pgn={pgn}
+                            playBothSides={playBothSides}
+                            onStatus={setStatus}
+                            onComplete={onSolved}
+                        />
+                    </Box>
+                    <Card
+                        elevation={light ? undefined : 3}
+                        variant={light ? 'outlined' : 'elevation'}
+                        sx={{
+                            width: sizes.pgn.width,
+                            height: sizes.pgn.height,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            boxShadow: 'none',
+                        }}
+                    >
+                        {panel(status)}
+                    </Card>
+                </>
+            )}
+        </Stack>
     );
 }

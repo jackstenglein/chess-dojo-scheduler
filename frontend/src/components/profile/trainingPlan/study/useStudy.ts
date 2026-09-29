@@ -43,9 +43,14 @@ import {
     countsItems,
     doneKeys,
     pointerDone,
+    presetMode,
+    resolveMode,
+    StudyMode,
     taskCohort,
     taskTitle,
 } from './selectors';
+
+export type { StudyMode } from './selectors';
 
 export type StudyTask = Requirement | CustomTask;
 
@@ -96,6 +101,8 @@ export interface StudyReady {
     current: StudyItem;
     /** Returns false while the current item has unsaved edits. */
     select: (item: StudyItem) => boolean;
+    /** Overrides the item's preset mode for this session. Returns false while edits are unsaved. */
+    setMode: (item: StudyItem, kind: StudyMode['kind']) => boolean;
     workedOn: Set<string>;
     /** True from the first edit of a canonical game until its copy holds every edit. */
     pendingEdits: boolean;
@@ -108,6 +115,7 @@ export interface StudyReady {
 
 /** Board props for the selected item. The context updates when a copy is saved. */
 export interface StudyBoard {
+    /** Changes with the item and with its mode, so the board remounts on either. */
     key: string;
     /** The item's PGN as loaded. */
     pgn: string;
@@ -117,6 +125,7 @@ export interface StudyBoard {
      * reloads whenever its PGN changes, so a pane reads this once, when it mounts.
      */
     latestPgn: () => string;
+    mode: StudyMode;
     orientation: 'white' | 'black';
     context: GameContextType;
     disableExport: boolean;
@@ -216,6 +225,7 @@ export function useStudy(source: StudySource, urlItemKey: string | null): StudyS
     // Keep a newly created copy on the current board until the item is reselected.
     const [sessionCopyKey, setSessionCopyKey] = useState<string>();
     const [pendingEdits, setPendingEdits] = useState(false);
+    const [overrides, setOverrides] = useState(() => new Map<string, StudyMode['kind']>());
     const [lastMark, setLastMark] = useState<LastMark>();
     // A queued undo reads the mark that ran before it, and state shows that mark only after a render.
     const lastMarkRef = useRef<LastMark | undefined>(undefined);
@@ -732,6 +742,14 @@ export function useStudy(source: StudySource, urlItemKey: string | null): StudyS
         [enqueue, task, rememberMark],
     );
 
+    const setMode = useCallback((item: StudyItem, kind: StudyMode['kind']) => {
+        if (pendingEditsRef.current || boardUnsavedRef.current) {
+            return false;
+        }
+        setOverrides((prev) => new Map(prev).set(item.key, kind));
+        return true;
+    }, []);
+
     const workedOn = useMemo(() => new Set(copies?.keys() ?? []), [copies]);
 
     const loadedGameRef = useRef(loadedGame);
@@ -760,15 +778,18 @@ export function useStudy(source: StudySource, urlItemKey: string | null): StudyS
 
     const board = useMemo<StudyBoard | undefined>(() => {
         if (!current) return undefined;
+        const modeFor = (pgn: string) => resolveMode(presetMode(pgn), overrides.get(current.key));
         // applySelection clears chessRef when the item changes, so chessRef holds this item's game.
         const latest = (pgn: string) => () => chessRef.current?.renderPgn() ?? pgn;
         if (savedKey) {
             if (loadedGame?.key !== current.key) return undefined;
             const game = loadedGame.game;
+            const mode = modeFor(game.pgn);
             return {
-                key: current.key,
+                key: `${current.key}:${mode.kind}`,
                 pgn: game.pgn,
                 latestPgn: latest(game.pgn),
+                mode,
                 orientation: game.orientation ?? 'white',
                 context: {
                     game,
@@ -790,15 +811,26 @@ export function useStudy(source: StudySource, urlItemKey: string | null): StudyS
                   setHasUnsavedGameChanges: onBoardUnsaved,
               }
             : { isOwner: true, unsaved: true, silentUnsaved: true };
+        const mode = modeFor(current.pgn);
         return {
-            key: current.key,
+            key: `${current.key}:${mode.kind}`,
             pgn: current.pgn,
             latestPgn: latest(current.pgn),
+            mode,
             orientation: current.orientation,
             context,
             disableExport: !current.allowExport,
         };
-    }, [current, savedKey, loadedGame, copyGame, onUpdateGame, onBoardUnsaved, versionRef]);
+    }, [
+        current,
+        savedKey,
+        loadedGame,
+        copyGame,
+        overrides,
+        onUpdateGame,
+        onBoardUnsaved,
+        versionRef,
+    ]);
 
     if (authStatus === AuthStatus.Loading || !user) {
         return { status: 'loading' };
@@ -840,6 +872,7 @@ export function useStudy(source: StudySource, urlItemKey: string | null): StudyS
         book,
         current,
         select,
+        setMode,
         workedOn,
         pendingEdits,
         onBoardUnsaved,

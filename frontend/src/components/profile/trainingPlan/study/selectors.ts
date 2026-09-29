@@ -147,3 +147,53 @@ export function pointerDone(
     }
     return keys;
 }
+
+/** How the reader opens an item: as a game to read or as a puzzle to solve. */
+export type StudyMode = { kind: 'read' } | { kind: 'solve'; playBothSides: boolean };
+
+const READ: StudyMode = { kind: 'read' };
+const SOLVE: StudyMode = { kind: 'solve', playBothSides: false };
+const MEMORIZE: StudyMode = { kind: 'solve', playBothSides: true };
+const START_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -';
+
+/** The PGN's header tags, read from the block before the first blank line. */
+function headerTags(pgn: string): Map<string, string> {
+    const block = pgn.split(/\r?\n\r?\n/, 1)[0] ?? '';
+    const tags = new Map<string, string>();
+    for (const match of block.matchAll(/^\[(\w+)\s+"([^"]*)"\]/gm)) {
+        tags.set(match[1], match[2]);
+    }
+    return tags;
+}
+
+/**
+ * The mode an item's own PGN asks for. A StudyMode tag decides when present. Otherwise a
+ * position start presets solve and a game from the initial position presets read.
+ */
+export function presetMode(pgn: string): StudyMode {
+    const tags = headerTags(pgn);
+    switch (tags.get('StudyMode')?.toLowerCase()) {
+        case 'solve':
+            return SOLVE;
+        case 'read':
+            return READ;
+        case 'memorize':
+            return MEMORIZE;
+    }
+    const fen = tags.get('FEN') ?? '';
+    const positionStart = fen ? !fen.startsWith(START_POSITION) : tags.get('SetUp') === '1';
+    return positionStart ? SOLVE : READ;
+}
+
+/** The side to move at the PGN's start. */
+export function sideToMove(pgn: string): 'white' | 'black' {
+    return headerTags(pgn).get('FEN')?.split(' ')[1] === 'b' ? 'black' : 'white';
+}
+
+/** The mode after the member's own choice for the item, when there is one. */
+export function resolveMode(preset: StudyMode, override?: StudyMode['kind']): StudyMode {
+    if (!override || override === preset.kind) {
+        return preset;
+    }
+    return override === 'read' ? READ : SOLVE;
+}
