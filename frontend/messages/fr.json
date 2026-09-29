@@ -4343,6 +4343,11 @@
             "modeSwitch": "Read or solve",
             "read": "Read",
             "solve": "Solve"
+        },
+        "board": {
+            "engine": "Engine",
+            "playBot": "Play this position against the bot",
+            "analyze": "Open this position in the analysis board"
         }
     }
 }

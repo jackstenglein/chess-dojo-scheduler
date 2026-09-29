@@ -3,11 +3,13 @@
 import { RequestSnackbar, useRequest } from '@/api/Request';
 import PurchaseCoursePage from '@/app/[locale]/(scoreboard)/courses/[type]/[id]/[chapter]/[module]/PurchaseCoursePage';
 import { useAuth, useFreeTier } from '@/auth/Auth';
-import PgnBoard from '@/board/pgn/PgnBoard';
+import PgnBoard, { PgnBoardSlots } from '@/board/pgn/PgnBoard';
 import { CustomUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
+import { EngineControlContext } from '@/board/pgn/pgnText/engine/EngineControl';
 import { AreaSizes, getSizes } from '@/board/pgn/resize';
 import { Link } from '@/components/navigation/Link';
 import { SolveBoard, SolveStatus } from '@/components/profile/trainingPlan/study/SolveBoard';
+import { StudyBoardActions } from '@/components/profile/trainingPlan/study/StudyBoardActions';
 import { StudyCatalog } from '@/components/profile/trainingPlan/study/StudyCatalog';
 import { StudyLayout } from '@/components/profile/trainingPlan/study/StudyLayout';
 import { StudyPanel } from '@/components/profile/trainingPlan/study/StudyPanel';
@@ -41,7 +43,7 @@ import {
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useNavigationGuard } from 'next-navigation-guard';
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 const READER_TAB = 'reader';
@@ -265,7 +267,15 @@ function StudyReadyView({ study }: { study: StudyReady }) {
     );
 }
 
-/** The move list board and its panel. */
+/** The row under the board, made once so a toggle does not change the board's context. */
+const READ_SLOTS: PgnBoardSlots = { boardButtons: <StudyBoardActions /> };
+
+/**
+ * The move list board and its panel. The engine is off until the member turns it on from the
+ * row under the board, and a new board starts off again. The engine state reaches the strip
+ * through EngineControlContext alone, never through the board's props, so a toggle leaves the
+ * board's context and the move list's scroll position untouched.
+ */
 function ReadPane({
     board,
     rightTabs,
@@ -276,21 +286,29 @@ function ReadPane({
     onInitialize: StudyReady['onBoardInitialize'];
 }) {
     const [pgn] = useState(board.latestPgn);
+    const [engineOn, setEngineOn] = useState(false);
+    const engineControl = useMemo(
+        () => ({ enabled: engineOn, setEnabled: setEngineOn }),
+        [engineOn],
+    );
 
     return (
         <GameContext.Provider value={board.context}>
-            <PgnBoard
-                pgn={pgn}
-                startOrientation={board.orientation}
-                onInitialize={onInitialize}
-                disableExport={board.disableExport}
-                showPlayerHeaders={false}
-                underboardTabs={[]}
-                rightTabs={rightTabs}
-                initialRightTab={READER_TAB}
-                allowMoveDeletion
-                allowDeleteBefore
-            />
+            <EngineControlContext.Provider value={engineControl}>
+                <PgnBoard
+                    pgn={pgn}
+                    startOrientation={board.orientation}
+                    onInitialize={onInitialize}
+                    disableExport={board.disableExport}
+                    showPlayerHeaders={false}
+                    underboardTabs={[]}
+                    rightTabs={rightTabs}
+                    initialRightTab={READER_TAB}
+                    allowMoveDeletion
+                    allowDeleteBefore
+                    slots={READ_SLOTS}
+                />
+            </EngineControlContext.Provider>
         </GameContext.Provider>
     );
 }

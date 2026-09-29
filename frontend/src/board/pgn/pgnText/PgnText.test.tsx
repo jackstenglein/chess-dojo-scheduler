@@ -2,8 +2,9 @@ import { ChessContext } from '@/board/pgn/PgnBoard';
 import { renderWithIntl } from '@/i18n/intl.test';
 import { Chess } from '@jackstenglein/chess';
 import { cleanup, fireEvent, screen } from '@testing-library/react';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { EngineControlContext } from './engine/EngineControl';
 import { UnderboardPgnText } from './PgnText';
 
 type ScrollHandler = (child: HTMLElement | null) => void;
@@ -25,6 +26,20 @@ vi.mock('@/stockfish/hooks/useChessDb', () => ({
 vi.mock('./engine/EvaluationSection', () => ({ EvaluationSection: () => null }));
 vi.mock('./engine/Settings', () => ({ default: () => null }));
 
+/**
+ * Owns the engine switch above the panel, as the reader does. It creates the panel element
+ * once.
+ */
+function EngineOwner({ children }: { children: ReactNode }) {
+    const [enabled, setEnabled] = useState(false);
+    return (
+        <EngineControlContext.Provider value={{ enabled, setEnabled }}>
+            <button data-testid='row-toggle' onClick={() => setEnabled(!enabled)} />
+            {children}
+        </EngineControlContext.Provider>
+    );
+}
+
 /** Re-renders the panel on every tick, as the reader does while a timer runs. */
 function TickingParent() {
     const [, setTick] = useState(0);
@@ -40,6 +55,27 @@ describe('UnderboardPgnText', () => {
     afterEach(() => {
         cleanup();
         mocks.variation.mockReset();
+    });
+
+    it('shows and hides the strip without re-rendering the move list', () => {
+        const panel = <UnderboardPgnText />;
+        renderWithIntl(
+            <ChessContext.Provider value={{ chess: new Chess() }}>
+                <EngineOwner>{panel}</EngineOwner>
+            </ChessContext.Provider>,
+        );
+        expect(screen.getByTestId('variation')).toBeInTheDocument();
+        expect(screen.queryByRole('switch')).toBeNull();
+        const renders = mocks.variation.mock.calls.length;
+        expect(renders).toBeGreaterThan(0);
+
+        fireEvent.click(screen.getByTestId('row-toggle'));
+        expect(screen.getByRole('switch')).toBeChecked();
+        expect(mocks.variation).toHaveBeenCalledTimes(renders);
+
+        fireEvent.click(screen.getByRole('switch'));
+        expect(screen.queryByRole('switch')).toBeNull();
+        expect(mocks.variation).toHaveBeenCalledTimes(renders);
     });
 
     it('hands the moves one scroll handler for its whole life, across parent re-renders', () => {

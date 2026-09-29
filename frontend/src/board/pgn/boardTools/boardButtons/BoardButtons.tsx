@@ -33,7 +33,7 @@ const BoardButtons = ({
     const t = useTranslations('analysisBoard.boardButtons');
     const light = useLightMode();
     const { game, isOwner: isGameOwner, unsaved, silentUnsaved } = useGame();
-    const { chess } = useChess();
+    const { chess, slots } = useChess();
 
     return (
         <Paper
@@ -96,6 +96,7 @@ const BoardButtons = ({
                     ) : (
                         <Box sx={{ width: '40px' }}></Box>
                     )}
+                    {slots?.boardButtons}
                     <PanelToggle side='right' panelControls={panelControls} />
                 </Stack>
             </Stack>

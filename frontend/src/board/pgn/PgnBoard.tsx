@@ -85,6 +85,8 @@ export interface PgnBoardApi {
 export interface PgnBoardSlots {
     moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
     afterPgnText?: JSX.Element;
+    /** Rendered at the right end of the row under the board. */
+    boardButtons?: JSX.Element;
 }
 
 export interface PgnBoardSlotProps {
