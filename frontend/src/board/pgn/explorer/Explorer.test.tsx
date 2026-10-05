@@ -3,7 +3,8 @@ import { cleanup } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Explorer, { ExplorerDatabaseType } from './Explorer';
 
-const { useLocalStorageMock } = vi.hoisted(() => ({
+const { databasePropsMock, useLocalStorageMock } = vi.hoisted(() => ({
+    databasePropsMock: vi.fn(),
     useLocalStorageMock: vi.fn((_key: string, _initialValue: unknown) => ['dojo', vi.fn()]),
 }));
 
@@ -88,7 +89,10 @@ vi.mock('./Header', () => ({
 }));
 
 vi.mock('./Database', () => ({
-    default: () => <div data-testid='explorer-database' />,
+    default: (props: unknown) => {
+        databasePropsMock(props);
+        return <div data-testid='explorer-database' />;
+    },
 }));
 
 vi.mock('./ChessDb', () => ({
@@ -106,6 +110,7 @@ vi.mock('./Tablebase', () => ({
 describe('Explorer storage', () => {
     afterEach(() => {
         cleanup();
+        databasePropsMock.mockClear();
         useLocalStorageMock.mockClear();
     });
 
@@ -115,6 +120,11 @@ describe('Explorer storage', () => {
         expect(useLocalStorageMock).toHaveBeenCalledWith(
             'analysis.right.explorerTab',
             ExplorerDatabaseType.Dojo,
+        );
+        expect(databasePropsMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                splitStorageKey: 'analysis.right.explorerTab.databaseSplit',
+            }),
         );
     });
 });
