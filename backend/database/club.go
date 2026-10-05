@@ -126,6 +126,9 @@ type ClubUpdate struct {
 	// The physical location of the club, if it has one
 	Location *ClubLocation `dynamodbav:"location,omitempty" json:"location,omitempty"`
 
+	// Whether the club is unlisted
+	Unlisted *bool `dynamodbav:"unlisted,omitempty" json:"unlisted,omitempty"`
+
 	// Whether the club requires approval to join
 	ApprovalRequired *bool `dynamodbav:"approvalRequired,omitempty" json:"approvalRequired,omitempty"`
 
