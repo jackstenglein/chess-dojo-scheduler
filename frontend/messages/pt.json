@@ -3701,6 +3701,8 @@
             "delete": "Excluir",
             "deleteMovesTitle": "{count, plural, =1 {Excluir # lance} other {Excluir # lances}}",
             "deleteCommentsAppend": "e {count, plural, =1 {# comentário} other {# comentários}}",
+            "deletedMoves": "{count, plural, =1 {# lance excluído} other {# lances excluídos}}",
+            "undo": "Desfazer",
             "settings": {
                 "editorSettingsTitle": "Configurações do editor",
                 "clockFieldFormatLabel": "Formato do campo do relógio",

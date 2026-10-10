@@ -3701,6 +3701,8 @@
             "delete": "Eliminar",
             "deleteMovesTitle": "{count, plural, =1 {Eliminar # jugada} other {Eliminar # jugadas}}",
             "deleteCommentsAppend": "y {count, plural, =1 {# comentario} other {# comentarios}}",
+            "deletedMoves": "{count, plural, =1 {# jugada eliminada} other {# jugadas eliminadas}}",
+            "undo": "Deshacer",
             "settings": {
                 "editorSettingsTitle": "Configuración del editor",
                 "clockFieldFormatLabel": "Formato del campo de reloj",

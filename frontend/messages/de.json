@@ -3701,6 +3701,8 @@
             "delete": "Löschen",
             "deleteMovesTitle": "{count, plural, =1 {# Zug löschen} other {# Züge löschen}}",
             "deleteCommentsAppend": "und {count, plural, =1 {# Kommentar} other {# Kommentare}}",
+            "deletedMoves": "{count, plural, =1 {# Zug gelöscht} other {# Züge gelöscht}}",
+            "undo": "Rückgängig",
             "settings": {
                 "editorSettingsTitle": "Editor-Einstellungen",
                 "clockFieldFormatLabel": "Uhrzeitfeld-Format",

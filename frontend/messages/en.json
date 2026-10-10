@@ -3701,6 +3701,8 @@
             "delete": "Delete",
             "deleteMovesTitle": "{count, plural, =1 {Delete # move} other {Delete # moves}}",
             "deleteCommentsAppend": "and {count, plural, =1 {# comment} other {# comments}}",
+            "deletedMoves": "{count, plural, =1 {Deleted # move} other {Deleted # moves}}",
+            "undo": "Undo",
             "settings": {
                 "editorSettingsTitle": "Editor Settings",
                 "clockFieldFormatLabel": "Clock Field Format",

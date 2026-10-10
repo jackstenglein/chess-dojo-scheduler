@@ -3701,6 +3701,8 @@
             "delete": "Elimina",
             "deleteMovesTitle": "{count, plural, =1 {Elimina # mossa} other {Elimina # mosse}}",
             "deleteCommentsAppend": "e {count, plural, =1 {# commento} other {# commenti}}",
+            "deletedMoves": "{count, plural, =1 {# mossa eliminata} other {# mosse eliminate}}",
+            "undo": "Annulla",
             "settings": {
                 "editorSettingsTitle": "Impostazioni editor",
                 "clockFieldFormatLabel": "Formato del campo orologio",

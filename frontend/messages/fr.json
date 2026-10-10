@@ -3701,6 +3701,8 @@
             "delete": "Supprimer",
             "deleteMovesTitle": "{count, plural, =1 {Supprimer # coup} other {Supprimer # coups}}",
             "deleteCommentsAppend": "et {count, plural, =1 {# commentaire} other {# commentaires}}",
+            "deletedMoves": "{count, plural, =1 {# coup supprimé} other {# coups supprimés}}",
+            "undo": "Annuler",
             "settings": {
                 "editorSettingsTitle": "Paramètres de l'éditeur",
                 "clockFieldFormatLabel": "Format du champ d'horloge",
