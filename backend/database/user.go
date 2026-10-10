@@ -622,11 +622,14 @@ func (u *User) GetCohort() DojoCohort {
 
 // GetRatings returns the start and current ratings in the user's preferred rating system.
 func (u *User) GetRatings() (int, int) {
-	if u == nil {
+	if u == nil || u.Ratings == nil {
 		return 0, 0
 	}
 
 	r := u.Ratings[u.RatingSystem]
+	if r == nil {
+		return 0, 0
+	}
 	return r.StartRating, r.CurrentRating
 }
 

@@ -10,25 +10,66 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/api"
+	"github.com/jackstenglein/chess-dojo-scheduler/backend/api/errors"
 	"github.com/jackstenglein/chess-dojo-scheduler/backend/database"
 )
+
+type mockUserRepository struct {
+	users map[string]*database.User
+}
+
+func (m *mockUserRepository) GetUser(username string) (*database.User, error) {
+	user, ok := m.users[username]
+	if !ok {
+		return nil, errors.New(404, "Invalid request: user not found", "")
+	}
+	clone := *user
+	return &clone, nil
+}
+
+func (m *mockUserRepository) UpdateUser(username string, update *database.UserUpdate) (*database.User, error) {
+	user, ok := m.users[username]
+	if !ok {
+		return nil, errors.New(404, "Invalid request: user not found", "")
+	}
+	raw, err := json.Marshal(update)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(raw, user); err != nil {
+		return nil, err
+	}
+	clone := *user
+	return &clone, nil
+}
+
+func (m *mockUserRepository) ListTimelineEntries(owner string, startKey string) ([]*database.TimelineEntry, string, error) {
+	return nil, "", nil
+}
+
+func (m *mockUserRepository) PutTimelineEntries(entries []*database.TimelineEntry) (int, error) {
+	return len(entries), nil
+}
 
 const testUsername = "test-updateUser"
 const testEmail = "test@chess-dojo-scheduler.com"
 const testName = "Test Name"
 
-func setupSuite(t *testing.T) func(t *testing.T) {
-	_, err := database.DynamoDB.CreateUser(testUsername, testEmail, testName, nil)
-	if err != nil {
-		t.Errorf("Failed to create test user: %v", err)
+func setupSuite(t *testing.T) *mockUserRepository {
+	t.Helper()
+	repo := &mockUserRepository{
+		users: map[string]*database.User{
+			testUsername: {
+				Username: testUsername,
+				Email:    testEmail,
+				Name:     testName,
+			},
+		},
 	}
-
-	return func(t *testing.T) {
-		err := database.DynamoDB.DeleteUser(testUsername)
-		if err != nil {
-			t.Errorf("Failed to delete user: %v", err)
-		}
-	}
+	original := repository
+	repository = repo
+	t.Cleanup(func() { repository = original })
+	return repo
 }
 
 func getEvent(testName string, username string, update *database.UserUpdate) api.Request {
@@ -50,8 +91,7 @@ func getEvent(testName string, username string, update *database.UserUpdate) api
 }
 
 func TestUpdateUser(t *testing.T) {
-	teardownSuite := setupSuite(t)
-	defer teardownSuite(t)
+	repo := setupSuite(t)
 
 	ctx := context.Background()
 
@@ -198,12 +238,12 @@ func TestUpdateUser(t *testing.T) {
 			}
 
 			if !tc.wantErr {
-				gotUser, err := database.DynamoDB.GetUser(tc.username)
+				gotUser, err := repo.GetUser(tc.username)
 				if err != nil {
 					t.Errorf("GetUser(%s) got err: %v", tc.username, err)
 				}
 
-				if diff := cmp.Diff(tc.wantUser, gotUser, cmpopts.EquateEmpty(), cmpopts.IgnoreFields(database.User{}, "CreatedAt", "UpdatedAt", "CurrentChesscomRating", "CurrentLichessRating", "CurrentFideRating", "CurrentUscfRating")); diff != "" {
+				if diff := cmp.Diff(tc.wantUser, gotUser, cmpopts.EquateEmpty(), cmpopts.IgnoreFields(database.User{}, "CreatedAt", "UpdatedAt", "SearchKey")); diff != "" {
 					t.Errorf("GetUser(%v) diff (-want +got):\n%s", event, diff)
 				}
 			}

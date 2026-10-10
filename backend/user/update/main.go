@@ -21,7 +21,14 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-var repository = database.DynamoDB
+type userRepository interface {
+	GetUser(username string) (*database.User, error)
+	UpdateUser(username string, update *database.UserUpdate) (*database.User, error)
+	ListTimelineEntries(owner string, startKey string) ([]*database.TimelineEntry, string, error)
+	PutTimelineEntries(entries []*database.TimelineEntry) (int, error)
+}
+
+var repository userRepository = database.DynamoDB
 var mediaStore database.MediaStore = database.S3
 var stage = os.Getenv("stage")
 var profanityDetector = goaway.NewProfanityDetector().WithExactWord(true)
