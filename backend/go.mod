@@ -4,7 +4,7 @@ go 1.27.1
 
 require (
 	github.com/TwiN/go-away v1.8.1
-	github.com/aws/aws-lambda-go v1.54.0
+	github.com/aws/aws-lambda-go v1.55.1
 	github.com/aws/aws-sdk-go v1.55.8
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/corentings/chess v0.0.0-20241113092200-3f44c4e3e959
