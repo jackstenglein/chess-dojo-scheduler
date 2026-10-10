@@ -139,7 +139,6 @@ export function PuzzleRushAttemptsTable({
                             <TableCell>#</TableCell>
                             <TableCell>{t('columnPuzzle')}</TableCell>
                             <TableCell align='center'>{t('columnPuzzleRating')}</TableCell>
-                            <TableCell align='center'>{t('columnSearchRating')}</TableCell>
                             <TableCell align='center'>{t('columnTime')}</TableCell>
                             <TableCell>{t('columnResult')}</TableCell>
                         </TableRow>
@@ -177,7 +176,6 @@ export function PuzzleRushAttemptsTable({
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell>{attempt.puzzleId}</TableCell>
                                     <TableCell align='center'>{attempt.puzzleRating}</TableCell>
-                                    <TableCell align='center'>{attempt.searchRating}</TableCell>
                                     <TableCell align='center'>
                                         {formatTime(attempt.timeSpentSeconds)}
                                     </TableCell>

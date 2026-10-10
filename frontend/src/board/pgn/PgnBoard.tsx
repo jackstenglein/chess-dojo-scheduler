@@ -105,6 +105,7 @@ interface PgnBoardProps extends ChessConfig {
     pgn?: string;
     fen?: string;
     showPlayerHeaders?: boolean;
+    hideBoardButtons?: boolean;
     startOrientation?: Color;
     onInitialize?: (board: BoardApi, chess: Chess) => void;
     slots?: PgnBoardSlots;
@@ -124,6 +125,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
             pgn,
             fen,
             showPlayerHeaders = true,
+            hideBoardButtons,
             startOrientation = 'white',
             onInitialize: parentOnInitialize,
             initKey,
@@ -389,6 +391,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                                     fen,
                                     startOrientation: gameOrientation,
                                     onInitialize,
+                                    hideBoardButtons,
                                 }}
                             />
                         </GameContext.Provider>

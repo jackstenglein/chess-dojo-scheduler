@@ -3237,7 +3237,9 @@
             "nextPuzzle": "Next Puzzle",
             "historyTitle": "Dojo Rush History",
             "historyEmpty": "You haven't completed any Dojo Rush runs yet.",
-            "loadMore": "Load More"
+            "loadMore": "Load More",
+            "incorrectMoveComment": "Incorrect guess",
+            "incorrectMoveCommentDuringRun": "Incorrect guess during the run"
         },
         "squareColors": {
             "title": "Square Color Drill",

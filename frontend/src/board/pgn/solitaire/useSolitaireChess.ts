@@ -74,6 +74,11 @@ export type SolitaireChessOptions = Partial<
     onWrongMove?: () => void;
     /** A callback invoked when the full PGN is completed. */
     onComplete?: () => void;
+    /**
+     * The comment added to an incorrect move.
+     * @default analysisBoard.underboard.tools.incorrectMoveComment
+     */
+    incorrectMoveComment?: string;
 };
 
 export function useSolitaireChess(
@@ -94,7 +99,7 @@ export function useSolitaireChess(
     const [correctSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
     const [incorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
     const t = useTranslations('analysisBoard.underboard.tools');
-    const incorrectMoveComment = t('incorrectMoveComment');
+    const [incorrectMoveComment, setIncorrectMoveComment] = useState(t('incorrectMoveComment'));
 
     const start = useCallback(
         (move: Move | null, opts?: SolitaireChessOptions) => {
@@ -104,6 +109,7 @@ export function useSolitaireChess(
             if (opts?.addWrongMoves !== undefined) {
                 setAddWrongMoves(opts.addWrongMoves);
             }
+            setIncorrectMoveComment(opts?.incorrectMoveComment ?? t('incorrectMoveComment'));
             allowDifferentMates.current = opts?.allowDifferentMates ?? false;
             onWrongMove.current = opts?.onWrongMove;
             onComplete.current = opts?.onComplete;

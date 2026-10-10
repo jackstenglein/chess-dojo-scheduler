@@ -19,6 +19,7 @@ import { Bolt, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Box, Button, CardContent, Container, Divider, Stack, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useMemo, useRef, useState } from 'react';
+import { DefaultUnderboardTab } from 'src/board/pgn/boardTools/underboard/underboardTabs';
 import { puzzleRushRetryHref, puzzleRushReviewHref } from './PuzzleRushSummary';
 import { usePuzzleRushSession } from './usePuzzleRushSession';
 
@@ -80,9 +81,14 @@ function RetryBoard({
     const [wrongMoves, setWrongMoves] = useState(0);
 
     const [puzzlePGN, playerColor] = useMemo(() => {
-        const chess = new Chess({ fen: attempt.fen });
-        for (const move of attempt.moves) {
-            chess.move(move);
+        let chess: Chess;
+        if (attempt.pgn) {
+            chess = new Chess({ pgn: attempt.pgn });
+        } else {
+            chess = new Chess({ fen: attempt.fen });
+            for (const move of attempt.moves) {
+                chess.move(move);
+            }
         }
         return [chess.renderPgn(), chess.history()[1].color];
     }, [attempt]);
@@ -98,6 +104,7 @@ function RetryBoard({
         <Container maxWidth={false} sx={{ py: 4 }}>
             <PgnBoard
                 ref={pgnRef}
+                pgn={puzzlePGN}
                 showPlayerHeaders={false}
                 underboardTabs={[
                     {
@@ -117,10 +124,9 @@ function RetryBoard({
                             />
                         ),
                     },
+                    DefaultUnderboardTab.Settings,
                 ]}
-                pgn={puzzlePGN}
                 initialUnderboardTab='puzzleRushRetry'
-                disableEngine={!complete}
                 disableNullMoves={!complete}
                 startOrientation={orientation}
                 onInitialize={(board) =>
@@ -130,6 +136,8 @@ function RetryBoard({
                         allowDifferentMates: true,
                         onWrongMove: () => setWrongMoves((n) => n + 1),
                         onComplete: () => setComplete(true),
+                        addWrongMoves: true,
+                        incorrectMoveComment: t('incorrectMoveComment'),
                     })
                 }
                 slots={{
@@ -216,7 +224,6 @@ function RetryUnderboard({
                 <Stack>
                     <DetailRow label={t('puzzleId')} value={attempt.puzzleId} />
                     <DetailRow label={t('columnPuzzleRating')} value={attempt.puzzleRating} />
-                    <DetailRow label={t('columnSearchRating')} value={attempt.searchRating} />
                     <DetailRow
                         label={t('originalTime')}
                         value={formatTime(attempt.timeSpentSeconds)}
@@ -249,7 +256,7 @@ function RetryUnderboard({
                     )}
                 </Stack>
 
-                {attempt.result === 'loss' && originalMovetext && (
+                {attempt.result === 'loss' && originalMovetext && complete && (
                     <Stack>
                         <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
                             {t('originalMoves')}

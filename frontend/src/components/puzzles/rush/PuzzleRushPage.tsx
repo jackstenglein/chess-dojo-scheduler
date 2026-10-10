@@ -30,6 +30,7 @@ import {
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo, useRef } from 'react';
+import { DefaultUnderboardTab } from 'src/board/pgn/boardTools/underboard/underboardTabs';
 import {
     PuzzleRushAttemptsTable,
     puzzleRushRetryHref,
@@ -170,16 +171,18 @@ function RunningScreen({ rush }: { rush: UsePuzzleRushResponse }) {
                 ref={pgnRef}
                 key={currentPuzzle.id}
                 showPlayerHeaders={false}
-                underboardTabs={[
+                underboardTabs={[]}
+                rightTabs={[
                     {
                         name: 'puzzleRush',
                         tooltip: t('title'),
                         icon: <Bolt />,
                         element: <PuzzleRushUnderboard rush={rush} orientation={orientation} />,
                     },
+                    DefaultUnderboardTab.Settings,
                 ]}
                 pgn={puzzlePGN}
-                initialUnderboardTab='puzzleRush'
+                initialRightTab='puzzleRush'
                 disableEngine
                 disableNullMoves
                 startOrientation={orientation}
@@ -190,8 +193,11 @@ function RunningScreen({ rush }: { rush: UsePuzzleRushResponse }) {
                         allowDifferentMates: true,
                         onWrongMove: () => onWrongMove(pgnRef.current?.getPgn()),
                         onComplete,
+                        incorrectMoveComment: t('incorrectMoveCommentDuringRun'),
+                        addWrongMoves: true,
                     })
                 }
+                hideBoardButtons
             />
         </Container>
     );
