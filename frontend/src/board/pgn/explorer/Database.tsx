@@ -46,9 +46,10 @@ import {
     GridRowParams,
 } from '@mui/x-data-grid-pro';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useReconcile } from '../../Board';
 import { useChess } from '../PgnBoard';
+import { DatabaseSplitPane } from './DatabaseSplitPane';
 import { ExplorerDatabaseType } from './Explorer';
 import { GameContextMenu } from './GameContextMenu';
 import { PerformanceSummary } from './player/PerformanceSummary';
@@ -92,6 +93,7 @@ interface DatabaseProps {
     setTimeControls?: (v: string[]) => void;
     pagination?: PaginationResult;
     onClickGame?: (game: GameInfo) => void;
+    splitStorageKey?: string;
 }
 
 function Database(props: DatabaseProps) {
@@ -125,13 +127,16 @@ function DatabaseContent({
     setTimeControls,
     pagination,
     onClickGame = defaultOnClickGame,
+    splitStorageKey,
     gameMenu,
 }: DatabaseProps & { gameMenu?: DataGridContextMenu }) {
     const { chess } = useChess();
     const reconcile = useReconcile();
     const isFreeTier = useFreeTier();
     const t = useTranslations('analysisBoard.explorer');
+    const tChrome = useTranslations('analysisBoard.chrome');
     const translatedTimeControlOptions = useTranslatedMasterTimeControlOptions();
+    const [hasRoomForTotal, setHasRoomForTotal] = useState(true);
 
     const cohortRange = useMemo(() => {
         if (type === ExplorerDatabaseType.Dojo) {
@@ -381,18 +386,114 @@ function DatabaseContent({
         }
     };
 
+    const hasMatchingGames = type !== ExplorerDatabaseType.Lichess && fen !== FEN.start;
+    const hasResizableGameList =
+        !!splitStorageKey &&
+        !!pagination &&
+        hasMatchingGames &&
+        (type === ExplorerDatabaseType.Dojo || type === ExplorerDatabaseType.Masters);
+
+    const moveStats = (
+        <StyledDataGrid
+            autoHeight={!hasResizableGameList}
+            disableColumnMenu
+            disableColumnReorder
+            hideFooter
+            columns={columns}
+            rows={sortedMoves}
+            pinnedRows={
+                !hasResizableGameList || sortedMoves.length === 0 || hasRoomForTotal
+                    ? pinnedRows
+                    : undefined
+            }
+            onResize={(_, __, { api }) => {
+                if (!hasResizableGameList) return;
+                const dimensions = api.getRootDimensions();
+                const availableHeight =
+                    dimensions.viewportOuterSize.height -
+                    dimensions.topContainerHeight -
+                    (dimensions.hasScrollX ? dimensions.scrollbarSize : 0);
+                setHasRoomForTotal(availableHeight >= 2 * dimensions.rowHeight);
+            }}
+            getRowId={(row: GridRowModel<ExplorerMove | LichessExplorerMove>) => row.san}
+            isRowSelectable={(params) => params.id !== 'Total'}
+            getRowClassName={(params) =>
+                params.id === 'Total' ? 'chess-dojo-explorer--total' : ''
+            }
+            slots={{
+                noRowsOverlay: () => (
+                    <Stack
+                        sx={{
+                            height: 1,
+                            width: 1,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Typography>{t('noMovesPlayed')}</Typography>
+                        {type === ExplorerDatabaseType.Dojo &&
+                            cohortRange.length < dojoCohorts.length && (
+                                <Typography>{t('expandCohortRangeHint')}</Typography>
+                            )}
+                    </Stack>
+                ),
+            }}
+            onRowClick={onClickMove}
+            sx={{
+                fontSize: '0.8rem',
+                height: hasResizableGameList ? 1 : undefined,
+            }}
+        />
+    );
+
+    const matchingGames = (
+        <Stack spacing={2}>
+            {pagination && (
+                <GameTable
+                    namespace='explorer'
+                    contextMenu={gameMenu}
+                    limitFreeTier
+                    pagination={pagination}
+                    onPaginationModelChange={onPaginationModelChange}
+                    defaultVisibility={{
+                        cohort: false,
+                        publishedAt: false,
+                        owner: false,
+                    }}
+                    listView={true}
+                    disableRowSelectionOnClick
+                    onRowClick={(params) => onClickGame(params.row)}
+                />
+            )}
+
+            {(type === ExplorerDatabaseType.Dojo || type === ExplorerDatabaseType.Masters) && (
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Link
+                        href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
+                        target='_blank'
+                        rel='noopener'
+                    >
+                        {type === ExplorerDatabaseType.Dojo
+                            ? t('viewAllDojoGamesLink')
+                            : t('viewAllMasterGamesLink')}
+                    </Link>
+                </Box>
+            )}
+        </Stack>
+    );
+
     return (
-        <Grid
+        <Stack
             data-testid={`explorer-tab-${type}`}
-            container
-            columnSpacing={1}
-            rowSpacing={2}
             sx={{
                 mt: 2,
+                flexGrow: hasResizableGameList ? 1 : undefined,
+                minHeight: 0,
+                gap: 2,
             }}
         >
             {type === ExplorerDatabaseType.Dojo && (
-                <>
+                <Grid container columnSpacing={1}>
                     <Grid
                         size={{
                             xs: 6,
@@ -437,129 +538,63 @@ function DatabaseContent({
                             ))}
                         </TextField>
                     </Grid>
-                </>
+                </Grid>
             )}
             {type === ExplorerDatabaseType.Masters && timeControls && setTimeControls && (
-                <>
-                    <Grid size={12}>
-                        <Stack
-                            direction='row'
-                            spacing={0.5}
-                            sx={{
-                                alignItems: 'center',
-                            }}
-                        >
-                            <MultipleSelectChip
-                                label={t('timeControlsLabel')}
-                                selected={timeControls}
-                                setSelected={setTimeControls}
-                                options={translatedTimeControlOptions}
-                                sx={{ width: 1 }}
-                                size='small'
-                                error={timeControls.length === 0}
-                                noTranslate
-                            />
-                            <Tooltip
-                                title={
-                                    <span translate='no' className='notranslate'>
-                                        {t.rich('timeControlTooltip', {
-                                            br: () => <br />,
-                                        })}
-                                    </span>
-                                }
-                            >
-                                <Help sx={{ color: 'text.secondary' }} />
-                            </Tooltip>
-                        </Stack>
-                    </Grid>
-                </>
-            )}
-            <Grid size={12}>
-                <StyledDataGrid
-                    autoHeight
-                    disableColumnMenu
-                    disableColumnReorder
-                    hideFooter
-                    columns={columns}
-                    rows={sortedMoves}
-                    pinnedRows={pinnedRows}
-                    getRowId={(row: GridRowModel<ExplorerMove | LichessExplorerMove>) => row.san}
-                    isRowSelectable={(params) => params.id !== 'Total'}
-                    getRowClassName={(params) =>
-                        params.id === 'Total' ? 'chess-dojo-explorer--total' : ''
-                    }
-                    slots={{
-                        noRowsOverlay: () => (
-                            <Stack
-                                sx={{
-                                    height: 1,
-                                    width: 1,
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Typography>{t('noMovesPlayed')}</Typography>
-                                {type === ExplorerDatabaseType.Dojo &&
-                                    cohortRange.length < dojoCohorts.length && (
-                                        <Typography>{t('expandCohortRangeHint')}</Typography>
-                                    )}
-                            </Stack>
-                        ),
-                    }}
-                    onRowClick={onClickMove}
+                <Stack
+                    direction='row'
+                    spacing={0.5}
                     sx={{
-                        fontSize: '0.8rem',
+                        alignItems: 'center',
                     }}
-                />
-            </Grid>
-
-            {type === ExplorerDatabaseType.Player && (
-                <PerformanceSummary data={(position as LichessExplorerPosition).performanceData} />
+                >
+                    <MultipleSelectChip
+                        label={t('timeControlsLabel')}
+                        selected={timeControls}
+                        setSelected={setTimeControls}
+                        options={translatedTimeControlOptions}
+                        sx={{ width: 1 }}
+                        size='small'
+                        error={timeControls.length === 0}
+                        noTranslate
+                    />
+                    <Tooltip
+                        title={
+                            <span translate='no' className='notranslate'>
+                                {t.rich('timeControlTooltip', {
+                                    br: () => <br />,
+                                })}
+                            </span>
+                        }
+                    >
+                        <Help sx={{ color: 'text.secondary' }} />
+                    </Tooltip>
+                </Stack>
             )}
 
-            {type !== ExplorerDatabaseType.Lichess && fen !== FEN.start && (
+            {hasResizableGameList ? (
+                <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                    <DatabaseSplitPane
+                        storageKey={splitStorageKey}
+                        resizeLabel={tChrome('resizeHandleTooltip')}
+                        top={moveStats}
+                        bottom={matchingGames}
+                    />
+                </Box>
+            ) : (
                 <>
-                    {pagination && (
-                        <GameTable
-                            namespace='explorer'
-                            contextMenu={gameMenu}
-                            limitFreeTier
-                            pagination={pagination}
-                            onPaginationModelChange={onPaginationModelChange}
-                            defaultVisibility={{
-                                cohort: false,
-                                publishedAt: false,
-                                owner: false,
-                            }}
-                            listView={true}
-                            disableRowSelectionOnClick
-                            onRowClick={(params) => onClickGame(params.row)}
+                    {moveStats}
+
+                    {type === ExplorerDatabaseType.Player && (
+                        <PerformanceSummary
+                            data={(position as LichessExplorerPosition).performanceData}
                         />
                     )}
 
-                    {(type === ExplorerDatabaseType.Dojo ||
-                        type === ExplorerDatabaseType.Masters) && (
-                        <Grid
-                            size={12}
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Link
-                                href={`/games?type=position&fen=${fen}&masters=${type === ExplorerDatabaseType.Masters}`}
-                                target='_blank'
-                                rel='noopener'
-                            >
-                                {type === ExplorerDatabaseType.Dojo
-                                    ? t('viewAllDojoGamesLink')
-                                    : t('viewAllMasterGamesLink')}
-                            </Link>
-                        </Grid>
-                    )}
+                    {hasMatchingGames && matchingGames}
                 </>
             )}
-        </Grid>
+        </Stack>
     );
 }
 

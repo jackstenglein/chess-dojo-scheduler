@@ -42,6 +42,7 @@ interface ExplorerProps {
 
 const Explorer: React.FC<ExplorerProps> = ({ storageKey = explorerTabKey }) => {
     const [tab, setTab] = useLocalStorage(storageKey, ExplorerDatabaseType.Dojo);
+    const databaseSplitStorageKey = `${storageKey}.databaseSplit`;
     const searchParams = useSearchParams();
     const { chess } = useChess();
     const t = useTranslations('analysisBoard.explorer');
@@ -168,13 +169,21 @@ const Explorer: React.FC<ExplorerProps> = ({ storageKey = explorerTabKey }) => {
                         timeControls={timeControls}
                         setTimeControls={onSetTimeControls}
                         pagination={pagination}
+                        splitStorageKey={databaseSplitStorageKey}
                     />
                 );
         }
     };
 
     return (
-        <CardContent>
+        <CardContent
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: 1,
+                minHeight: 0,
+            }}
+        >
             <Header
                 fen={fen}
                 follower={follower}
@@ -242,7 +251,17 @@ const Explorer: React.FC<ExplorerProps> = ({ storageKey = explorerTabKey }) => {
                     </Tabs>
                 </Box>
 
-                {renderTabContent()}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flexGrow: 1,
+                        minHeight: 0,
+                        overflowY: 'auto',
+                    }}
+                >
+                    {renderTabContent()}
+                </Box>
             </TabContext>
         </CardContent>
     );
