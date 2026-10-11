@@ -17,6 +17,7 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
+import { useNavigationGuard } from 'next-navigation-guard';
 import { useEffect, useRef, useState } from 'react';
 import { PUZZLE_COORDINATE_SIZE } from '../settings/puzzleSettingsKeys';
 import { buildPuzzlePgn, splitPuzzlePgn } from './editPuzzle';
@@ -65,6 +66,9 @@ export function EditSolutionDialog({
 
     const isDirty = () => !!chess.current && chess.current.renderPgn() !== baseline.current;
 
+    // The back button, and links that leave the page, ask first when there are unapplied changes.
+    const navGuard = useNavigationGuard({ enabled: isDirty });
+
     // The browser asks before the tab is closed or reloaded with changes that are not applied.
     useEffect(() => {
         const onBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -76,9 +80,25 @@ export function EditSolutionDialog({
         return () => window.removeEventListener('beforeunload', onBeforeUnload);
     }, []);
 
+    // Escape and a click outside can be accidents, so they ask. Cancel is deliberate: it discards.
     const requestClose = () => {
         if (isDirty()) {
             setConfirming(true);
+        } else {
+            onClose();
+        }
+    };
+
+    const keepEditing = () => {
+        setConfirming(false);
+        if (navGuard.active) {
+            navGuard.reject();
+        }
+    };
+
+    const discard = () => {
+        if (navGuard.active) {
+            navGuard.accept();
         } else {
             onClose();
         }
@@ -102,7 +122,7 @@ export function EditSolutionDialog({
                     <Typography sx={{ flexGrow: 1, fontWeight: 'bold' }}>
                         Edit solution for puzzle #{puzzleId}
                     </Typography>
-                    <Button color='inherit' onClick={requestClose}>
+                    <Button color='inherit' onClick={onClose}>
                         Cancel
                     </Button>
                     <Button variant='contained' onClick={apply}>
@@ -140,7 +160,7 @@ export function EditSolutionDialog({
                 </GameContext.Provider>
             </Stack>
 
-            <Dialog open={confirming} onClose={() => setConfirming(false)}>
+            <Dialog open={confirming || navGuard.active} onClose={keepEditing}>
                 <DialogTitle>Discard your changes?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -149,8 +169,8 @@ export function EditSolutionDialog({
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setConfirming(false)}>Keep editing</Button>
-                    <Button color='error' onClick={onClose}>
+                    <Button onClick={keepEditing}>Keep editing</Button>
+                    <Button color='error' onClick={discard}>
                         Discard
                     </Button>
                 </DialogActions>
