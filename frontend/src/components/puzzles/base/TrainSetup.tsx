@@ -257,6 +257,7 @@ export function TrainSetup({
                         </ToggleButtonGroup>
 
                         <Autocomplete
+                            sx={{ mt: 2 }}
                             options={options}
                             value={focus}
                             onChange={(_, value) => setFocus(value ?? ANYTHING)}
@@ -458,28 +459,31 @@ export function TrainSetup({
     );
 }
 
+/** Fine film grain, the same on every card, as a tiled picture made of noise. */
+const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>",
+)}") 0 0 / 140px 140px`;
+
 /**
- * A faint texture over a card, a different one for each, chosen to suit it: speed lines for
- * tactics, a graph-paper grid for strategy, rays for the opening, crosshatching for the
- * middlegame and a chessboard for the endgame. Light lines at a whisper of white, so they read as
- * grain.
+ * The surface of a card: fine grain, like paper, under one soft touch of light that is different on
+ * each card and suits it. Nothing sharp or repeating, so it never plays tricks on the eye.
  * @param strength How visible it is, from the resting 1 to a little more for hover and selection.
  */
 function texture(option: PuzzleType | PuzzlePhase, strength: number): string {
-    const line = `rgba(255, 255, 255, ${0.07 * strength})`;
-    const square = `rgba(255, 255, 255, ${0.05 * strength})`;
-    switch (option) {
-        case 'Tactics':
-            return `repeating-linear-gradient(135deg, ${line} 0 2px, transparent 2px 14px)`;
-        case 'Strategy':
-            return `linear-gradient(${line} 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, ${line} 1px, transparent 1px) 0 0 / 18px 18px`;
-        case 'Opening':
-            return `repeating-conic-gradient(from 0deg at 50% 100%, ${line} 0deg 6deg, transparent 6deg 12deg)`;
-        case 'Middlegame':
-            return `repeating-linear-gradient(45deg, ${line} 0 1px, transparent 1px 10px), repeating-linear-gradient(-45deg, ${line} 0 1px, transparent 1px 10px)`;
-        case 'Endgame':
-            return `repeating-conic-gradient(${square} 0% 25%, transparent 0% 50%) 50% 50% / 24px 24px`;
-    }
+    const light = (a: number) => `rgba(255, 255, 255, ${a * strength})`;
+    const accent = {
+        // A streak of light slanting across, like polished metal.
+        Tactics: `linear-gradient(115deg, transparent 28%, ${light(0.12)} 46%, transparent 64%)`,
+        // A scatter of faint dots, like a dotted notebook.
+        Strategy: `radial-gradient(${light(0.12)} 1px, transparent 1.6px) 0 0 / 16px 16px`,
+        // Light rising from the bottom edge, like dawn.
+        Opening: `radial-gradient(ellipse at 50% 115%, ${light(0.22)}, transparent 62%)`,
+        // A soft glow in the middle, like the heat of the fight.
+        Middlegame: `radial-gradient(circle at 50% 50%, ${light(0.14)}, transparent 62%)`,
+        // A soft pool of light at the top corner, like the end of the day.
+        Endgame: `radial-gradient(circle at 100% 0%, ${light(0.2)}, transparent 60%)`,
+    }[option];
+    return `${GRAIN}, ${accent}`;
 }
 
 /** One big card: a type of puzzle or a phase of the game. Picked cards fill with their color. */
