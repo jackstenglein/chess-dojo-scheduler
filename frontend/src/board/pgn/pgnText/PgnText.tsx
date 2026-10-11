@@ -4,7 +4,7 @@ import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
 import { Box, Card, Stack } from '@mui/material';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
 import { useChess } from '../PgnBoard';
@@ -133,6 +133,25 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
 
     const Pgn = useMemo(() => <PgnText />, []);
 
+    // With a footer, the panel reaches down to the bottom of the window, so the footer sits at the
+    // bottom of the screen and the room left in the middle is there for the engine's lines.
+    const rootRef = useRef<HTMLDivElement>(null);
+    const [roomBelow, setRoomBelow] = useState(0);
+    const hasFooter = Boolean(slots?.pgnFooter);
+    useEffect(() => {
+        if (!hasFooter) return;
+        const measure = () => {
+            const top = rootRef.current?.getBoundingClientRect().top;
+            if (top !== undefined) {
+                setRoomBelow(Math.floor(window.innerHeight - (top + window.scrollY) - 16));
+            }
+        };
+        measure();
+        window.addEventListener('resize', measure);
+        return () => window.removeEventListener('resize', measure);
+    }, [hasFooter]);
+    const panelHeight = Math.max(resizeData.height, hasFooter ? roomBelow : 0);
+
     return (
         <Resizable
             width={resizeData.width}
@@ -143,14 +162,13 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
             handle={<ResizeHandle />}
         >
             <Stack
+                ref={rootRef}
                 sx={{
                     mb: { xs: 1, md: 0 },
                     display: hidden ? 'none' : undefined,
                     width: `${resizeData.width}px`,
-                    maxHeight: `${resizeData.height}px`,
-                    // With a footer, the panel is as tall as the board, so the footer sits at the
-                    // bottom and the room left in the middle is there for the engine's lines.
-                    ...(slots?.pgnFooter ? { height: `${resizeData.height}px` } : {}),
+                    maxHeight: `${panelHeight}px`,
+                    ...(hasFooter ? { height: `${panelHeight}px` } : {}),
                     visibility: chess ? undefined : 'hidden',
                     position: 'relative',
                 }}
@@ -163,7 +181,7 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
                             top: 0,
                             left: 0,
                             width: 1,
-                            height: `${resizeData.height}px`,
+                            height: `${panelHeight}px`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
