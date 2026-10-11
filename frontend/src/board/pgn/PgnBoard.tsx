@@ -29,6 +29,7 @@ import {
     saveSuggestedVariation,
 } from './boardTools/underboard/comments/suggestVariation';
 import { AutoSaveVariations } from './boardTools/underboard/settings/ViewerSettings';
+import { CoordinateSize } from './boardTools/underboard/settings/viewerSettingsConstants';
 import { DefaultUnderboardTab, UnderboardTab } from './boardTools/underboard/underboardTabs';
 import { ButtonProps as MoveButtonProps } from './pgnText/MoveButton';
 import { CONTAINER_ID } from './resize';
@@ -99,6 +100,8 @@ export interface PgnBoardSlotProps {
     };
     board?: {
         onMove?: onMoveFunc;
+        /** How big the coordinates are for someone who has not chosen. Standard if not given. */
+        defaultCoordinateSize?: CoordinateSize;
     };
 }
 
@@ -269,6 +272,7 @@ const PgnBoard = forwardRef<PgnBoardApi, PgnBoardProps>(
                 slotProps: {
                     ...slotProps,
                     board: {
+                        ...slotProps?.board,
                         onMove: slotProps?.board?.onMove
                             ? slotProps.board.onMove
                             : solitaire.enabled

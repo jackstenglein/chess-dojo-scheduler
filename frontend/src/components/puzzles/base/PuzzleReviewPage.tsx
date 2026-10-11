@@ -34,6 +34,7 @@ import {
 import { alpha } from '@mui/material/styles';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { PUZZLE_COORDINATE_SIZE } from '../settings/puzzleSettingsKeys';
 import { bucketColor, tagChipSx, themeOutline } from './bucketStyle';
 import { CommonTags } from './CommonTags';
 import { PuzzlebaseClient } from './puzzlebaseClient';
@@ -225,7 +226,10 @@ export function PuzzleReview({
                     key={current.id}
                     pgn={current.solutionPgn}
                     largeBoard
-                    slotProps={{ pgnText: { hideResultDivider: true } }}
+                    slotProps={{
+                        pgnText: { hideResultDivider: true },
+                        board: { defaultCoordinateSize: PUZZLE_COORDINATE_SIZE },
+                    }}
                     showPlayerHeaders={false}
                     initialUnderboardTab='review'
                     disableEngine

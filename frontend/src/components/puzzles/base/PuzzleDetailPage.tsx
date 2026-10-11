@@ -9,6 +9,7 @@ import { ArrowBack } from '@mui/icons-material';
 import { Alert, Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { PUZZLE_COORDINATE_SIZE } from '../settings/puzzleSettingsKeys';
 import { PuzzlebaseClient } from './puzzlebaseClient';
 import { errorMessage, errorStatus } from './puzzlebaseErrors';
 import { PuzzlebaseGate } from './PuzzlebaseGate';
@@ -93,7 +94,10 @@ function PuzzleDetail({ client, id }: { client: PuzzlebaseClient; id: string }) 
                     key={puzzle.id}
                     pgn={puzzle.solutionPgn}
                     largeBoard
-                    slotProps={{ pgnText: { hideResultDivider: true } }}
+                    slotProps={{
+                        pgnText: { hideResultDivider: true },
+                        board: { defaultCoordinateSize: PUZZLE_COORDINATE_SIZE },
+                    }}
                     showPlayerHeaders={false}
                     startOrientation={orientation}
                     underboardTabs={[]}

@@ -10,6 +10,7 @@ import {
 } from '@/components/material/memorizegames/moveGlyphs';
 import {
     INCORRECT_SOUND_KEY,
+    PUZZLE_COORDINATE_SIZE,
     SOLVED_SOUND_KEY,
 } from '@/components/puzzles/settings/puzzleSettingsKeys';
 import {
@@ -776,7 +777,10 @@ export function TacticsTrainerPage({
                     }}
                     slotProps={{
                         pgnText: { hideResultDivider: true },
-                        ...(reviewPgn ? {} : { board: { onMove: handleBoardMove } }),
+                        board: {
+                            defaultCoordinateSize: PUZZLE_COORDINATE_SIZE,
+                            ...(reviewPgn ? {} : { onMove: handleBoardMove }),
+                        },
                     }}
                     slots={
                         reviewPgn

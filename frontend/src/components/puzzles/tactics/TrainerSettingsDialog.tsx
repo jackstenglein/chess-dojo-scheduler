@@ -18,7 +18,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
-import { SOLVED_SOUND_KEY } from '../settings/puzzleSettingsKeys';
+import { PUZZLE_COORDINATE_SIZE, SOLVED_SOUND_KEY } from '../settings/puzzleSettingsKeys';
 import {
     DEFAULT_SOLVED_SOUND,
     playSolvedSound,
@@ -87,7 +87,11 @@ export function TrainerSettingsDialog({ onClose }: TrainerSettingsDialogProps) {
 
                     <Stack sx={{ gap: 2 }}>
                         <Typography variant='h6'>Board and pieces</Typography>
-                        <ViewerSettings compact enabledSettings={BOARD_SETTINGS} />
+                        <ViewerSettings
+                            compact
+                            enabledSettings={BOARD_SETTINGS}
+                            defaultCoordinateSize={PUZZLE_COORDINATE_SIZE}
+                        />
                     </Stack>
                 </Stack>
             </DialogContent>
