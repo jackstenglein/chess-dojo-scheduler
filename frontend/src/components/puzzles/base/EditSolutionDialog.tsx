@@ -76,7 +76,7 @@ export function EditSolutionDialog({
             </AppBar>
 
             <Stack sx={{ p: 2, flexGrow: 1, minHeight: 0, overflow: 'auto' }}>
-                <GameContext.Provider value={{ isOwner: true, unsaved: true }}>
+                <GameContext.Provider value={{ isOwner: true }}>
                     <PgnBoard
                         ref={board}
                         pgn={buildPuzzlePgn(fen, headers, movetext)}
