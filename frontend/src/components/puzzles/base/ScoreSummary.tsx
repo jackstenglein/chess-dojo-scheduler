@@ -203,7 +203,7 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                 </Stack>
             ) : (
                 <Typography variant='body2' color='text.secondary'>
-                    You have played this puzzle before, so it does not change your rating.
+                    You have solved this puzzle before, so it does not change your rating.
                 </Typography>
             )}
             {/* The member's own numbers. */}
