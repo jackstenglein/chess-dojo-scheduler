@@ -263,49 +263,57 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                     renderPuzzleFooter={(puzzle) => (
                         <Stack
                             sx={{
-                                // The result above it already leaves a little room.
-                                pt: 2,
+                                // The details above it already leave a little room.
+                                pt: 1,
                                 // Room at the sides, so the tags do not run into the edge or the scrollbar.
                                 pr: 2.5,
                                 pl: 2,
-                                pb: 3,
-                                gap: 3.5,
+                                pb: 2,
+                                gap: 1.5,
                                 flexShrink: 0,
-                                borderTop: 1,
-                                borderColor: 'divider',
                             }}
                         >
                             {puzzle.info && (
                                 <PuzzleTagChips puzzle={puzzle.info} taxonomy={taxonomy} />
                             )}
-                            <PuzzleVote
-                                key={puzzle.id}
-                                client={client}
-                                puzzleId={puzzle.id}
-                                initialVote={puzzle.info?.myVote}
-                                large
-                            />
-                            <SuggestTagsButton
-                                key={puzzle.id}
-                                prominent
-                                client={client}
-                                taxonomy={taxonomy}
-                                puzzle={puzzle}
-                                onApplied={(updated) =>
-                                    setPuzzles((all) =>
-                                        all.map((p) =>
-                                            p.id === updated.id
-                                                ? {
-                                                      ...p,
-                                                      buckets: updated.buckets,
-                                                      themes: updated.themes,
-                                                      info: updated,
-                                                  }
-                                                : p,
-                                        ),
-                                    )
-                                }
-                            />
+                            {/* The vote and the suggestion share a row, to leave room for the notation. */}
+                            <Stack
+                                direction='row'
+                                sx={{
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                    gap: 1,
+                                }}
+                            >
+                                <PuzzleVote
+                                    key={puzzle.id}
+                                    client={client}
+                                    puzzleId={puzzle.id}
+                                    initialVote={puzzle.info?.myVote}
+                                />
+                                <SuggestTagsButton
+                                    key={puzzle.id}
+                                    outlined
+                                    client={client}
+                                    taxonomy={taxonomy}
+                                    puzzle={puzzle}
+                                    onApplied={(updated) =>
+                                        setPuzzles((all) =>
+                                            all.map((p) =>
+                                                p.id === updated.id
+                                                    ? {
+                                                          ...p,
+                                                          buckets: updated.buckets,
+                                                          themes: updated.themes,
+                                                          info: updated,
+                                                      }
+                                                    : p,
+                                            ),
+                                        )
+                                    }
+                                />
+                            </Stack>
                         </Stack>
                     )}
                     renderPuzzleDone={(puzzle) =>

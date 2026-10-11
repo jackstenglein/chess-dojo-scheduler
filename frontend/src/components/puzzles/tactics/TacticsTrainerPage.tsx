@@ -819,7 +819,7 @@ export function TacticsTrainerPage({
                                                           mt: 3,
                                                           borderTop: 1,
                                                           borderColor: 'divider',
-                                                          pb: 2,
+                                                          pb: 1,
                                                           flexShrink: 0,
                                                       }}
                                                   >

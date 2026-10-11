@@ -16,8 +16,8 @@ interface SuggestTagsButtonProps {
     puzzle: { id: string; buckets?: string[]; themes?: string[] };
     /** Called with the updated puzzle when the suggestion was applied at once, as it is for a contributor. */
     onApplied?: (puzzle: PuzzlebasePuzzle) => void;
-    /** A wider, outlined button, for when there is room. */
-    prominent?: boolean;
+    /** An outlined button instead of plain text. */
+    outlined?: boolean;
 }
 
 /**
@@ -29,7 +29,7 @@ export function SuggestTagsButton({
     taxonomy,
     puzzle,
     onApplied,
-    prominent,
+    outlined,
 }: SuggestTagsButtonProps) {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState<'review' | 'applied'>();
@@ -43,17 +43,17 @@ export function SuggestTagsButton({
     }
 
     return (
-        <Stack sx={{ gap: 0.5, alignItems: prominent ? 'stretch' : 'flex-start' }}>
+        <Stack sx={{ gap: 0.5, alignItems: 'flex-start' }}>
             {result === 'applied' && (
                 <Typography variant='body2' color='success.main'>
                     Tags updated.
                 </Typography>
             )}
             <Button
-                size={prominent ? 'medium' : 'small'}
+                size='small'
                 color='inherit'
-                variant={prominent ? 'outlined' : 'text'}
-                sx={prominent ? { py: 1.25, borderRadius: 2, fontWeight: 700 } : undefined}
+                variant={outlined ? 'outlined' : 'text'}
+                sx={outlined ? { borderRadius: 2, fontWeight: 700, px: 1.5 } : undefined}
                 startIcon={<LocalOffer fontSize='small' />}
                 onClick={() => setOpen(true)}
             >

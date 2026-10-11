@@ -96,13 +96,13 @@ function PuzzleInfo({
     // With the number as the title, everything fits in two lines: the number beside the game, then
     // the other facts side by side.
     if (numberOnly && !hideHeading) {
+        const { players, where } = gameParts(puzzle);
+        const result = present.find(([label]) => label === 'Result')?.[1];
+        const rest = others.filter(([label]) => label !== 'Result');
         return (
-            <Stack sx={{ gap: 1, px: 2, pt: 2, flexShrink: 0 }}>
-                {/* The number and the short facts share one line, wrapping only if they must. */}
-                <Stack
-                    direction='row'
-                    sx={{ flexWrap: 'wrap', alignItems: 'center', columnGap: 2.5, rowGap: 0.5 }}
-                >
+            <Stack sx={{ gap: 0.75, px: 2, pt: 2, flexShrink: 0 }}>
+                {/* The number, the players and the result on one line. */}
+                <Stack direction='row' sx={{ alignItems: 'center', gap: 1.5 }}>
                     <Typography
                         component='span'
                         sx={{
@@ -120,22 +120,51 @@ function PuzzleInfo({
                     >
                         #{puzzle.id}
                     </Typography>
-                    {others.map(([label, value]) => (
-                        <Stack
-                            key={label}
-                            direction='row'
-                            sx={{ gap: 0.75, alignItems: 'baseline' }}
+                    <Typography sx={{ fontWeight: 700, lineHeight: 1.3, flexGrow: 1 }}>
+                        {players || (game ? game[1] : '')}
+                    </Typography>
+                    {result && (
+                        <Typography
+                            sx={{
+                                fontWeight: 700,
+                                color: 'text.secondary',
+                                fontVariantNumeric: 'tabular-nums',
+                                flexShrink: 0,
+                            }}
                         >
-                            <Label>{label === 'Annotated by' ? 'Annotator' : label}</Label>
-                            <Typography component='div' variant='body2' sx={{ fontWeight: 600 }}>
-                                {value}
-                            </Typography>
-                        </Stack>
-                    ))}
+                            {result}
+                        </Typography>
+                    )}
                 </Stack>
-                {/* The game gets the whole width of its own line, so it rarely needs two. */}
-                {game && (
-                    <Typography sx={{ fontWeight: 600, lineHeight: 1.35 }}>{game[1]}</Typography>
+                {/* Where and when, quieter, under the players. */}
+                {where && players && (
+                    <Typography variant='body2' color='text.secondary'>
+                        {where}
+                    </Typography>
+                )}
+                {/* The rest as small labelled facts on one line. */}
+                {rest.length > 0 && (
+                    <Stack
+                        direction='row'
+                        sx={{ flexWrap: 'wrap', columnGap: 2.5, rowGap: 0.25, pt: 0.25 }}
+                    >
+                        {rest.map(([label, value]) => (
+                            <Stack
+                                key={label}
+                                direction='row'
+                                sx={{ gap: 0.75, alignItems: 'baseline' }}
+                            >
+                                <Label>{label === 'Annotated by' ? 'Annotator' : label}</Label>
+                                <Typography
+                                    component='div'
+                                    variant='body2'
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    {value}
+                                </Typography>
+                            </Stack>
+                        ))}
+                    </Stack>
                 )}
             </Stack>
         );
@@ -329,9 +358,9 @@ function Label({ children }: { children: ReactNode }) {
  * A puzzle sorted in ChessBase has a label like "Ex 12 Tactics, Pin" in the White field, with both
  * players in the Black field. The label is not a player, so it is left out.
  */
-export function gameLine(
+export function gameParts(
     puzzle: Pick<PuzzlebasePuzzle, 'white' | 'black' | 'event' | 'site' | 'year'>,
-): string {
+): { players: string; where: string } {
     const isLabel = /^Ex \d+\b/.test(puzzle.white ?? '');
     const players = (isLabel ? [puzzle.black] : [puzzle.white, puzzle.black])
         .filter((name): name is string => !!name && name !== '?')
@@ -353,6 +382,14 @@ export function gameLine(
         .filter((part) => part !== undefined && part !== '')
         .join(' ');
 
+    return { players, where };
+}
+
+/** The game on one line: the players, then where and when it was played. */
+export function gameLine(
+    puzzle: Pick<PuzzlebasePuzzle, 'white' | 'black' | 'event' | 'site' | 'year'>,
+): string {
+    const { players, where } = gameParts(puzzle);
     return [players, where].filter(Boolean).join(', ');
 }
 
