@@ -254,8 +254,8 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                             <Typography
                                 variant='overline'
                                 sx={{
-                                    lineHeight: 1.6,
-                                    fontSize: '0.7rem',
+                                    lineHeight: 1,
+                                    fontSize: '0.75rem',
                                     letterSpacing: '0.08em',
                                 }}
                             >
