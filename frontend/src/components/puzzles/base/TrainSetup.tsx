@@ -457,6 +457,13 @@ export function TrainSetup({
     );
 }
 
+/**
+ * A faint chessboard texture over a card: light squares at a whisper of white, in a pattern small
+ * enough to read as grain rather than a board.
+ */
+const CHECKER = (alphaValue: number) =>
+    `repeating-conic-gradient(rgba(255, 255, 255, ${alphaValue}) 0% 25%, transparent 0% 50%) 50% 50% / 24px 24px`;
+
 /** One big card: a type of puzzle or a phase of the game. Picked cards fill with their color. */
 function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?: boolean }) {
     const { color, icon } = CHOICE_STYLE[option];
@@ -484,7 +491,9 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                 letterSpacing: 0.3,
                 lineHeight: 1.1,
                 // Colored even when not picked: a tint that fades down.
-                background: `linear-gradient(160deg, ${alpha(color, 0.4)}, ${alpha(color, 0.14)})`,
+                background: `${CHECKER(0.05)}, linear-gradient(160deg, ${alpha(color, 0.4)}, ${alpha(color, 0.14)})`,
+                // A thin light edge along the top, like a raised tile.
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.18)',
                 transition: 'transform 150ms, box-shadow 150ms, background 150ms',
                 '& svg': {
                     color,
@@ -495,14 +504,14 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                 },
                 '&:hover': {
                     transform: 'translateY(-2px)',
-                    background: `linear-gradient(160deg, ${alpha(color, 0.52)}, ${alpha(color, 0.22)})`,
+                    background: `${CHECKER(0.06)}, linear-gradient(160deg, ${alpha(color, 0.52)}, ${alpha(color, 0.22)})`,
                 },
                 // Picked, the card fills with the color and lifts.
                 '&.Mui-selected, &.Mui-selected:hover': {
-                    background: `linear-gradient(160deg, ${color}, ${darken(color, 0.28)})`,
+                    background: `${CHECKER(0.09)}, linear-gradient(160deg, ${color}, ${darken(color, 0.28)})`,
                     color: '#fff',
                     transform: 'translateY(-3px)',
-                    boxShadow: `0 10px 24px ${alpha(color, 0.45)}`,
+                    boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px ${alpha(color, 0.45)}`,
                     '& svg': { color: '#fff', filter: 'none' },
                 },
             }}
