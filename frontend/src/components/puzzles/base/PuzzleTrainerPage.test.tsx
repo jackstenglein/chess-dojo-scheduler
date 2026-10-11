@@ -82,7 +82,7 @@ function setup(overrides: Partial<PuzzlebaseClient> = {}) {
     return { train, submitAttempt, getTaxonomy };
 }
 
-const start = () => fireEvent.click(screen.getByRole('button', { name: 'Start training' }));
+const start = () => fireEvent.click(screen.getByRole('button', { name: 'Start Training' }));
 
 async function chooseFocus(label: string) {
     const input = screen.getByLabelText('Themes');
@@ -99,7 +99,7 @@ describe('PuzzleTrainerPage while training is not open', () => {
     it('says so instead of offering to start', async () => {
         setup({ getStatus: vi.fn(() => Promise.resolve({ canTrain: false })) as never });
         expect(await screen.findByText(/not open for training yet/)).toBeTruthy();
-        expect(screen.queryByRole('button', { name: 'Start training' })).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Start Training' })).toBeNull();
     });
 });
 
@@ -125,7 +125,7 @@ describe('PuzzleTrainerPage setup', () => {
         expect(all().getAttribute('aria-pressed')).toBe('true');
     });
 
-    it('links to past runs under the Start training button', () => {
+    it('links to past runs under the Start Training button', () => {
         setup();
         const link = screen.getByRole('link', { name: 'View past runs' });
         expect(link.getAttribute('href')).toBe('/puzzles/train/history');
@@ -303,7 +303,7 @@ describe('PuzzleTrainerPage training', () => {
         setup();
         start();
         fireEvent.click(await screen.findByRole('button', { name: 'train again' }));
-        expect(await screen.findByRole('button', { name: 'Start training' })).toBeTruthy();
+        expect(await screen.findByRole('button', { name: 'Start Training' })).toBeTruthy();
     });
 
     it('does not offer puzzles again that were just played', async () => {

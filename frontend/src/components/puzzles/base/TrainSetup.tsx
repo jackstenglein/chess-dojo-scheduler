@@ -8,7 +8,7 @@ import {
     TrainingTagSet,
     TrainQuery,
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/runs';
-import { History, LocalOffer, PlayArrow } from '@mui/icons-material';
+import { Check, History, LocalOffer, PlayArrow } from '@mui/icons-material';
 import {
     Alert,
     Autocomplete,
@@ -38,6 +38,9 @@ import {
     SESSION_MINUTES,
     SessionLength,
 } from './trainingPuzzles';
+
+/** The orange of the Start Training button. */
+const ORANGE = '#ff6d00';
 
 /** How the small choice buttons look: the one in use is filled with the main color. */
 const CHOICE_SX = {
@@ -441,9 +444,36 @@ export function TrainSetup({
                     startIcon={<PlayArrow />}
                     disabled={loading}
                     onClick={start}
-                    sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 'bold' }}
+                    sx={(theme) => {
+                        // Black and white, the opposite of the page, with an orange edge and icon.
+                        const dark = theme.palette.mode === 'dark';
+                        const ink = dark ? '#111' : '#fff';
+                        const paper = dark ? '#fff' : '#111';
+                        return {
+                            py: 1.75,
+                            fontSize: '1.15rem',
+                            fontWeight: 800,
+                            letterSpacing: 0.5,
+                            borderRadius: '14px',
+                            bgcolor: paper,
+                            color: ink,
+                            border: `2px solid ${ORANGE}`,
+                            boxShadow: `0 6px 18px ${alpha(ORANGE, 0.35)}`,
+                            '& .MuiButton-startIcon svg': { color: ORANGE, fontSize: '1.8rem' },
+                            '&:hover': {
+                                bgcolor: ORANGE,
+                                color: '#fff',
+                                boxShadow: `0 8px 22px ${alpha(ORANGE, 0.5)}`,
+                                '& .MuiButton-startIcon svg': { color: '#fff' },
+                            },
+                            '&.Mui-disabled': {
+                                bgcolor: alpha(paper, 0.5),
+                                color: alpha(ink, 0.7),
+                            },
+                        };
+                    }}
                 >
-                    {loading ? 'Finding puzzles…' : 'Start training'}
+                    {loading ? 'Finding puzzles…' : 'Start Training'}
                 </Button>
                 <Button
                     component={Link}
@@ -477,11 +507,11 @@ function texture(option: PuzzleType | PuzzlePhase, strength: number): string {
         // A soft sheen across the top, like a lit desk.
         Strategy: `linear-gradient(180deg, ${light(0.1)}, transparent 55%)`,
         // Light rising from the bottom edge, like dawn.
-        Opening: `radial-gradient(ellipse at 50% 115%, ${light(0.22)}, transparent 62%)`,
+        Opening: `radial-gradient(ellipse at 50% 115%, ${light(0.12)}, transparent 62%)`,
         // A soft glow in the middle, like the heat of the fight.
-        Middlegame: `radial-gradient(circle at 50% 50%, ${light(0.14)}, transparent 62%)`,
+        Middlegame: `radial-gradient(circle at 50% 50%, ${light(0.08)}, transparent 62%)`,
         // A soft pool of light at the top corner, like the end of the day.
-        Endgame: `radial-gradient(circle at 100% 0%, ${light(0.2)}, transparent 60%)`,
+        Endgame: `radial-gradient(circle at 100% 0%, ${light(0.11)}, transparent 60%)`,
     }[option];
     return `${GRAIN}, ${accent}`;
 }
@@ -501,6 +531,7 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                     border: '2px solid',
                     borderColor: alpha(color, 0.55),
                 },
+                position: 'relative',
                 aspectRatio: wide ? '1.7 / 1' : '1.1 / 1',
                 flexDirection: 'column',
                 justifyContent: 'center',
@@ -528,6 +559,9 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                     transform: 'translateY(-2px)',
                     background: `${texture(option, 1.3)}, linear-gradient(160deg, ${alpha(color, 0.52)}, ${alpha(color, 0.22)})`,
                 },
+                // A tick in the corner, shown only on the cards that are picked.
+                '& .pick-badge': { display: 'none' },
+                '&.Mui-selected .pick-badge': { display: 'flex' },
                 // Picked, the card fills with the color and lifts.
                 '&.Mui-selected, &.Mui-selected:hover': {
                     background: `${texture(option, 1.8)}, linear-gradient(160deg, ${color}, ${darken(color, 0.28)})`,
@@ -540,6 +574,24 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
         >
             {option}
             {icon}
+            <Box
+                className='pick-badge'
+                aria-hidden
+                sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    bgcolor: '#fff',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    '& svg': { fontSize: 18, color, filter: 'none' },
+                }}
+            >
+                <Check />
+            </Box>
         </ToggleButton>
     );
 }
