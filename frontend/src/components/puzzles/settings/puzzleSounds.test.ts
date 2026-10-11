@@ -84,6 +84,22 @@ describe('puzzle sounds', () => {
         expect(oscillators.map((o) => o.frequency.value)).toEqual([180]);
     });
 
+    it('plays the default for a choice that is no longer offered', async () => {
+        const { oscillators } = fakeAudio();
+        const { playSolvedSound } = await fresh();
+        playSolvedSound('level' as never);
+        expect(oscillators.map((o) => Math.round(o.frequency.value))).toEqual([
+            523, 659, 784, 1047,
+        ]);
+    });
+
+    it('plays a single clean bell for Classic ding', async () => {
+        const { oscillators } = fakeAudio();
+        const { playSolvedSound } = await fresh();
+        playSolvedSound('ding');
+        expect(oscillators.map((o) => Math.round(o.frequency.value))).toEqual([1568, 4328, 8467]);
+    });
+
     it('makes no sound when the solved sound is off, and no fuss where there is no audio', async () => {
         const { oscillators } = fakeAudio();
         const { playSolvedSound, playWhoosh } = await fresh();

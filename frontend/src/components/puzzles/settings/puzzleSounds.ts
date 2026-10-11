@@ -9,7 +9,7 @@ export interface SoundOption<Id extends string> {
     label: string;
 }
 
-export type SolvedSoundId = 'off' | 'chord' | 'pair' | 'sparkle' | 'bell' | 'level';
+export type SolvedSoundId = 'off' | 'chord' | 'pair' | 'sparkle' | 'bell' | 'ding';
 
 export const DEFAULT_SOLVED_SOUND: SolvedSoundId = 'chord';
 
@@ -18,7 +18,7 @@ export const SOLVED_SOUNDS: SoundOption<SolvedSoundId>[] = [
     { id: 'pair', label: 'Rising pair' },
     { id: 'sparkle', label: 'Sparkle run' },
     { id: 'bell', label: 'Soft bell' },
-    { id: 'level', label: 'Level up' },
+    { id: 'ding', label: 'Classic ding' },
     { id: 'off', label: 'Off' },
 ];
 
@@ -49,10 +49,11 @@ export const SOLVED_NOTES: Record<Exclude<SolvedSoundId, 'off'>, readonly Note[]
         [1318.5 * 2.76, 0, 0.5, 0.025],
         [1318.5 * 5.4, 0, 0.25, 0.012],
     ],
-    level: [
-        [523.25, 0, 0.16, 0.07, 'triangle'],
-        [783.99, 0.1, 0.38, 0.09, 'triangle'],
-        [1567.98, 0.1, 0.3, 0.02],
+    // One clean bell: a bright note with the overtones of metal, ringing out quickly.
+    ding: [
+        [1568, 0, 0.8, 0.14],
+        [1568 * 2.76, 0, 0.35, 0.03],
+        [1568 * 5.4, 0, 0.15, 0.015],
     ],
 };
 
@@ -116,7 +117,8 @@ export function playSolvedSound(id: SolvedSoundId): void {
     if (id === 'off') return;
     try {
         const a = audio();
-        const notes = SOLVED_NOTES[id] as readonly Note[] | undefined;
+        // A saved choice that is no longer offered, like the old Level up, plays the default.
+        const notes = (SOLVED_NOTES[id] ?? SOLVED_NOTES.chord) as readonly Note[] | undefined;
         if (a && notes) {
             for (const note of notes) playNote(a, note);
         }
