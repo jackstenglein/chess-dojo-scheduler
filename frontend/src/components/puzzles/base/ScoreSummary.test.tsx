@@ -36,10 +36,7 @@ describe('ScoreSummary', () => {
         expect(screen.getByText('+6.4')).toBeTruthy();
         expect(screen.getByText('100%')).toBeTruthy();
         expect(screen.getByText('92%')).toBeTruthy();
-        expect(screen.getByText('Your time')).toBeTruthy();
-        expect(screen.getByText('00:41')).toBeTruthy();
-        expect(screen.getByText('Average')).toBeTruthy();
-        expect(screen.getByText('00:30')).toBeTruthy();
+        expect(screen.getByText('Took 00:41 · average 00:30')).toBeTruthy();
         expect(screen.getByText('92')).toBeTruthy();
         expect(screen.queryByText(/vs puzzle/)).toBeNull();
     });
@@ -62,8 +59,8 @@ describe('ScoreSummary', () => {
 
     it('says when time is not counted yet', () => {
         render(<ScoreSummary scoring={scoring({ referenceMs: undefined, speed: 1 })} />);
-        expect(screen.getByText('not counted yet')).toBeTruthy();
-        expect(screen.queryByText('Average')).toBeNull();
+        expect(screen.getByText(/not counted for this puzzle yet/)).toBeTruthy();
+        expect(screen.queryByText(/average/)).toBeNull();
     });
 
     it('shows a placeholder while the server is scoring', () => {

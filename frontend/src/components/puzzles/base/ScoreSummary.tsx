@@ -2,7 +2,7 @@
 
 import { AttemptScoring } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
-import { Box, Skeleton, Stack, Typography } from '@mui/material';
+import { Box, Divider, Skeleton, Stack, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 import { formatClock } from '../tactics/tacticsPuzzles';
 
@@ -20,48 +20,24 @@ export function formatDelta(delta: number): string {
     return `${rounded > 0 ? '+' : '−'}${Math.abs(rounded).toFixed(1)}`;
 }
 
-/** A small tile: a label, a number, and a line of detail under it. */
-function Tile({
-    label,
-    value,
-    detail,
-    wide,
-    color,
-}: {
-    label: string;
-    value: ReactNode;
-    detail?: ReactNode;
-    /** Takes more room than the others, for a tile with details to fit. */
-    wide?: boolean;
-    /** The color of the number, if it should say something. */
-    color?: string;
-}) {
+/** One cell of the strip: a small label over a number, centered. */
+function Cell({ label, value, color }: { label: string; value: ReactNode; color?: string }) {
     return (
-        <Box
-            sx={{
-                flex: wide ? 1.6 : 1,
-                minWidth: 0,
-                px: 1.25,
-                py: 1,
-                borderRadius: 1.5,
-                bgcolor: 'action.hover',
-            }}
-        >
+        <Stack sx={{ flex: 1, minWidth: 0, alignItems: 'center', py: 1.25 }}>
             <Typography
                 variant='overline'
                 sx={{
                     color: 'text.secondary',
                     lineHeight: 1.4,
-                    display: 'block',
                     fontSize: '0.65rem',
-                    letterSpacing: '0.06em',
+                    letterSpacing: '0.08em',
                 }}
             >
                 {label}
             </Typography>
             <Typography
                 sx={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.6rem',
                     fontWeight: 800,
                     lineHeight: 1.15,
                     fontVariantNumeric: 'tabular-nums',
@@ -69,24 +45,6 @@ function Tile({
                 }}
             >
                 {value}
-            </Typography>
-            {detail}
-        </Box>
-    );
-}
-
-/** One line under a tile: a label at the left and a time at the right. */
-function TimeRow({ label, time }: { label: string; time: string }) {
-    return (
-        <Stack direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Typography variant='caption' color='text.secondary'>
-                {label}
-            </Typography>
-            <Typography
-                variant='body2'
-                sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
-            >
-                {time}
             </Typography>
         </Stack>
     );
@@ -180,13 +138,17 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                     You have played this puzzle before, so it does not change your rating.
                 </Typography>
             )}
-            <Stack direction='row' sx={{ gap: 1, flexWrap: 'wrap' }}>
-                <Tile label='Accuracy' value={`${Math.round(scoring.accuracy * 100)}%`} />
-                <Tile
-                    wide
+            {/* One quiet strip: accuracy, speed and score, with how long it took beneath. */}
+            <Stack
+                direction='row'
+                divider={<Divider orientation='vertical' flexItem sx={{ my: 1.5 }} />}
+                sx={{ borderRadius: 2, bgcolor: 'action.hover' }}
+            >
+                <Cell label='Accuracy' value={`${Math.round(scoring.accuracy * 100)}%`} />
+                <Cell
                     label='Speed'
                     value={par === undefined ? '—' : `${Math.round(scoring.speed * 100)}%`}
-                    // Green at full speed, amber once it costs more than a little.
+                    // Green at full speed, amber once it costs a lot.
                     color={
                         par === undefined
                             ? undefined
@@ -196,25 +158,14 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                                 ? 'warning.main'
                                 : undefined
                     }
-                    detail={
-                        par === undefined ? (
-                            <Typography
-                                variant='caption'
-                                color='text.secondary'
-                                sx={{ display: 'block' }}
-                            >
-                                not counted yet
-                            </Typography>
-                        ) : (
-                            <Stack sx={{ mt: 0.5, gap: 0.25 }}>
-                                <TimeRow label='Your time' time={formatClock(seconds)} />
-                                <TimeRow label='Average' time={formatClock(par)} />
-                            </Stack>
-                        )
-                    }
                 />
-                <Tile label='Score' value={Math.round(scoring.score * 100)} />
+                <Cell label='Score' value={Math.round(scoring.score * 100)} />
             </Stack>
+            <Typography variant='caption' color='text.secondary' sx={{ textAlign: 'center' }}>
+                {par === undefined
+                    ? 'Time is not counted for this puzzle yet.'
+                    : `Took ${formatClock(seconds)} · average ${formatClock(par)}`}
+            </Typography>
         </Stack>
     );
 }
