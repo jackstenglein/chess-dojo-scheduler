@@ -121,7 +121,6 @@ function PuzzleRushHistoryTable() {
                                     <TableCell align='center'>
                                         {t('statPerformanceRating')}
                                     </TableCell>
-                                    <TableCell align='center'>{t('statPeakRating')}</TableCell>
                                     <TableCell align='center'>{t('columnTime')}</TableCell>
                                     <TableCell>{t('columnEndReason')}</TableCell>
                                 </TableRow>
@@ -157,10 +156,7 @@ function PuzzleRushHistoryTable() {
                                                 {session.percentage}%
                                             </TableCell>
                                             <TableCell align='center'>
-                                                {session.performanceRating ?? '-'}
-                                            </TableCell>
-                                            <TableCell align='center'>
-                                                {session.peakRating}
+                                                {session.peakCompletedRating ?? '0'}
                                             </TableCell>
                                             <TableCell align='center'>
                                                 {formatTime(session.totalTimeSeconds)}

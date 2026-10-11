@@ -24,38 +24,51 @@ function attempt(result: 'win' | 'loss', puzzleRating: number): PuzzleRushAttemp
 
 describe('nextRushRating', () => {
     it('adds 50 plus 10 per streak', () => {
-        expect(nextRushRating(300, 1)).toBe(360);
-        expect(nextRushRating(360, 2)).toBe(430);
-        expect(nextRushRating(430, 3)).toBe(510);
+        const ladder = initialRushLadder();
+        expect(nextRushRating(ladder)).toBe(350);
+
+        ladder.stack.push(350);
+        ladder.streak += 1;
+        expect(nextRushRating(ladder)).toBe(410);
+
+        ladder.stack.push(410);
+        ladder.streak += 1;
+        expect(nextRushRating(ladder)).toBe(480);
     });
 });
 
 describe('applyRushResult', () => {
-    it('starts at 300 with no streak', () => {
+    it('starts at 300 with no streak or strikes', () => {
         const ladder = initialRushLadder();
         expect(currentRushRating(ladder)).toBe(PUZZLE_RUSH_START_RATING);
         expect(ladder.streak).toBe(0);
+        expect(ladder.strikes).toBe(0);
     });
 
     it('pushes ratings on wins', () => {
         let ladder = initialRushLadder();
         ladder = applyRushResult(ladder, 'win');
-        expect(currentRushRating(ladder)).toBe(360);
+        expect(currentRushRating(ladder)).toBe(350);
         ladder = applyRushResult(ladder, 'win');
-        expect(currentRushRating(ladder)).toBe(430);
+        expect(currentRushRating(ladder)).toBe(410);
         expect(ladder.streak).toBe(2);
+        expect(ladder.strikes).toBe(0);
     });
 
     it('pops back to the previous rating on a loss and resets the streak', () => {
         let ladder = initialRushLadder();
         ladder = applyRushResult(ladder, 'win');
         ladder = applyRushResult(ladder, 'win');
-        expect(failedRushRating(ladder)).toBe(360);
+        expect(failedRushRating(ladder)).toBe(350);
+
         ladder = applyRushResult(ladder, 'loss');
-        expect(currentRushRating(ladder)).toBe(360);
+        expect(currentRushRating(ladder)).toBe(350);
         expect(ladder.streak).toBe(0);
+        expect(ladder.strikes).toBe(1);
+
         ladder = applyRushResult(ladder, 'loss');
         expect(currentRushRating(ladder)).toBe(300);
+        expect(ladder.strikes).toBe(2);
     });
 
     it('never drops below the start rating', () => {
@@ -67,13 +80,14 @@ describe('applyRushResult', () => {
         expect(currentRushRating(ladder)).toBe(300);
     });
 
-    it('restarts the streak bonus after a loss', () => {
+    it('caps the streak bonus after a loss', () => {
         let ladder = initialRushLadder();
         ladder = applyRushResult(ladder, 'win');
         ladder = applyRushResult(ladder, 'win');
         ladder = applyRushResult(ladder, 'loss');
         ladder = applyRushResult(ladder, 'win');
-        expect(currentRushRating(ladder)).toBe(420);
+        ladder = applyRushResult(ladder, 'win');
+        expect(currentRushRating(ladder)).toBe(450);
     });
 });
 

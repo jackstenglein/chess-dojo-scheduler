@@ -19,6 +19,15 @@ const BASE_RATING_INCREASE = 50;
 /** The additional rating increase per puzzle in the current streak. */
 const STREAK_RATING_INCREASE = 10;
 
+/** The maximum rating increase after a correct puzzle. */
+const MAX_RATING_INCREASE = 100;
+
+/**
+ * The maximum rating increase after a correct puzzle, if the user
+ * already has a strike.
+ */
+const MAX_RATING_INCREASE_WITH_STRIKE = 50;
+
 /**
  * The state of the puzzle rush rating ladder. Each correct puzzle pushes a new
  * rating onto the stack, and each failed puzzle pops back to the previous rating.
@@ -28,11 +37,13 @@ export interface PuzzleRushLadder {
     stack: number[];
     /** The number of consecutive correct puzzles. */
     streak: number;
+    /** The number of strikes the user has. */
+    strikes: number;
 }
 
 /** Returns the ladder state at the start of a run. */
 export function initialRushLadder(): PuzzleRushLadder {
-    return { stack: [PUZZLE_RUSH_START_RATING], streak: 0 };
+    return { stack: [PUZZLE_RUSH_START_RATING], streak: 0, strikes: 0 };
 }
 
 /** Returns the current search rating of the given ladder. */
@@ -41,13 +52,20 @@ export function currentRushRating(ladder: PuzzleRushLadder): number {
 }
 
 /**
- * Returns the search rating after a correct puzzle.
- * @param current The current search rating.
- * @param streak The streak length after including the correct puzzle.
+ * Returns the search rating after a correct puzzle with the given ladder.
+ * @param ladder The current search ladder.
  * @returns The new search rating.
  */
-export function nextRushRating(current: number, streak: number): number {
-    return current + BASE_RATING_INCREASE + STREAK_RATING_INCREASE * streak;
+export function nextRushRating(ladder: PuzzleRushLadder): number {
+    const current = currentRushRating(ladder);
+    let increase = BASE_RATING_INCREASE + STREAK_RATING_INCREASE * ladder.streak;
+
+    if (ladder.strikes > 0) {
+        increase = Math.min(increase, MAX_RATING_INCREASE_WITH_STRIKE);
+    } else {
+        increase = Math.min(increase, MAX_RATING_INCREASE);
+    }
+    return current + increase;
 }
 
 /**
@@ -73,15 +91,16 @@ export function applyRushResult(
     result: PuzzleRushResult,
 ): PuzzleRushLadder {
     if (result === 'win') {
-        const streak = ladder.streak + 1;
         return {
-            stack: [...ladder.stack, nextRushRating(currentRushRating(ladder), streak)],
-            streak,
+            stack: [...ladder.stack, nextRushRating(ladder)],
+            streak: ladder.streak + 1,
+            strikes: ladder.strikes,
         };
     }
     return {
         stack: ladder.stack.length <= 1 ? [PUZZLE_RUSH_START_RATING] : ladder.stack.slice(0, -1),
         streak: 0,
+        strikes: ladder.strikes + 1,
     };
 }
 
@@ -101,12 +120,16 @@ export function computePuzzleRushStats(attempts: PuzzleRushAttempt[]): PuzzleRus
     const correctCount = attempts.filter((a) => a.result === 'win').length;
 
     let peakRating = PUZZLE_RUSH_START_RATING;
+    let peakCompletedRating = 0;
     for (const attempt of attempts) {
         peakRating = Math.max(peakRating, attempt.searchRating);
+        if (attempt.result === 'win') {
+            peakCompletedRating = Math.max(peakCompletedRating, attempt.puzzleRating);
+        }
     }
 
     if (totalCount === 0) {
-        return { correctCount, totalCount, percentage: 0, peakRating };
+        return { correctCount, totalCount, percentage: 0, peakRating, peakCompletedRating };
     }
 
     const percentage = Math.round((100 * correctCount) / totalCount);
@@ -115,5 +138,12 @@ export function computePuzzleRushStats(attempts: PuzzleRushAttempt[]): PuzzleRus
     );
     const performanceRating = Math.max(0, avgPuzzleRating + fideDpTable[percentage]);
 
-    return { correctCount, totalCount, percentage, performanceRating, peakRating };
+    return {
+        correctCount,
+        totalCount,
+        percentage,
+        performanceRating,
+        peakRating,
+        peakCompletedRating,
+    };
 }

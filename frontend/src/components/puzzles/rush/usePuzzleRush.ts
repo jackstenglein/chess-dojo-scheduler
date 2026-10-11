@@ -194,9 +194,8 @@ export function usePuzzleRush(): UsePuzzleRushResponse {
         state.resolved = false;
         state.puzzleStartedAt = performance.now();
 
-        const rating = currentRushRating(state.ladder);
         state.prefetch = {
-            win: fetchPuzzle(nextRushRating(rating, state.ladder.streak + 1), state.seenIds),
+            win: fetchPuzzle(nextRushRating(state.ladder), state.seenIds),
             loss: fetchPuzzle(failedRushRating(state.ladder), state.seenIds),
         };
 

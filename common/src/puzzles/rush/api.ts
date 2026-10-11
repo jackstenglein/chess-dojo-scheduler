@@ -93,6 +93,8 @@ export interface PuzzleRushStats {
     performanceRating?: number;
     /** The highest search rating reached during the run. */
     peakRating: number;
+    /** The highest rated puzzle successfully completed. */
+    peakCompletedRating: number;
 }
 
 /** A puzzle rush run, as stored in DynamoDB. */

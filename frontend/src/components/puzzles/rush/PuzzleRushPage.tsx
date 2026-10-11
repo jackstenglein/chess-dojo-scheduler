@@ -18,7 +18,7 @@ import {
     PUZZLE_RUSH_RATING_WINDOW,
     PUZZLE_RUSH_START_RATING,
 } from '@jackstenglein/chess-dojo-common/src/puzzles/rush/rating';
-import { AccessTime, Bolt, Close, LocalFireDepartment, Timeline } from '@mui/icons-material';
+import { AccessTime, Bolt, Close, LocalFireDepartment } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -212,7 +212,7 @@ function PuzzleRushUnderboard({
     orientation: 'white' | 'black';
 }) {
     const t = useTranslations('puzzles.rush');
-    const { secondsRemaining, strikes, stats, rating, streak, attempts, flash, abort } = rush;
+    const { secondsRemaining, strikes, stats, streak, attempts, flash, abort } = rush;
     const lowTime = secondsRemaining <= 30;
 
     return (
@@ -255,6 +255,7 @@ function PuzzleRushUnderboard({
                         alignItems: 'center',
                         flexWrap: 'wrap',
                         gap: 2,
+                        my: 3,
                     }}
                 >
                     <Stack direction='row' sx={{ alignItems: 'center', gap: 1 }}>
@@ -262,13 +263,6 @@ function PuzzleRushUnderboard({
                             {stats.correctCount}
                         </Typography>
                         <Typography color='textSecondary'>{t('correctLabel')}</Typography>
-                    </Stack>
-
-                    <Stack direction='row' sx={{ alignItems: 'center', gap: 1 }}>
-                        <Timeline />
-                        <Typography variant='h5' sx={{ fontWeight: 'bold' }}>
-                            {rating}
-                        </Typography>
                     </Stack>
 
                     {streak > 1 && (
@@ -348,8 +342,8 @@ function ResultStrip({
                     >
                         <Box
                             sx={{
-                                width: isLatest ? 20 : 14,
-                                height: isLatest ? 20 : 14,
+                                width: isLatest ? 24 : 18,
+                                height: isLatest ? 24 : 18,
                                 borderRadius: 0.5,
                                 bgcolor: attempt.result === 'win' ? 'success.main' : 'error.main',
                                 transition: 'all 0.15s',
@@ -358,7 +352,7 @@ function ResultStrip({
                         <Typography
                             variant='caption'
                             sx={{
-                                color: 'text.secondary',
+                                color: attempt.result === 'win' ? 'success.main' : 'error.main',
                                 lineHeight: 1,
                                 fontWeight: isLatest ? 'bold' : undefined,
                             }}
