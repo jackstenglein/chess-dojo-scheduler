@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { splitPuzzlePgn, validatePuzzleEdit } from './editPuzzle';
+import { EditSolutionDialog } from './EditSolutionDialog';
 
 interface EditPuzzleDialogProps {
     puzzle: PuzzlebasePuzzle;
@@ -42,6 +43,7 @@ const monoSx = { fontFamily: 'monospace', fontSize: '0.85rem' } as const;
 export function EditPuzzleDialog({ puzzle, onClose, onSave }: EditPuzzleDialogProps) {
     const [fen, setFen] = useState(puzzle.fen);
     const [movetext, setMovetext] = useState(() => splitPuzzlePgn(puzzle.solutionPgn).movetext);
+    const [annotating, setAnnotating] = useState(false);
 
     const result = useMemo(
         () => validatePuzzleEdit(fen, movetext, puzzle.solutionPgn),
@@ -72,6 +74,14 @@ export function EditPuzzleDialog({ puzzle, onClose, onSave }: EditPuzzleDialogPr
                             slotProps={{ htmlInput: { sx: monoSx, spellCheck: false } }}
                             fullWidth
                         />
+                        <Button
+                            variant='outlined'
+                            disabled={!fenValid}
+                            onClick={() => setAnnotating(true)}
+                            sx={{ alignSelf: 'flex-start' }}
+                        >
+                            Edit on a board
+                        </Button>
                         <TextField
                             label='Solution (PGN moves)'
                             value={movetext}
@@ -127,6 +137,16 @@ export function EditPuzzleDialog({ puzzle, onClose, onSave }: EditPuzzleDialogPr
                     </Stack>
                 </Stack>
             </DialogContent>
+            {annotating && (
+                <EditSolutionDialog
+                    puzzleId={puzzle.id}
+                    fen={fen.trim()}
+                    movetext={movetext}
+                    headers={splitPuzzlePgn(puzzle.solutionPgn).headers}
+                    onClose={() => setAnnotating(false)}
+                    onApply={setMovetext}
+                />
+            )}
             <DialogActions sx={{ px: 3, pb: 2 }}>
                 <Button color='inherit' onClick={onClose}>
                     Cancel

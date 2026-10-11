@@ -83,6 +83,8 @@ export interface PgnBoardApi {
 
 export interface PgnBoardSlots {
     moveButtonExtras?: React.JSXElementConstructor<MoveButtonProps>;
+    /** Extra items at the end of the menu that opens when a move is right-clicked. */
+    moveMenuItems?: React.JSXElementConstructor<{ move: Move; onClose: () => void }>;
     /** Shown above the engine and the PGN text, at the top of the PGN panel. */
     beforePgnText?: JSX.Element;
     afterPgnText?: JSX.Element;

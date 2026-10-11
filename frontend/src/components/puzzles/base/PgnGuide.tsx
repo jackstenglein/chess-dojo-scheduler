@@ -36,6 +36,31 @@ const RULES: { marker: string; text: string }[] = [
     },
 ];
 
+/** The rules for ALT, ALT2 and SKIP, and how to set them from the editor's move menu. */
+export function MarkerHelp() {
+    return (
+        <Stack sx={{ gap: 1, p: 2 }}>
+            <Typography variant='body2' color='text.secondary'>
+                Right-click the first move of a variation and choose a marker. It is written at the
+                start of the move&apos;s comment, where you can still add your own text.
+            </Typography>
+            {RULES.filter((rule) => ['SKIP', 'ALT', 'ALT2'].includes(rule.marker)).map((rule) => (
+                <Typography key={rule.marker} variant='body2'>
+                    <Typography
+                        component='span'
+                        variant='body2'
+                        sx={{ ...monoSx, fontWeight: 'bold' }}
+                    >
+                        {rule.marker}
+                    </Typography>
+                    {' — '}
+                    {rule.text}
+                </Typography>
+            ))}
+        </Stack>
+    );
+}
+
 /** A short guide to writing a puzzle PGN, with examples that can be loaded into the field. */
 export function PgnGuide({ onUse }: { onUse: (pgn: string) => void }) {
     return (
