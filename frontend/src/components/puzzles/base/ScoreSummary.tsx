@@ -153,7 +153,10 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
             {scoring.counted && scoring.ratingAfter !== undefined && scoring.delta !== undefined ? (
                 <Stack
                     sx={{
-                        px: 2,
+                        // As wide as what is in it, not the whole card.
+                        alignSelf: 'flex-start',
+                        pl: 2,
+                        pr: 3,
                         py: 1,
                         borderRadius: 2,
                         bgcolor: 'action.hover',
