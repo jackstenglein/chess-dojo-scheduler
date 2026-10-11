@@ -25,21 +25,21 @@ export function formatSpeed(speed: number): string {
     return String(Number(speed.toFixed(2)));
 }
 
-/** One cell of the strip: a small label over a number, centered. */
+/** One cell of a strip: a small label over a number, centered. */
 function Cell({
     label,
     value,
     color,
-    average,
+    muted,
 }: {
     label: string;
     value: ReactNode;
     color?: string;
-    /** What members get on average, shown small under the number. */
-    average?: string;
+    /** Quieter and smaller, for the averages. */
+    muted?: boolean;
 }) {
     return (
-        <Stack sx={{ flex: 1, minWidth: 0, alignItems: 'center', py: 1.25 }}>
+        <Stack sx={{ flex: 1, minWidth: 0, alignItems: 'center', py: muted ? 0.75 : 1.25 }}>
             <Typography
                 variant='overline'
                 sx={{
@@ -53,20 +53,33 @@ function Cell({
             </Typography>
             <Typography
                 sx={{
-                    fontSize: '1.6rem',
-                    fontWeight: 800,
+                    fontSize: muted ? '1.15rem' : '1.6rem',
+                    fontWeight: muted ? 700 : 800,
                     lineHeight: 1.15,
                     fontVariantNumeric: 'tabular-nums',
-                    color,
+                    color: color ?? (muted ? 'text.secondary' : undefined),
                 }}
             >
                 {value}
             </Typography>
-            {average && (
-                <Typography variant='caption' color='text.secondary'>
-                    avg {average}
-                </Typography>
-            )}
+        </Stack>
+    );
+}
+
+/** A row of cells with thin lines between them, on a soft background. */
+function Strip({ children, quiet }: { children: ReactNode; quiet?: boolean }) {
+    return (
+        <Stack
+            direction='row'
+            divider={<Divider orientation='vertical' flexItem sx={{ my: quiet ? 1 : 1.5 }} />}
+            sx={{
+                borderRadius: 2,
+                bgcolor: quiet ? undefined : 'action.hover',
+                border: quiet ? 1 : undefined,
+                borderColor: 'divider',
+            }}
+        >
+            {children}
         </Stack>
     );
 }
@@ -166,21 +179,12 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                     You have played this puzzle before, so it does not change your rating.
                 </Typography>
             )}
-            {/* One quiet strip: accuracy, speed and score, with how long it took beneath. */}
-            <Stack
-                direction='row'
-                divider={<Divider orientation='vertical' flexItem sx={{ my: 1.5 }} />}
-                sx={{ borderRadius: 2, bgcolor: 'action.hover' }}
-            >
-                <Cell
-                    label='Accuracy'
-                    value={`${Math.round(scoring.accuracy * 100)}%`}
-                    average={average && `${Math.round(average.accuracy * 100)}%`}
-                />
+            {/* The member's own numbers. */}
+            <Strip>
+                <Cell label='Accuracy' value={`${Math.round(scoring.accuracy * 100)}%`} />
                 <Cell
                     label='Speed'
                     value={par === undefined ? '—' : formatSpeed(scoring.speed)}
-                    average={average && formatSpeed(average.speed)}
                     // Green at full speed, amber once it costs a lot.
                     color={
                         par === undefined
@@ -192,12 +196,29 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                                 : undefined
                     }
                 />
-                <Cell
-                    label='Score'
-                    value={Math.round(scoring.score * 100)}
-                    average={average && String(Math.round(average.score * 100))}
-                />
-            </Stack>
+                <Cell label='Score' value={Math.round(scoring.score * 100)} />
+            </Strip>
+            {/* What members get on this puzzle on average, apart from the above. */}
+            {average && (
+                <>
+                    <Typography
+                        variant='overline'
+                        color='text.secondary'
+                        sx={{ textAlign: 'center', lineHeight: 1.4, mt: 0.5 }}
+                    >
+                        Average of members
+                    </Typography>
+                    <Strip quiet>
+                        <Cell
+                            muted
+                            label='Accuracy'
+                            value={`${Math.round(average.accuracy * 100)}%`}
+                        />
+                        <Cell muted label='Speed' value={formatSpeed(average.speed)} />
+                        <Cell muted label='Score' value={Math.round(average.score * 100)} />
+                    </Strip>
+                </>
+            )}
             <Typography variant='caption' color='text.secondary' sx={{ textAlign: 'center' }}>
                 {par === undefined
                     ? 'Time is not counted for this puzzle yet.'
