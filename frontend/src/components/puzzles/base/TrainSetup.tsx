@@ -212,8 +212,9 @@ export function TrainSetup({
                         Train
                     </Typography>
                     <Typography color='text.secondary'>
-                        Puzzles from the Dojo PuzzleBase. Every move you try is saved to your Puzzle
-                        Stats.
+                        Choose what you’d like to train, then set the puzzle rating and session
+                        length, and press Start training when you’re ready. Every session is saved
+                        to your Puzzle Stats. Good luck!
                     </Typography>
                 </Stack>
 
