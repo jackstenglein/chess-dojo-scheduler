@@ -189,7 +189,9 @@ export function TacticsTrainerPage({
         streakRef.current = 0;
         setStreak(0);
     }, []);
-    const [firstTry, setFirstTry] = useState(0);
+    // Credit earned over the session's moves: 1 for a move found first time, a half for one found
+    // second time, nothing for one that was shown. The same scoring as a puzzle's accuracy.
+    const [creditEarned, setCreditEarned] = useState(0);
     const [userMovesTotal, setUserMovesTotal] = useState(0);
     const [elapsed, setElapsed] = useState(0);
     const elapsedRef = useRef(0);
@@ -257,7 +259,7 @@ export function TacticsTrainerPage({
     );
 
     const orientation = puzzle.userColor;
-    const accuracy = userMovesTotal === 0 ? 100 : Math.round((100 * firstTry) / userMovesTotal);
+    const accuracy = userMovesTotal === 0 ? 100 : Math.round((100 * creditEarned) / userMovesTotal);
 
     const stopTimer = useCallback(() => {
         if (timerRef.current) {
@@ -280,7 +282,7 @@ export function TacticsTrainerPage({
         streakRef.current = 0;
         setStreak(0);
         setResults([]);
-        setFirstTry(0);
+        setCreditEarned(0);
         setUserMovesTotal(0);
         setElapsed(0);
         setLineComplete(false);
@@ -479,8 +481,8 @@ export function TacticsTrainerPage({
     finishLineRef.current = finishLine;
 
     const advanceAfterUserMove = useCallback(
-        (chess: Chess, board: BoardApi, nextPly: number, wasFirstTry: boolean) => {
-            if (wasFirstTry) setFirstTry((n) => n + 1);
+        (chess: Chess, board: BoardApi, nextPly: number, credit: number) => {
+            if (credit > 0) setCreditEarned((n) => n + credit);
             setUserMovesTotal((n) => n + 1);
             setAttempts(0);
             setFeedback(null);
@@ -549,7 +551,8 @@ export function TacticsTrainerPage({
                         ],
                     },
                 });
-                advanceAfterUserMove(chess, board, s.plyIndex + 1, s.attempts === 0);
+                // Right first time earns the whole move, right on the second try half of it.
+                advanceAfterUserMove(chess, board, s.plyIndex + 1, s.attempts === 0 ? 1 : 0.5);
             } else if (
                 alternateFor(puzzles[s.puzzleIndex], currentLine, s.plyIndex, attempted.san)
             ) {
@@ -614,7 +617,7 @@ export function TacticsTrainerPage({
                             if (moved) {
                                 recorderRef.current?.recordCorrect(expected, true);
                                 reconcile(chess, board, showGlyphsRef.current, playSound);
-                                advanceAfterUserMove(chess, board, s.plyIndex + 1, false);
+                                advanceAfterUserMove(chess, board, s.plyIndex + 1, 0);
                             }
                         } catch {
                             setAttempts(0);
@@ -661,7 +664,7 @@ export function TacticsTrainerPage({
             puzzleCleanRef.current = false;
             resetStreak();
             reconcile(chess, board, showGlyphsRef.current, playSound);
-            advanceAfterUserMove(chess, board, s.plyIndex + 1, false);
+            advanceAfterUserMove(chess, board, s.plyIndex + 1, 0);
         } catch {
             setFeedback(null);
         }
