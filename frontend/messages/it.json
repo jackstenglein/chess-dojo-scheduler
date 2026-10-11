@@ -3182,9 +3182,8 @@
         },
         "rush": {
             "title": "Dojo Rush",
-            "introTime": "Risolvi quanti più problemi di scacco matto possibile in {minutes} minuti. Dopo {strikes} risposte sbagliate la partita finisce.",
-            "introRating": "I problemi partono dal livello {start} e diventano più difficili con ogni risposta corretta (+50, più 10 per ogni problema della tua serie). Un errore ti riporta al livello precedente. I problemi vengono scelti entro ±{window} punti dal tuo livello attuale.",
-            "introReview": "Alla fine vedrai il tuo punteggio, la precisione e il rating di performance, e potrai rivedere ogni problema senza pressione di tempo.",
+            "introTime": "{minutes} minuti",
+            "introStrikes": "{strikes} risposte sbagliate",
             "startButton": "Inizia",
             "viewHistory": "Vedi partite precedenti",
             "whiteToMove": "Muove il Bianco",
@@ -3237,7 +3236,9 @@
             "nextPuzzle": "Problema successivo",
             "historyTitle": "Cronologia Dojo Rush",
             "historyEmpty": "Non hai ancora completato nessuna partita di Dojo Rush.",
-            "loadMore": "Carica altro"
+            "loadMore": "Carica altro",
+            "incorrectMoveComment": "Tentativo errato",
+            "incorrectMoveCommentDuringRun": "Ipotesi errata durante la corsa"
         },
         "squareColors": {
             "title": "Esercizio sul colore delle case",

@@ -3182,9 +3182,8 @@
         },
         "rush": {
             "title": "Dojo Rush",
-            "introTime": "Solve as many checkmate puzzles as you can in {minutes} minutes. {strikes} wrong answers and the run is over.",
-            "introRating": "Puzzles start at rating {start} and get harder with every correct answer (+50, plus 10 more for each puzzle in your streak). A wrong answer drops you back to the previous level. Puzzles are picked within ±{window} points of your current level.",
-            "introReview": "When the run ends you'll see your score, accuracy and performance rating, and you can revisit every puzzle with no time pressure.",
+            "introTime": "{minutes} minutes",
+            "introStrikes": "{strikes} strikes",
             "startButton": "Start",
             "viewHistory": "View Past Runs",
             "whiteToMove": "White to move",

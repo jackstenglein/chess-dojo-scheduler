@@ -7,7 +7,6 @@ import PgnBoard, { PgnBoardApi, useChess } from '@/board/pgn/PgnBoard';
 import { InProgressAfterPgnText } from '@/board/pgn/solitaire/SolitaireAfterPgnText';
 import { LoseIcon, WinIcon } from '@/components/games/list/GameListItem';
 import { Link } from '@/components/navigation/Link';
-import { useRouter } from '@/hooks/useRouter';
 import LoadingPage from '@/loading/LoadingPage';
 import NotFoundPage from '@/NotFoundPage';
 import { Chess, Color } from '@jackstenglein/chess';
@@ -280,9 +279,26 @@ function RetryUnderboard({
 
                 <Box sx={{ flexGrow: 1 }} />
 
-                <Typography variant='body2' sx={{ alignSelf: 'end' }}>
-                    <Link href={puzzleRushReviewHref(session.createdAt)}>{t('backToRun')}</Link>
-                </Typography>
+                <Stack
+                    direction='row'
+                    sx={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 2,
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <Button
+                        variant='contained'
+                        component={Link}
+                        href={puzzleRushReviewHref(session.createdAt)}
+                    >
+                        {t('backToRun')}
+                    </Button>
+                    <Button variant='contained' component={Link} href='/puzzles/rush'>
+                        {t('newRun')}
+                    </Button>
+                </Stack>
             </Stack>
         </CardContent>
     );
@@ -313,21 +329,29 @@ function DetailRow({ label, value }: { label: ReactNode; value: ReactNode }) {
 function RetryAfterPgnText({ nextHref, reviewHref }: { nextHref?: string; reviewHref: string }) {
     const t = useTranslations('puzzles.rush');
     const { solitaire } = useChess();
-    const router = useRouter();
 
     if (solitaire?.complete) {
         return (
             <Stack>
                 <Divider sx={{ width: 1 }} />
-                <Stack direction='row' sx={{ my: 1, px: 1, gap: 1, alignItems: 'center' }}>
+                <Stack
+                    direction='row'
+                    sx={{ my: 1, px: 1, gap: 1, alignItems: 'center', flexWrap: 'wrap' }}
+                >
                     <Typography color='success' sx={{ fontWeight: 'bold', mr: 1 }}>
                         {t('solved')}
                     </Typography>
-                    {nextHref ? (
-                        <Button onClick={() => router.push(nextHref)}>{t('nextPuzzle')}</Button>
-                    ) : (
-                        <Button onClick={() => router.push(reviewHref)}>{t('backToRun')}</Button>
+                    {nextHref && (
+                        <Button component={Link} href={nextHref}>
+                            {t('nextPuzzle')}
+                        </Button>
                     )}
+                    <Button component={Link} href={reviewHref}>
+                        {t('backToRun')}
+                    </Button>
+                    <Button component={Link} href='/puzzles/rush'>
+                        {t('newRun')}
+                    </Button>
                 </Stack>
             </Stack>
         );

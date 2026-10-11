@@ -3182,9 +3182,8 @@
         },
         "rush": {
             "title": "Dojo Rush",
-            "introTime": "Résolvez autant de problèmes de mat que possible en {minutes} minutes. Après {strikes} mauvaises réponses, la partie est terminée.",
-            "introRating": "Les problèmes commencent au niveau {start} et deviennent plus difficiles à chaque bonne réponse (+50, plus 10 par problème de votre série). Une erreur vous ramène au niveau précédent. Les problèmes sont choisis à ±{window} points de votre niveau actuel.",
-            "introReview": "À la fin de la partie, vous verrez votre score, votre précision et votre performance, et vous pourrez revoir chaque problème sans pression de temps.",
+            "introTime": "{minutes} minutes",
+            "introStrikes": "{strikes} mauvaises réponses",
             "startButton": "Commencer",
             "viewHistory": "Voir les parties précédentes",
             "whiteToMove": "Trait aux Blancs",
@@ -3237,7 +3236,9 @@
             "nextPuzzle": "Problème suivant",
             "historyTitle": "Historique Dojo Rush",
             "historyEmpty": "Vous n'avez encore terminé aucune partie de Dojo Rush.",
-            "loadMore": "Charger plus"
+            "loadMore": "Charger plus",
+            "incorrectMoveComment": "Mauvaise supposition",
+            "incorrectMoveCommentDuringRun": "Mauvaise réponse pendant la course"
         },
         "squareColors": {
             "title": "Exercice de couleur des cases",

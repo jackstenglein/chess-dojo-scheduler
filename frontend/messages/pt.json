@@ -3182,9 +3182,8 @@
         },
         "rush": {
             "title": "Dojo Rush",
-            "introTime": "Resolva o máximo de problemas de xeque-mate que conseguir em {minutes} minutos. Com {strikes} respostas erradas a partida termina.",
-            "introRating": "Os problemas começam no nível {start} e ficam mais difíceis a cada acerto (+50, mais 10 por cada problema da sua sequência). Um erro faz você voltar ao nível anterior. Os problemas são escolhidos dentro de ±{window} pontos do seu nível atual.",
-            "introReview": "Ao final você verá sua pontuação, precisão e rating de desempenho, e poderá revisar cada problema sem pressão de tempo.",
+            "introTime": "{minutes} minutos",
+            "introStrikes": "{strikes} respostas erradas",
             "startButton": "Começar",
             "viewHistory": "Ver partidas anteriores",
             "whiteToMove": "Brancas jogam",
@@ -3237,7 +3236,9 @@
             "nextPuzzle": "Próximo problema",
             "historyTitle": "Histórico do Dojo Rush",
             "historyEmpty": "Você ainda não concluiu nenhuma partida de Dojo Rush.",
-            "loadMore": "Carregar mais"
+            "loadMore": "Carregar mais",
+            "incorrectMoveComment": "Palpite incorreto",
+            "incorrectMoveCommentDuringRun": "Palpite incorreto durante a corrida"
         },
         "squareColors": {
             "title": "Treino de cor das casas",

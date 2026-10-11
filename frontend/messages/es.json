@@ -3182,9 +3182,8 @@
         },
         "rush": {
             "title": "Dojo Rush",
-            "introTime": "Resuelve tantos problemas de jaque mate como puedas en {minutes} minutos. Con {strikes} respuestas incorrectas la partida termina.",
-            "introRating": "Los problemas empiezan en el nivel {start} y se vuelven más difíciles con cada acierto (+50, más 10 por cada problema de tu racha). Un error te devuelve al nivel anterior. Los problemas se eligen dentro de ±{window} puntos de tu nivel actual.",
-            "introReview": "Al terminar verás tu puntuación, precisión y rating de rendimiento, y podrás repasar cada problema sin presión de tiempo.",
+            "introTime": "{minutes} minutos",
+            "introStrikes": "{strikes} respuestas incorrectas",
             "startButton": "Empezar",
             "viewHistory": "Ver partidas anteriores",
             "whiteToMove": "Juegan blancas",
@@ -3237,7 +3236,9 @@
             "nextPuzzle": "Siguiente problema",
             "historyTitle": "Historial de Dojo Rush",
             "historyEmpty": "Todavía no has completado ninguna partida de Dojo Rush.",
-            "loadMore": "Cargar más"
+            "loadMore": "Cargar más",
+            "incorrectMoveComment": "Suposición incorrecta",
+            "incorrectMoveCommentDuringRun": "Suposición incorrecta durante la carrera."
         },
         "squareColors": {
             "title": "Ejercicio de colores de casillas",

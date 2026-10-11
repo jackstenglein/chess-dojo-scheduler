@@ -15,10 +15,15 @@ import {
 import {
     PUZZLE_RUSH_DURATION_SECONDS,
     PUZZLE_RUSH_MAX_STRIKES,
-    PUZZLE_RUSH_RATING_WINDOW,
-    PUZZLE_RUSH_START_RATING,
 } from '@jackstenglein/chess-dojo-common/src/puzzles/rush/rating';
-import { AccessTime, Bolt, Close, LocalFireDepartment } from '@mui/icons-material';
+import {
+    AccessAlarm,
+    AccessTime,
+    Bolt,
+    Clear,
+    Close,
+    LocalFireDepartment,
+} from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -94,39 +99,36 @@ function IdleScreen({ onStart }: { onStart: () => void }) {
             <Typography variant='h4' sx={{ fontWeight: 'bold', mb: 2 }}>
                 {t('title')}
             </Typography>
-            <Typography
-                variant='body1'
+
+            <Stack
+                direction='row'
                 sx={{
-                    color: 'text.secondary',
-                    mb: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap',
+                    gap: 6,
+                    my: 5,
                 }}
             >
-                {t('introTime', {
-                    minutes: PUZZLE_RUSH_DURATION_SECONDS / 60,
-                    strikes: PUZZLE_RUSH_MAX_STRIKES,
-                })}
-            </Typography>
-            <Typography
-                variant='body1'
-                sx={{
-                    color: 'text.secondary',
-                    mb: 1,
-                }}
-            >
-                {t('introRating', {
-                    start: PUZZLE_RUSH_START_RATING,
-                    window: PUZZLE_RUSH_RATING_WINDOW,
-                })}
-            </Typography>
-            <Typography
-                variant='body1'
-                sx={{
-                    color: 'text.secondary',
-                    mb: 4,
-                }}
-            >
-                {t('introReview')}
-            </Typography>
+                <Stack sx={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <AccessAlarm sx={{ fontSize: '3rem', mb: 1 }} />
+                    <Typography variant='h6'>
+                        {t('introTime', {
+                            minutes: PUZZLE_RUSH_DURATION_SECONDS / 60,
+                        })}
+                    </Typography>
+                </Stack>
+
+                <Stack sx={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <Clear sx={{ fontSize: '3rem', mb: 1 }} />
+                    <Typography variant='h6'>
+                        {t('introStrikes', {
+                            strikes: PUZZLE_RUSH_MAX_STRIKES,
+                        })}
+                    </Typography>
+                </Stack>
+            </Stack>
+
             <Stack direction='row' spacing={2} sx={{ justifyContent: 'center' }}>
                 <Button variant='contained' size='large' onClick={onStart} sx={{ px: 6, py: 1.5 }}>
                     {t('startButton')}
