@@ -48,6 +48,9 @@ def count_row_if_necessary(row, themes_per_cohort) -> bool:
     
     if int(row['RatingDeviation']) > MAX_RATING_DEVIATION:
         return False
+
+    if int(row['Popularity']) < 80:
+        return False
     
     cohort = get_cohort(int(row['Rating']))
     cohort_theme_count = themes_per_cohort.get(cohort, {})
