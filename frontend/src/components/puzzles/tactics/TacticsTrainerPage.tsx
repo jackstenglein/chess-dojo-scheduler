@@ -170,6 +170,18 @@ export function TacticsTrainerPage({
     const [mistakes, setMistakes] = useState(0);
     // Wrong moves on the puzzle in front of the solver, for the result.
     const [puzzleMistakes, setPuzzleMistakes] = useState(0);
+    // Puzzles solved in a row without a mistake, the best run of the session, and how hard the
+    // puzzles finished so far were. Streaks end at the first mistake or reveal, as in a rush.
+    const [streak, setStreak] = useState(0);
+    const [bestStreak, setBestStreak] = useState(0);
+    const [levels, setLevels] = useState<number[]>([]);
+    const streakRef = useRef(0);
+    // Whether the puzzle on screen has gone without a mistake or a reveal so far.
+    const puzzleCleanRef = useRef(true);
+    const resetStreak = useCallback(() => {
+        streakRef.current = 0;
+        setStreak(0);
+    }, []);
     const [firstTry, setFirstTry] = useState(0);
     const [userMovesTotal, setUserMovesTotal] = useState(0);
     const [elapsed, setElapsed] = useState(0);
@@ -257,6 +269,11 @@ export function TacticsTrainerPage({
         setAttempts(0);
         setMistakes(0);
         setPuzzleMistakes(0);
+        puzzleCleanRef.current = true;
+        streakRef.current = 0;
+        setStreak(0);
+        setBestStreak(0);
+        setLevels([]);
         setFirstTry(0);
         setUserMovesTotal(0);
         setElapsed(0);
@@ -414,6 +431,15 @@ export function TacticsTrainerPage({
                     }
                 } else {
                     // Puzzle complete — rating ticks up and persists.
+                    if (puzzleCleanRef.current) {
+                        streakRef.current += 1;
+                        setStreak(streakRef.current);
+                        setBestStreak((best) => Math.max(best, streakRef.current));
+                    }
+                    if (puzzle.rating !== undefined) {
+                        const solvedRating = puzzle.rating;
+                        setLevels((all) => [...all, solvedRating]);
+                    }
                     const gain = ratingForPuzzle(mistakesRef.current);
                     setLastGain(gain);
                     setRating((r) => r + gain);
@@ -547,6 +573,8 @@ export function TacticsTrainerPage({
             } else {
                 // Wrong move — visible rollback, second attempt allowed.
                 recorderRef.current?.recordWrong(attempted.san);
+                puzzleCleanRef.current = false;
+                resetStreak();
                 const newAttempts = s.attempts + 1;
                 setAttempts(newAttempts);
                 setMistakes((n) => n + 1);
@@ -589,7 +617,7 @@ export function TacticsTrainerPage({
                 }, 650);
             }
         },
-        [advanceAfterUserMove, incorrectSound, lineComplete, playSound, puzzles],
+        [advanceAfterUserMove, incorrectSound, lineComplete, playSound, puzzles, resetStreak],
     );
 
     /** The solver took an ALT solution and chose to look for another move. */
@@ -604,9 +632,9 @@ export function TacticsTrainerPage({
     }, [altPrompt]);
 
     /**
-     * The solver took an ALT solution and chose to play it out. The alternate becomes the line
-     * they are solving from here: the opponent replies from it, and a missed move counts like
-     * any other.
+     * The solver took an ALT solution and asked to be shown the next move. The main line's move is
+     * played for them, like a reveal: the move they found is noted, but the best move is shown, and
+     * it counts as missed.
      */
     const altShowNext = useCallback(() => {
         const chess = chessRef.current;
@@ -614,37 +642,24 @@ export function TacticsTrainerPage({
         const s = stateRef.current;
         if (!chess || !board || !altPrompt) return;
         const currentLine = puzzles[s.puzzleIndex].lines[s.lineIndex];
-        const alternate = alternateFor(puzzles[s.puzzleIndex], currentLine, s.plyIndex, altPrompt);
-        if (!alternate) return;
+        const expected = currentLine[s.plyIndex];
 
-        recorderRef.current?.recordCorrect(altPrompt, false, 'alt');
+        recorderRef.current?.recordAlternate(altPrompt, 'alt');
         setAltPrompt(null);
+        setFeedback(null);
         lockedRef.current = false;
         try {
             reconcile(chess, board, showGlyphsRef.current);
-            if (!chess.move(altPrompt)) return;
+            if (!chess.move(expected)) return;
+            recorderRef.current?.recordCorrect(expected, true);
+            puzzleCleanRef.current = false;
+            resetStreak();
             reconcile(chess, board, showGlyphsRef.current, playSound);
+            advanceAfterUserMove(chess, board, s.plyIndex + 1, false);
         } catch {
             setFeedback(null);
-            return;
         }
-
-        const id = puzzles[s.puzzleIndex].id;
-        const newLineIndex = puzzles[s.puzzleIndex].lines.length;
-        setAltLines((current) => ({ ...current, [id]: alternate.line }));
-        setLineIndex(newLineIndex);
-        setPlyIndex(s.plyIndex + 1);
-        setFirstTry((n) => n + (s.attempts === 0 ? 1 : 0));
-        setUserMovesTotal((n) => n + 1);
-        setAttempts(0);
-        setFeedback(null);
-        if (s.plyIndex + 1 >= alternate.line.length) {
-            // The alternate ends with the solver's own move. Let the new line render first.
-            setTimeout(() => finishLineRef.current(chess.isCheckmate()), 50);
-        } else {
-            playOpponentReply(chess, board, s.plyIndex + 1, alternate.line);
-        }
-    }, [altPrompt, playOpponentReply, playSound, puzzles]);
+    }, [advanceAfterUserMove, altPrompt, playSound, puzzles, resetStreak]);
 
     const nextPuzzle = useCallback(() => {
         if (timeLimitSeconds !== undefined && elapsedRef.current >= timeLimitSeconds) {
@@ -654,6 +669,7 @@ export function TacticsTrainerPage({
             return;
         }
         setPuzzleMistakes(0);
+        puzzleCleanRef.current = true;
         setPuzzleIndex((i) => i + 1);
         setLineIndex(0);
         setPlyIndex(0);
@@ -941,23 +957,31 @@ export function TacticsTrainerPage({
                                     ) : (
                                         <Stack sx={{ gap: 2 }}>
                                             <Stack sx={{ gap: 1.25 }}>
-                                                <Stack
-                                                    direction='row'
-                                                    sx={{
-                                                        alignItems: 'center',
-                                                        justifyContent: 'flex-end',
-                                                        gap: 1,
-                                                        flexWrap: 'wrap',
-                                                    }}
-                                                >
-                                                    <Typography
-                                                        variant='body2'
-                                                        color='text.secondary'
-                                                    >
-                                                        Puzzle {puzzleIndex + 1}
-                                                        {endless ? '' : ` of ${puzzles.length}`}
-                                                        {opponentThinking ? '  ·  opponent…' : ''}
-                                                    </Typography>
+                                                {/* Like a puzzle rush: the run so far, and how hard the puzzles are. */}
+                                                <Stack direction='row' sx={{ gap: 1 }}>
+                                                    <StatTile
+                                                        label='Streak'
+                                                        value={streak}
+                                                        note={
+                                                            bestStreak > streak
+                                                                ? `best ${bestStreak}`
+                                                                : undefined
+                                                        }
+                                                    />
+                                                    <StatTile
+                                                        label='Level'
+                                                        value={puzzle.rating ?? '–'}
+                                                        note={
+                                                            levels.length > 0
+                                                                ? `avg ${Math.round(
+                                                                      levels.reduce(
+                                                                          (a, b) => a + b,
+                                                                          0,
+                                                                      ) / levels.length,
+                                                                  )}`
+                                                                : undefined
+                                                        }
+                                                    />
                                                 </Stack>
                                                 {timeUp && (
                                                     <Typography variant='body2' color='error'>

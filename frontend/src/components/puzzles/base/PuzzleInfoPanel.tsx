@@ -93,6 +93,52 @@ function PuzzleInfo({
     const pairs: [string, ReactNode][][] = [];
     for (let i = 0; i < others.length; i += 2) pairs.push(others.slice(i, i + 2));
 
+    // With the number as the title, everything fits in two lines: the number beside the game, then
+    // the other facts side by side.
+    if (numberOnly && !hideHeading) {
+        return (
+            <Stack sx={{ gap: 1, px: 2, pt: 2, flexShrink: 0 }}>
+                <Stack direction='row' sx={{ alignItems: 'baseline', gap: 1.5 }}>
+                    <Typography
+                        component='span'
+                        sx={{
+                            px: 1,
+                            py: 0.25,
+                            borderRadius: 1,
+                            border: 1,
+                            borderColor: 'divider',
+                            bgcolor: (theme) => alpha(theme.palette.text.primary, 0.08),
+                            fontWeight: 800,
+                            fontSize: '0.95rem',
+                            lineHeight: 1.4,
+                            flexShrink: 0,
+                        }}
+                    >
+                        #{puzzle.id}
+                    </Typography>
+                    {game && <Typography sx={{ fontWeight: 600 }}>{game[1]}</Typography>}
+                </Stack>
+                <Stack
+                    direction='row'
+                    sx={{ flexWrap: 'wrap', columnGap: 3, rowGap: 0.5, alignItems: 'baseline' }}
+                >
+                    {others.map(([label, value]) => (
+                        <Stack
+                            key={label}
+                            direction='row'
+                            sx={{ gap: 0.75, alignItems: 'baseline' }}
+                        >
+                            <Label>{label}</Label>
+                            <Typography component='div' variant='body2' sx={{ fontWeight: 600 }}>
+                                {value}
+                            </Typography>
+                        </Stack>
+                    ))}
+                </Stack>
+            </Stack>
+        );
+    }
+
     return (
         <Stack
             sx={{

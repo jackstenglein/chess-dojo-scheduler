@@ -11,6 +11,8 @@ interface PuzzleVoteProps {
     puzzleId: string;
     /** The member's vote from an earlier time, if they have one. */
     initialVote?: 1 | -1;
+    /** Bigger, for when there is room. */
+    large?: boolean;
 }
 
 /**
@@ -18,7 +20,7 @@ interface PuzzleVoteProps {
  * in the background; pressing the same thumb again takes it back. If saving fails the thumbs go
  * back to how they were.
  */
-export function PuzzleVote({ client, puzzleId, initialVote }: PuzzleVoteProps) {
+export function PuzzleVote({ client, puzzleId, initialVote, large }: PuzzleVoteProps) {
     const [vote, setVote] = useState<Vote>(initialVote ?? 0);
     const [failed, setFailed] = useState(false);
 
@@ -36,36 +38,36 @@ export function PuzzleVote({ client, puzzleId, initialVote }: PuzzleVoteProps) {
     return (
         <Stack sx={{ alignItems: 'center', gap: 0.5 }}>
             <Stack direction='row' sx={{ alignItems: 'center', gap: 1 }}>
-                <Typography variant='body2' color='text.secondary'>
+                <Typography variant={large ? 'body1' : 'body2'} color='text.secondary'>
                     Was this a good puzzle?
                 </Typography>
                 <Tooltip title='Good puzzle'>
                     <IconButton
-                        size='small'
+                        size={large ? 'medium' : 'small'}
                         aria-label='Thumbs up'
                         aria-pressed={vote === 1}
                         color={vote === 1 ? 'success' : 'default'}
                         onClick={() => choose(1)}
                     >
                         {vote === 1 ? (
-                            <ThumbUp fontSize='small' />
+                            <ThumbUp fontSize={large ? 'medium' : 'small'} />
                         ) : (
-                            <ThumbUpOutlined fontSize='small' />
+                            <ThumbUpOutlined fontSize={large ? 'medium' : 'small'} />
                         )}
                     </IconButton>
                 </Tooltip>
                 <Tooltip title='Not a good puzzle'>
                     <IconButton
-                        size='small'
+                        size={large ? 'medium' : 'small'}
                         aria-label='Thumbs down'
                         aria-pressed={vote === -1}
                         color={vote === -1 ? 'error' : 'default'}
                         onClick={() => choose(-1)}
                     >
                         {vote === -1 ? (
-                            <ThumbDown fontSize='small' />
+                            <ThumbDown fontSize={large ? 'medium' : 'small'} />
                         ) : (
-                            <ThumbDownOutlined fontSize='small' />
+                            <ThumbDownOutlined fontSize={large ? 'medium' : 'small'} />
                         )}
                     </IconButton>
                 </Tooltip>

@@ -55,6 +55,7 @@ export function toTacticsPuzzle(puzzle: PuzzlebasePuzzle): TacticsPuzzle | undef
             solutionPgn: puzzle.solutionPgn,
             buckets: puzzle.buckets,
             themes: puzzle.themes,
+            rating: puzzle.rating,
             info: puzzle,
             description: `${userColor === 'white' ? 'White' : 'Black'} to play.`,
         };

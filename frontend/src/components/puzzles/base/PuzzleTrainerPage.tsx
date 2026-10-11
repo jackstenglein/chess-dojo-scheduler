@@ -268,7 +268,8 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                                 // Room at the sides, so the tags do not run into the edge or the scrollbar.
                                 pr: 2.5,
                                 pl: 2,
-                                gap: 2.5,
+                                pb: 3,
+                                gap: 3.5,
                                 flexShrink: 0,
                                 borderTop: 1,
                                 borderColor: 'divider',
@@ -282,9 +283,11 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                                 client={client}
                                 puzzleId={puzzle.id}
                                 initialVote={puzzle.info?.myVote}
+                                large
                             />
                             <SuggestTagsButton
                                 key={puzzle.id}
+                                prominent
                                 client={client}
                                 taxonomy={taxonomy}
                                 puzzle={puzzle}

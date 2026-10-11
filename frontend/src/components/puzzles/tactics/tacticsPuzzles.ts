@@ -29,6 +29,8 @@ export interface TacticsPuzzle {
     /** The puzzle's tags, if it has any. Used to suggest new ones. */
     buckets?: string[];
     themes?: string[];
+    /** How hard the puzzle is, if it has a rating. Shown as the level while training. */
+    rating?: number;
     /** The PuzzleBase puzzle this was made from, for showing its details. */
     info?: PuzzlebasePuzzle;
     /** Short description shown on the start card. */
