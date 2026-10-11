@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { currentStreak, RushResults } from './RushResults';
+import { currentStreak, RushResults, SessionStreak } from './RushResults';
 
 afterEach(cleanup);
 
@@ -51,5 +51,21 @@ describe('the streak', () => {
     it('is not set apart when it is just one solve', () => {
         render(<RushResults results={[miss('1'), ok('2')]} />);
         expect(screen.queryByLabelText(/in a row/)).toBeNull();
+    });
+});
+
+describe('SessionStreak', () => {
+    const ok = (id: string) => ({ id, rating: 1000, ok: true });
+
+    it('shows how many are correct, and the streak from two in a row', () => {
+        render(<SessionStreak results={[ok('1'), ok('2'), ok('3')]} streak={3} />);
+        expect(screen.getByText('3')).toBeTruthy();
+        expect(screen.getByText('correct')).toBeTruthy();
+        expect(screen.getByText('3 in a row!')).toBeTruthy();
+    });
+
+    it('has no flame for a single solve', () => {
+        render(<SessionStreak results={[ok('1')]} streak={1} />);
+        expect(screen.queryByText(/in a row!/)).toBeNull();
     });
 });

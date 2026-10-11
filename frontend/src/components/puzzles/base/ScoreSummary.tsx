@@ -41,7 +41,7 @@ function Cell({
     muted?: boolean;
 }) {
     return (
-        <Stack sx={{ flex: 1, minWidth: 0, alignItems: 'center', py: muted ? 0.75 : 1.25 }}>
+        <Stack sx={{ flex: 1, minWidth: 0, alignItems: 'center', py: muted ? 0.5 : 0.75 }}>
             <Typography
                 variant='overline'
                 sx={{
@@ -55,7 +55,7 @@ function Cell({
             </Typography>
             <Typography
                 sx={{
-                    fontSize: muted ? '1.15rem' : '1.6rem',
+                    fontSize: muted ? '1.05rem' : '1.4rem',
                     fontWeight: muted ? 700 : 800,
                     lineHeight: 1.15,
                     fontVariantNumeric: 'tabular-nums',
@@ -149,7 +149,7 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
     const color = up ? 'success' : down ? 'error' : 'text';
 
     return (
-        <Stack sx={{ gap: 1 }}>
+        <Stack sx={{ gap: 0.75 }}>
             {scoring.counted && scoring.ratingAfter !== undefined && scoring.delta !== undefined ? (
                 <Stack
                     sx={{
@@ -157,7 +157,7 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                         alignSelf: 'flex-start',
                         pl: 2,
                         pr: 3,
-                        py: 1,
+                        py: 0.5,
                         borderRadius: 2,
                         bgcolor: 'action.hover',
                     }}
@@ -172,7 +172,7 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                     <Stack direction='row' sx={{ alignItems: 'center', gap: 2 }}>
                         <Typography
                             sx={{
-                                fontSize: '2rem',
+                                fontSize: '1.75rem',
                                 fontWeight: 800,
                                 lineHeight: 1.1,
                                 fontVariantNumeric: 'tabular-nums',
@@ -239,9 +239,9 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                             justifyContent: 'center',
                             columnGap: 2,
                             rowGap: 0.25,
-                            mt: 1.5,
+                            mt: 0.5,
                             px: 1.5,
-                            py: 1,
+                            py: 0.5,
                             border: 1,
                             borderColor: 'divider',
                             borderRadius: 2,

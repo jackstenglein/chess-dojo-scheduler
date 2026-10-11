@@ -21,14 +21,7 @@ import {
 } from '@/components/puzzles/settings/puzzleSounds';
 import { Chess, Move } from '@jackstenglein/chess';
 import { AttemptSubmission } from '@jackstenglein/chess-dojo-common/src/puzzlebase/runs';
-import {
-    AccessTime,
-    CheckCircle,
-    EmojiEvents,
-    LocalFireDepartment,
-    PlayArrow,
-    Settings,
-} from '@mui/icons-material';
+import { AccessTime, CheckCircle, EmojiEvents, PlayArrow, Settings } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -48,7 +41,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { useLocalStorage } from 'usehooks-ts';
 import { AttemptRecorder } from './attemptRecorder';
 import { ConfettiBurst } from './ConfettiBurst';
-import { PuzzleResult, RushResults } from './RushResults';
+import { PuzzleResult, SessionStreak } from './RushResults';
 import {
     alternateFor,
     commonPrefixLen,
@@ -895,7 +888,7 @@ export function TacticsTrainerPage({
                                         </Tooltip>
                                     </Stack>
                                     {phase === 'puzzleDone' || phase === 'sessionDone' ? (
-                                        <Stack sx={{ gap: 3 }}>
+                                        <Stack sx={{ gap: 2 }}>
                                             <SolvedBanner mistakes={puzzleMistakes} />
                                             {phase === 'sessionDone' && (
                                                 <Typography
@@ -908,6 +901,7 @@ export function TacticsTrainerPage({
                                                           : 'Session complete!'}
                                                 </Typography>
                                             )}
+                                            <SessionStreak results={results} streak={streak} />
                                             <Stack sx={{ gap: 1.5 }}>
                                                 {phase === 'puzzleDone' ? (
                                                     <>
@@ -975,8 +969,13 @@ export function TacticsTrainerPage({
                                                     <StatTile
                                                         label='Accuracy'
                                                         value={`${accuracy}%`}
+                                                        compact
                                                     />
-                                                    <StatTile label='Mistakes' value={mistakes} />
+                                                    <StatTile
+                                                        label='Mistakes'
+                                                        value={mistakes}
+                                                        compact
+                                                    />
                                                 </Stack>
                                                 {showRating && (
                                                     <Typography
@@ -993,51 +992,8 @@ export function TacticsTrainerPage({
                                     ) : (
                                         <Stack sx={{ gap: 2 }}>
                                             <Stack sx={{ gap: 1.5 }}>
-                                                {/* Like a puzzle rush: the score, how hard it is, and the run. */}
-                                                <Stack
-                                                    direction='row'
-                                                    sx={{
-                                                        alignItems: 'center',
-                                                        justifyContent: 'space-between',
-                                                        gap: 1,
-                                                    }}
-                                                >
-                                                    <Stack
-                                                        direction='row'
-                                                        sx={{ alignItems: 'baseline', gap: 0.75 }}
-                                                    >
-                                                        <Typography
-                                                            sx={{
-                                                                fontSize: '2rem',
-                                                                fontWeight: 800,
-                                                                lineHeight: 1,
-                                                                color: 'success.main',
-                                                                fontVariantNumeric: 'tabular-nums',
-                                                            }}
-                                                        >
-                                                            {results.filter((r) => r.ok).length}
-                                                        </Typography>
-                                                        <Typography color='text.secondary'>
-                                                            correct
-                                                        </Typography>
-                                                    </Stack>
-                                                    {streak >= 2 && (
-                                                        <Stack
-                                                            direction='row'
-                                                            sx={{
-                                                                alignItems: 'center',
-                                                                gap: 0.5,
-                                                                color: 'warning.main',
-                                                            }}
-                                                        >
-                                                            <LocalFireDepartment />
-                                                            <Typography sx={{ fontWeight: 800 }}>
-                                                                {streak} in a row!
-                                                            </Typography>
-                                                        </Stack>
-                                                    )}
-                                                </Stack>
-                                                <RushResults results={results} />
+                                                {/* Like a puzzle rush: the run so far. */}
+                                                <SessionStreak results={results} streak={streak} />
                                                 {timeUp && (
                                                     <Typography variant='body2' color='error'>
                                                         Time’s up. Finish this puzzle.
@@ -1278,10 +1234,13 @@ function StatTile({
     label,
     value,
     note,
+    compact,
 }: {
     label: string;
     value: string | number;
     note?: string;
+    /** Tighter, for when the room is short. */
+    compact?: boolean;
 }) {
     return (
         <Box
@@ -1289,7 +1248,7 @@ function StatTile({
                 flex: '1 1 84px',
                 minWidth: 0,
                 px: 1.5,
-                py: 1,
+                py: compact ? 0.5 : 1,
                 border: 1,
                 borderColor: 'divider',
                 borderRadius: 1.5,
@@ -1309,7 +1268,11 @@ function StatTile({
             </Typography>
             <Stack direction='row' sx={{ alignItems: 'baseline', gap: 0.75 }}>
                 <Typography
-                    sx={{ fontSize: '1.5rem', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}
+                    sx={{
+                        fontSize: compact ? '1.25rem' : '1.5rem',
+                        fontWeight: 800,
+                        fontVariantNumeric: 'tabular-nums',
+                    }}
                 >
                     {value}
                 </Typography>

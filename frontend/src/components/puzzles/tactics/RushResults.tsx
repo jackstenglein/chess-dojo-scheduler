@@ -1,4 +1,4 @@
-import { Close } from '@mui/icons-material';
+import { Close, LocalFireDepartment } from '@mui/icons-material';
 import { Box, Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
@@ -109,5 +109,45 @@ export function RushResults({ results }: { results: PuzzleResult[] }) {
                 </Stack>
             )}
         </Box>
+    );
+}
+
+/**
+ * The run of the session so far, for the left card: how many puzzles are right, the streak with a
+ * flame from two in a row, and the row of marks.
+ */
+export function SessionStreak({ results, streak }: { results: PuzzleResult[]; streak: number }) {
+    return (
+        <Stack sx={{ gap: 1.5 }}>
+            <Stack
+                direction='row'
+                sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}
+            >
+                <Stack direction='row' sx={{ alignItems: 'baseline', gap: 0.75 }}>
+                    <Typography
+                        sx={{
+                            fontSize: '2rem',
+                            fontWeight: 800,
+                            lineHeight: 1,
+                            color: 'success.main',
+                            fontVariantNumeric: 'tabular-nums',
+                        }}
+                    >
+                        {results.filter((result) => result.ok).length}
+                    </Typography>
+                    <Typography color='text.secondary'>correct</Typography>
+                </Stack>
+                {streak >= 2 && (
+                    <Stack
+                        direction='row'
+                        sx={{ alignItems: 'center', gap: 0.5, color: 'warning.main' }}
+                    >
+                        <LocalFireDepartment />
+                        <Typography sx={{ fontWeight: 800 }}>{streak} in a row!</Typography>
+                    </Stack>
+                )}
+            </Stack>
+            <RushResults results={results} />
+        </Stack>
     );
 }
