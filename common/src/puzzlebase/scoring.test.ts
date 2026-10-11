@@ -349,7 +349,9 @@ describe('rateAttempt', () => {
         expect(scoring.counted).toBe(false);
         expect(scoring.score).toBe(1);
         expect(scoring.delta).toBeUndefined();
-        expect(scoring.ratingAfter).toBeUndefined();
+        // The rating is not moved, but it is given, so it can be shown.
+        expect(scoring.ratingBefore).toBe(1620);
+        expect(scoring.ratingAfter).toBe(1620);
         expect(member).toEqual(existing);
     });
 
