@@ -65,6 +65,23 @@ function Cell({
     );
 }
 
+/** One small figure in the cohort average: a muted label and a number. */
+function AverageItem({ label, value }: { label: string; value: ReactNode }) {
+    return (
+        <Stack direction='row' sx={{ gap: 0.5, alignItems: 'baseline' }}>
+            <Typography variant='caption' color='text.secondary'>
+                {label}
+            </Typography>
+            <Typography
+                variant='body2'
+                sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
+            >
+                {value}
+            </Typography>
+        </Stack>
+    );
+}
+
 /** A row of cells with thin lines between them, on a soft background. */
 function Strip({ children, quiet }: { children: ReactNode; quiet?: boolean }) {
     return (
@@ -191,20 +208,42 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                 />
                 <Cell label='Score' value={Math.round(scoring.score * 100)} />
             </Strip>
-            {/* What members rated near the member get on this puzzle, apart from the above. */}
+            {/* What the member's cohort gets on this puzzle, small and apart from the above. */}
             {average && (
                 <Tooltip title='Members rated within 200 points of you, on their first try'>
-                    <Box>
-                        <Strip quiet>
-                            <Cell
-                                muted
-                                label='Avg accuracy'
-                                value={`${Math.round(average.accuracy * 100)}%`}
-                            />
-                            <Cell muted label='Avg speed' value={formatSpeed(average.speed)} />
-                            <Cell muted label='Avg score' value={Math.round(average.score * 100)} />
-                        </Strip>
-                    </Box>
+                    <Stack
+                        direction='row'
+                        aria-label='Cohort average'
+                        sx={{
+                            flexWrap: 'wrap',
+                            alignItems: 'baseline',
+                            columnGap: 2,
+                            rowGap: 0.25,
+                            px: 1.5,
+                            py: 0.75,
+                            border: 1,
+                            borderColor: 'divider',
+                            borderRadius: 2,
+                        }}
+                    >
+                        <Typography
+                            variant='overline'
+                            sx={{
+                                color: 'text.secondary',
+                                lineHeight: 1.6,
+                                fontSize: '0.65rem',
+                                letterSpacing: '0.08em',
+                            }}
+                        >
+                            Cohort average
+                        </Typography>
+                        <AverageItem
+                            label='Accuracy'
+                            value={`${Math.round(average.accuracy * 100)}%`}
+                        />
+                        <AverageItem label='Speed' value={formatSpeed(average.speed)} />
+                        <AverageItem label='Score' value={Math.round(average.score * 100)} />
+                    </Stack>
                 </Tooltip>
             )}
         </Stack>

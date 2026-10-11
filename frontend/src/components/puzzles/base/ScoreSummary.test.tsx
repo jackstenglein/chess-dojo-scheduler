@@ -1,5 +1,5 @@
 import { AttemptScoring } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { formatDelta, formatSpeed, ScoreSummary } from './ScoreSummary';
 
@@ -23,24 +23,21 @@ const scoring = (over: Partial<AttemptScoring> = {}): AttemptScoring => ({
 describe('ScoreSummary averages', () => {
     const average = { attempts: 12, accuracy: 0.78, speed: 0.86, score: 0.67, thinkingMs: 20_000 };
 
-    it('shows the averages of members near the member in a compact strip of their own', () => {
+    it('shows the cohort average small and clearly labelled, apart from the member’s own', () => {
         render(<ScoreSummary scoring={scoring({ average })} />);
-        expect(screen.getByText('Avg accuracy')).toBeTruthy();
-        expect(screen.getByText('78%')).toBeTruthy();
-        expect(screen.getByText('Avg speed')).toBeTruthy();
-        expect(screen.getByText('0.86')).toBeTruthy();
-        expect(screen.getByText('Avg score')).toBeTruthy();
-        expect(screen.getByText('67')).toBeTruthy();
+        const cohort = within(screen.getByLabelText('Cohort average'));
+        expect(cohort.getByText('Cohort average')).toBeTruthy();
+        expect(cohort.getByText('78%')).toBeTruthy();
+        expect(cohort.getByText('0.86')).toBeTruthy();
+        expect(cohort.getByText('67')).toBeTruthy();
         // The member's own numbers are still there, apart from the averages.
         expect(screen.getByText('0.92')).toBeTruthy();
-        // Nothing else: no heading, and no line about the time.
-        expect(screen.queryByText(/Average of members/)).toBeNull();
         expect(screen.queryByText(/Took/)).toBeNull();
     });
 
     it('shows no averages until there are some', () => {
         render(<ScoreSummary scoring={scoring()} />);
-        expect(screen.queryByText('Avg accuracy')).toBeNull();
+        expect(screen.queryByLabelText('Cohort average')).toBeNull();
     });
 });
 
