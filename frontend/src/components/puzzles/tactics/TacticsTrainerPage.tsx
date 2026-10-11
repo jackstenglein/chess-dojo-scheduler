@@ -689,6 +689,33 @@ export function TacticsTrainerPage({
         setPhase('solving');
     }, [stopTimer, timeLimitSeconds]);
 
+    // The space bar goes on to the next puzzle once one is solved. It is taken before the analysis
+    // board can use it (to play the engine's move), and left alone in a text field or a dialog.
+    useEffect(() => {
+        if (phase !== 'puzzleDone' || settingsOpen) return;
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.code !== 'Space' && event.key !== ' ') return;
+            if (event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+                return;
+            }
+            const target = event.target as HTMLElement | null;
+            if (
+                target?.closest(
+                    'input, textarea, select, [contenteditable="true"], [role="dialog"]',
+                )
+            ) {
+                return;
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            // A button that has focus would otherwise be pressed by the space bar as well.
+            (document.activeElement as HTMLElement | null)?.blur();
+            nextPuzzle();
+        };
+        window.addEventListener('keydown', onKeyDown, true);
+        return () => window.removeEventListener('keydown', onKeyDown, true);
+    }, [phase, settingsOpen, nextPuzzle]);
+
     // Start the clock on each of the solver's turns, and on the puzzle itself with the first one.
     useEffect(() => {
         if (phase !== 'solving' || opponentThinking || lineComplete || !awaitingUser) return;
