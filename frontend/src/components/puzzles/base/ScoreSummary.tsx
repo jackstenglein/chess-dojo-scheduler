@@ -21,11 +21,25 @@ export function formatDelta(delta: number): string {
 }
 
 /** A small tile: a label, a number, and a line of detail under it. */
-function Tile({ label, value, detail }: { label: string; value: ReactNode; detail?: string }) {
+function Tile({
+    label,
+    value,
+    detail,
+    wide,
+    color,
+}: {
+    label: string;
+    value: ReactNode;
+    detail?: ReactNode;
+    /** Takes more room than the others, for a tile with details to fit. */
+    wide?: boolean;
+    /** The color of the number, if it should say something. */
+    color?: string;
+}) {
     return (
         <Box
             sx={{
-                flex: 1,
+                flex: wide ? 1.6 : 1,
                 minWidth: 0,
                 px: 1.25,
                 py: 1,
@@ -51,16 +65,30 @@ function Tile({ label, value, detail }: { label: string; value: ReactNode; detai
                     fontWeight: 800,
                     lineHeight: 1.15,
                     fontVariantNumeric: 'tabular-nums',
+                    color,
                 }}
             >
                 {value}
             </Typography>
-            {detail && (
-                <Typography variant='caption' color='text.secondary' sx={{ display: 'block' }}>
-                    {detail}
-                </Typography>
-            )}
+            {detail}
         </Box>
+    );
+}
+
+/** One line under a tile: a label at the left and a time at the right. */
+function TimeRow({ label, time }: { label: string; time: string }) {
+    return (
+        <Stack direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Typography variant='caption' color='text.secondary'>
+                {label}
+            </Typography>
+            <Typography
+                variant='body2'
+                sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
+            >
+                {time}
+            </Typography>
+        </Stack>
     );
 }
 
@@ -155,12 +183,34 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
             <Stack direction='row' sx={{ gap: 1, flexWrap: 'wrap' }}>
                 <Tile label='Accuracy' value={`${Math.round(scoring.accuracy * 100)}%`} />
                 <Tile
+                    wide
                     label='Speed'
-                    value={par === undefined ? '—' : `×${scoring.speed.toFixed(2)}`}
-                    detail={
+                    value={par === undefined ? '—' : `${Math.round(scoring.speed * 100)}%`}
+                    // Green at full speed, amber once it costs more than a little.
+                    color={
                         par === undefined
-                            ? 'not counted yet'
-                            : `${formatClock(seconds)} · avg ${formatClock(par)}`
+                            ? undefined
+                            : scoring.speed >= 0.995
+                              ? 'success.main'
+                              : scoring.speed < 0.85
+                                ? 'warning.main'
+                                : undefined
+                    }
+                    detail={
+                        par === undefined ? (
+                            <Typography
+                                variant='caption'
+                                color='text.secondary'
+                                sx={{ display: 'block' }}
+                            >
+                                not counted yet
+                            </Typography>
+                        ) : (
+                            <Stack sx={{ mt: 0.5, gap: 0.25 }}>
+                                <TimeRow label='Your time' time={formatClock(seconds)} />
+                                <TimeRow label='Average' time={formatClock(par)} />
+                            </Stack>
+                        )
                     }
                 />
                 <Tile label='Score' value={Math.round(scoring.score * 100)} />
