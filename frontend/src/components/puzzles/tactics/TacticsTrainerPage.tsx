@@ -21,7 +21,15 @@ import {
 } from '@/components/puzzles/settings/puzzleSounds';
 import { Chess, Move } from '@jackstenglein/chess';
 import { AttemptSubmission } from '@jackstenglein/chess-dojo-common/src/puzzlebase/runs';
-import { AccessTime, CheckCircle, EmojiEvents, PlayArrow, Settings } from '@mui/icons-material';
+import {
+    AccessTime,
+    CheckCircle,
+    EmojiEvents,
+    LocalFireDepartment,
+    PlayArrow,
+    Settings,
+    TrendingUp,
+} from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -41,7 +49,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { useLocalStorage } from 'usehooks-ts';
 import { AttemptRecorder } from './attemptRecorder';
 import { ConfettiBurst } from './ConfettiBurst';
-import { PuzzleResult, RushResults } from './RushResults';
+import { PuzzleResult, RushResults, Strikes } from './RushResults';
 import {
     alternateFor,
     commonPrefixLen,
@@ -848,14 +856,9 @@ export function TacticsTrainerPage({
                                                 limit={timeLimitSeconds}
                                             />
                                         </Box>
-                                        <Tooltip title='Settings'>
-                                            <IconButton
-                                                aria-label='Settings'
-                                                onClick={() => setSettingsOpen(true)}
-                                            >
-                                                <Settings />
-                                            </IconButton>
-                                        </Tooltip>
+                                        <Strikes
+                                            missed={results.filter((result) => !result.ok).length}
+                                        />
                                     </Stack>
                                     {phase === 'puzzleDone' || phase === 'sessionDone' ? (
                                         <Stack sx={{ gap: 3 }}>
@@ -955,9 +958,78 @@ export function TacticsTrainerPage({
                                         </Stack>
                                     ) : (
                                         <Stack sx={{ gap: 2 }}>
-                                            <Stack sx={{ gap: 1.25 }}>
-                                                {/* Like a puzzle rush: a mark for every puzzle so far. */}
-                                                <RushResults results={results} streak={streak} />
+                                            <Stack sx={{ gap: 1.5 }}>
+                                                <Typography variant='h6' sx={{ fontWeight: 800 }}>
+                                                    {puzzle.userColor === 'white'
+                                                        ? 'White'
+                                                        : 'Black'}{' '}
+                                                    to move
+                                                </Typography>
+                                                {/* Like a puzzle rush: the score, how hard it is, and the run. */}
+                                                <Stack
+                                                    direction='row'
+                                                    sx={{
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <Stack
+                                                        direction='row'
+                                                        sx={{ alignItems: 'baseline', gap: 0.75 }}
+                                                    >
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: '2rem',
+                                                                fontWeight: 800,
+                                                                lineHeight: 1,
+                                                                color: 'success.main',
+                                                                fontVariantNumeric: 'tabular-nums',
+                                                            }}
+                                                        >
+                                                            {results.filter((r) => r.ok).length}
+                                                        </Typography>
+                                                        <Typography color='text.secondary'>
+                                                            correct
+                                                        </Typography>
+                                                    </Stack>
+                                                    {puzzle.rating !== undefined && (
+                                                        <Stack
+                                                            direction='row'
+                                                            aria-label='Puzzle rating'
+                                                            sx={{ alignItems: 'center', gap: 0.75 }}
+                                                        >
+                                                            <TrendingUp />
+                                                            <Typography
+                                                                sx={{
+                                                                    fontSize: '1.75rem',
+                                                                    fontWeight: 800,
+                                                                    lineHeight: 1,
+                                                                    fontVariantNumeric:
+                                                                        'tabular-nums',
+                                                                }}
+                                                            >
+                                                                {puzzle.rating}
+                                                            </Typography>
+                                                        </Stack>
+                                                    )}
+                                                    {streak >= 2 && (
+                                                        <Stack
+                                                            direction='row'
+                                                            sx={{
+                                                                alignItems: 'center',
+                                                                gap: 0.5,
+                                                                color: 'warning.main',
+                                                            }}
+                                                        >
+                                                            <LocalFireDepartment />
+                                                            <Typography sx={{ fontWeight: 800 }}>
+                                                                {streak} in a row!
+                                                            </Typography>
+                                                        </Stack>
+                                                    )}
+                                                </Stack>
+                                                <RushResults results={results} />
                                                 {timeUp && (
                                                     <Typography variant='body2' color='error'>
                                                         Time’s up. Finish this puzzle.
@@ -1012,40 +1084,37 @@ export function TacticsTrainerPage({
                                                     )}
                                                 </Box>
                                             )}
-
-                                            <Divider />
-
-                                            <Stack direction='row' sx={{ gap: 1 }}>
-                                                <StatTile label='Accuracy' value={`${accuracy}%`} />
-                                                <StatTile label='Mistakes' value={mistakes} />
-                                                {showRating && (
-                                                    <StatTile
-                                                        label='Rating'
-                                                        value={Math.round(displayedRating)}
-                                                        note={
-                                                            lastGain > 0
-                                                                ? `+${lastGain}`
-                                                                : undefined
-                                                        }
-                                                    />
-                                                )}
-                                            </Stack>
-
-                                            <Divider />
-
-                                            <FormControlLabel
-                                                control={
-                                                    <Switch
-                                                        checked={pieceSoundsEnabled}
-                                                        onChange={(e) =>
-                                                            setPieceSoundsEnabled(e.target.checked)
-                                                        }
-                                                    />
-                                                }
-                                                label='Sounds'
-                                            />
                                         </Stack>
                                     )}
+                                    {/* Sounds and settings, at the foot of the card in both states. */}
+                                    <Divider sx={{ mt: 3, mb: 1 }} />
+                                    <Stack
+                                        direction='row'
+                                        sx={{
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}
+                                    >
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={pieceSoundsEnabled}
+                                                    onChange={(e) =>
+                                                        setPieceSoundsEnabled(e.target.checked)
+                                                    }
+                                                />
+                                            }
+                                            label='Sounds'
+                                        />
+                                        <Tooltip title='Settings'>
+                                            <IconButton
+                                                aria-label='Settings'
+                                                onClick={() => setSettingsOpen(true)}
+                                            >
+                                                <Settings />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Stack>
                                 </CardContent>
                             ),
                         },
