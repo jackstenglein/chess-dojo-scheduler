@@ -3,9 +3,21 @@
 import { DefaultUnderboardTab } from '@/board/pgn/boardTools/underboard/underboardTabs';
 import PgnBoard, { PgnBoardApi } from '@/board/pgn/PgnBoard';
 import { GameContext } from '@/context/useGame';
+import { Chess } from '@jackstenglein/chess';
 import { Help } from '@mui/icons-material';
-import { AppBar, Button, Dialog, Stack, Toolbar, Typography } from '@mui/material';
-import { useRef } from 'react';
+import {
+    AppBar,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Stack,
+    Toolbar,
+    Typography,
+} from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 import { PUZZLE_COORDINATE_SIZE } from '../settings/puzzleSettingsKeys';
 import { buildPuzzlePgn, splitPuzzlePgn } from './editPuzzle';
 import { MarkerHelp } from './PgnGuide';
@@ -47,6 +59,30 @@ export function EditSolutionDialog({
 }: EditSolutionDialogProps) {
     const board = useRef<PgnBoardApi>(null);
     const blackToMove = fen.split(' ')[1] === 'b';
+    const chess = useRef<Chess>(undefined);
+    const baseline = useRef('');
+    const [confirming, setConfirming] = useState(false);
+
+    const isDirty = () => !!chess.current && chess.current.renderPgn() !== baseline.current;
+
+    // The browser asks before the tab is closed or reloaded with changes that are not applied.
+    useEffect(() => {
+        const onBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (chess.current && chess.current.renderPgn() !== baseline.current) {
+                event.preventDefault();
+            }
+        };
+        window.addEventListener('beforeunload', onBeforeUnload);
+        return () => window.removeEventListener('beforeunload', onBeforeUnload);
+    }, []);
+
+    const requestClose = () => {
+        if (isDirty()) {
+            setConfirming(true);
+        } else {
+            onClose();
+        }
+    };
 
     const apply = () => {
         const pgn = board.current?.getPgn() ?? '';
@@ -55,7 +91,7 @@ export function EditSolutionDialog({
     };
 
     return (
-        <Dialog open fullScreen onClose={onClose}>
+        <Dialog open fullScreen onClose={requestClose}>
             <AppBar
                 position='static'
                 color='default'
@@ -66,7 +102,7 @@ export function EditSolutionDialog({
                     <Typography sx={{ flexGrow: 1, fontWeight: 'bold' }}>
                         Edit solution for puzzle #{puzzleId}
                     </Typography>
-                    <Button color='inherit' onClick={onClose}>
+                    <Button color='inherit' onClick={requestClose}>
                         Cancel
                     </Button>
                     <Button variant='contained' onClick={apply}>
@@ -79,6 +115,10 @@ export function EditSolutionDialog({
                 <GameContext.Provider value={{ isOwner: true }}>
                     <PgnBoard
                         ref={board}
+                        onInitialize={(_, c) => {
+                            chess.current = c;
+                            baseline.current = c.renderPgn();
+                        }}
                         pgn={buildPuzzlePgn(fen, headers, movetext)}
                         showPlayerHeaders={false}
                         startOrientation={blackToMove ? 'black' : 'white'}
@@ -99,6 +139,22 @@ export function EditSolutionDialog({
                     />
                 </GameContext.Provider>
             </Stack>
+
+            <Dialog open={confirming} onClose={() => setConfirming(false)}>
+                <DialogTitle>Discard your changes?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        You have changes to this solution that are not applied. They will be lost if
+                        you leave.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirming(false)}>Keep editing</Button>
+                    <Button color='error' onClick={onClose}>
+                        Discard
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Dialog>
     );
 }
