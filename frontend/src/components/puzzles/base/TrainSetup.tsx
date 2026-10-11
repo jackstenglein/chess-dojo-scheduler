@@ -548,7 +548,7 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                 // A thin light edge along the top, like a raised tile.
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.18)',
                 transition: 'transform 150ms, box-shadow 150ms, background 150ms',
-                '& svg': {
+                '& > svg': {
                     color,
                     fontSize: wide
                         ? { xs: '2.75rem', sm: '3.5rem' }
@@ -568,7 +568,7 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                     color: '#fff',
                     transform: 'translateY(-3px)',
                     boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px ${alpha(color, 0.45)}`,
-                    '& svg': { color: '#fff', filter: 'none' },
+                    '& > svg': { color: '#fff', filter: 'none' },
                 },
             }}
         >
