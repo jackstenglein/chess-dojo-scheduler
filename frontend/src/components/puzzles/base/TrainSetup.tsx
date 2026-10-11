@@ -474,8 +474,8 @@ function texture(option: PuzzleType | PuzzlePhase, strength: number): string {
     const accent = {
         // A streak of light slanting across, like polished metal.
         Tactics: `linear-gradient(115deg, transparent 28%, ${light(0.12)} 46%, transparent 64%)`,
-        // A scatter of faint dots, like a dotted notebook.
-        Strategy: `radial-gradient(${light(0.12)} 1px, transparent 1.6px) 0 0 / 16px 16px`,
+        // A soft sheen across the top, like a lit desk.
+        Strategy: `linear-gradient(180deg, ${light(0.18)}, transparent 55%)`,
         // Light rising from the bottom edge, like dawn.
         Opening: `radial-gradient(ellipse at 50% 115%, ${light(0.22)}, transparent 62%)`,
         // A soft glow in the middle, like the heat of the fight.
