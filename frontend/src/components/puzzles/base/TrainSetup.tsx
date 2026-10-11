@@ -213,7 +213,7 @@ export function TrainSetup({
                     </Typography>
                     <Typography color='text.secondary'>
                         Choose what you’d like to train, then set the puzzle rating and session
-                        length, and press Start training when you’re ready. Every session is saved
+                        length, and press Start Training when you’re ready. Every session is saved
                         to your Puzzle Stats. Good luck!
                     </Typography>
                 </Stack>
