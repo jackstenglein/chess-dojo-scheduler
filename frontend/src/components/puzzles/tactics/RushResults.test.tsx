@@ -69,3 +69,14 @@ describe('SessionStreak', () => {
         expect(screen.queryByText(/in a row!/)).toBeNull();
     });
 });
+
+describe('SessionStreak without the count', () => {
+    const ok = (id: string) => ({ id, rating: 1000, ok: true });
+
+    it('leaves out how many are correct but keeps the streak and the marks', () => {
+        render(<SessionStreak results={[ok('1'), ok('2')]} streak={2} showCount={false} />);
+        expect(screen.queryByText('correct')).toBeNull();
+        expect(screen.getByText('2 in a row!')).toBeTruthy();
+        expect(screen.getByLabelText('Puzzles this session')).toBeTruthy();
+    });
+});

@@ -93,7 +93,7 @@ describe('ScoreSummary', () => {
                 scoring={scoring({ counted: false, delta: undefined, ratingAfter: undefined })}
             />,
         );
-        expect(screen.getByText(/does not change your rating/)).toBeTruthy();
+        expect(screen.getByText(/does not affect your rating/)).toBeTruthy();
         expect(screen.queryByText('Tactics rating')).toBeNull();
     });
 

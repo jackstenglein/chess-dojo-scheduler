@@ -116,37 +116,52 @@ export function RushResults({ results }: { results: PuzzleResult[] }) {
  * The run of the session so far, for the left card: how many puzzles are right, the streak with a
  * flame from two in a row, and the row of marks.
  */
-export function SessionStreak({ results, streak }: { results: PuzzleResult[]; streak: number }) {
+export function SessionStreak({
+    results,
+    streak,
+    showCount = true,
+}: {
+    results: PuzzleResult[];
+    streak: number;
+    /** Whether to show how many are correct. Left out where the count is shown elsewhere. */
+    showCount?: boolean;
+}) {
     return (
         <Stack sx={{ gap: 1.5 }}>
-            <Stack
-                direction='row'
-                sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}
-            >
-                <Stack direction='row' sx={{ alignItems: 'baseline', gap: 0.75 }}>
-                    <Typography
-                        sx={{
-                            fontSize: '2rem',
-                            fontWeight: 800,
-                            lineHeight: 1,
-                            color: 'success.main',
-                            fontVariantNumeric: 'tabular-nums',
-                        }}
-                    >
-                        {results.filter((result) => result.ok).length}
-                    </Typography>
-                    <Typography color='text.secondary'>correct</Typography>
+            {(showCount || streak >= 2) && (
+                <Stack
+                    direction='row'
+                    sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}
+                >
+                    {showCount ? (
+                        <Stack direction='row' sx={{ alignItems: 'baseline', gap: 0.75 }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '2rem',
+                                    fontWeight: 800,
+                                    lineHeight: 1,
+                                    color: 'success.main',
+                                    fontVariantNumeric: 'tabular-nums',
+                                }}
+                            >
+                                {results.filter((result) => result.ok).length}
+                            </Typography>
+                            <Typography color='text.secondary'>correct</Typography>
+                        </Stack>
+                    ) : (
+                        <span />
+                    )}
+                    {streak >= 2 && (
+                        <Stack
+                            direction='row'
+                            sx={{ alignItems: 'center', gap: 0.5, color: 'warning.main' }}
+                        >
+                            <LocalFireDepartment />
+                            <Typography sx={{ fontWeight: 800 }}>{streak} in a row!</Typography>
+                        </Stack>
+                    )}
                 </Stack>
-                {streak >= 2 && (
-                    <Stack
-                        direction='row'
-                        sx={{ alignItems: 'center', gap: 0.5, color: 'warning.main' }}
-                    >
-                        <LocalFireDepartment />
-                        <Typography sx={{ fontWeight: 800 }}>{streak} in a row!</Typography>
-                    </Stack>
-                )}
-            </Stack>
+            )}
             <RushResults results={results} />
         </Stack>
     );
