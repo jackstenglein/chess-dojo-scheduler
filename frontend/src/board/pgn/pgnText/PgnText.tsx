@@ -148,6 +148,9 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
                     display: hidden ? 'none' : undefined,
                     width: `${resizeData.width}px`,
                     maxHeight: `${resizeData.height}px`,
+                    // With a footer, the panel is as tall as the board, so the footer sits at the
+                    // bottom and the room left in the middle is there for the engine's lines.
+                    ...(slots?.pgnFooter ? { height: `${resizeData.height}px` } : {}),
                     visibility: chess ? undefined : 'hidden',
                     position: 'relative',
                 }}
