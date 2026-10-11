@@ -168,7 +168,7 @@ export function useSolitaireChess(
                 (allowDifferentMates.current && chess.isCheckmate(testMove))
             ) {
                 if (correctSound) {
-                    const audio = new Audio('/static/sounds/puzzles_correct_move.mp3');
+                    const audio = new Audio('/static/sounds/puzzles_correct_move_v2.mp3');
                     void audio.play();
                 }
                 handleCorrectMove({
