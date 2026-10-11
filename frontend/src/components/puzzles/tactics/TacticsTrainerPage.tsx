@@ -41,6 +41,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { useLocalStorage } from 'usehooks-ts';
 import { AttemptRecorder } from './attemptRecorder';
 import { ConfettiBurst } from './ConfettiBurst';
+import { PuzzleResult, RushResults } from './RushResults';
 import {
     alternateFor,
     commonPrefixLen,
@@ -173,8 +174,7 @@ export function TacticsTrainerPage({
     // Puzzles solved in a row without a mistake, the best run of the session, and how hard the
     // puzzles finished so far were. Streaks end at the first mistake or reveal, as in a rush.
     const [streak, setStreak] = useState(0);
-    const [bestStreak, setBestStreak] = useState(0);
-    const [levels, setLevels] = useState<number[]>([]);
+    const [results, setResults] = useState<PuzzleResult[]>([]);
     const streakRef = useRef(0);
     // Whether the puzzle on screen has gone without a mistake or a reveal so far.
     const puzzleCleanRef = useRef(true);
@@ -272,8 +272,7 @@ export function TacticsTrainerPage({
         puzzleCleanRef.current = true;
         streakRef.current = 0;
         setStreak(0);
-        setBestStreak(0);
-        setLevels([]);
+        setResults([]);
         setFirstTry(0);
         setUserMovesTotal(0);
         setElapsed(0);
@@ -431,15 +430,15 @@ export function TacticsTrainerPage({
                     }
                 } else {
                     // Puzzle complete — rating ticks up and persists.
-                    if (puzzleCleanRef.current) {
+                    const clean = puzzleCleanRef.current;
+                    if (clean) {
                         streakRef.current += 1;
                         setStreak(streakRef.current);
-                        setBestStreak((best) => Math.max(best, streakRef.current));
                     }
-                    if (puzzle.rating !== undefined) {
-                        const solvedRating = puzzle.rating;
-                        setLevels((all) => [...all, solvedRating]);
-                    }
+                    setResults((all) => [
+                        ...all,
+                        { id: puzzle.id, rating: puzzle.rating, ok: clean },
+                    ]);
                     const gain = ratingForPuzzle(mistakesRef.current);
                     setLastGain(gain);
                     setRating((r) => r + gain);
@@ -957,32 +956,8 @@ export function TacticsTrainerPage({
                                     ) : (
                                         <Stack sx={{ gap: 2 }}>
                                             <Stack sx={{ gap: 1.25 }}>
-                                                {/* Like a puzzle rush: the run so far, and how hard the puzzles are. */}
-                                                <Stack direction='row' sx={{ gap: 1 }}>
-                                                    <StatTile
-                                                        label='Streak'
-                                                        value={streak}
-                                                        note={
-                                                            bestStreak > streak
-                                                                ? `best ${bestStreak}`
-                                                                : undefined
-                                                        }
-                                                    />
-                                                    <StatTile
-                                                        label='Level'
-                                                        value={puzzle.rating ?? '–'}
-                                                        note={
-                                                            levels.length > 0
-                                                                ? `avg ${Math.round(
-                                                                      levels.reduce(
-                                                                          (a, b) => a + b,
-                                                                          0,
-                                                                      ) / levels.length,
-                                                                  )}`
-                                                                : undefined
-                                                        }
-                                                    />
-                                                </Stack>
+                                                {/* Like a puzzle rush: a mark for every puzzle so far. */}
+                                                <RushResults results={results} streak={streak} />
                                                 {timeUp && (
                                                     <Typography variant='body2' color='error'>
                                                         Time’s up. Finish this puzzle.
