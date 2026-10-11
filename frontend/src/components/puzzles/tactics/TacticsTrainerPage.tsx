@@ -982,11 +982,13 @@ export function TacticsTrainerPage({
                                                     />
                                                 </Stack>
                                                 {/* The run so far, under the session's numbers. */}
-                                                <SessionStreak
-                                                    results={results}
-                                                    streak={streak}
-                                                    showCount={false}
-                                                />
+                                                <Box sx={{ mt: 1.25 }}>
+                                                    <SessionStreak
+                                                        results={results}
+                                                        streak={streak}
+                                                        showCount={false}
+                                                    />
+                                                </Box>
                                                 {showRating && (
                                                     <Typography
                                                         variant='body2'

@@ -149,15 +149,15 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
     const color = up ? 'success' : down ? 'error' : 'text';
 
     return (
-        <Stack sx={{ gap: 0.75 }}>
+        <Stack sx={{ gap: 1 }}>
             {scoring.ratingAfter !== undefined && (
                 <Stack
                     sx={{
-                        // As wide as what is in it, not the whole card.
-                        alignSelf: 'flex-start',
-                        pl: 2,
-                        pr: 3,
-                        py: 0.5,
+                        // The whole width, with the rating and its change centered in it, so it
+                        // lines up with the strips under it and has no empty end.
+                        alignItems: 'center',
+                        px: 2,
+                        py: 0.75,
                         borderRadius: 2,
                         bgcolor: 'action.hover',
                     }}
@@ -242,7 +242,6 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                             justifyContent: 'center',
                             columnGap: 2,
                             rowGap: 0.25,
-                            mt: 0.5,
                             px: 1.5,
                             py: 0.5,
                             border: 1,
