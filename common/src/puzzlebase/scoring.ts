@@ -229,6 +229,7 @@ export interface AttemptScoring extends AttemptScore {
     puzzleRating: number;
     /** The rating the member was expected to score against that puzzle. Only if it counted. */
     expected?: number;
+    /** The member's rating before the puzzle. For a repeat, which does not move it, their rating. */
     ratingBefore?: number;
     ratingAfter?: number;
     /** The change in rating. Only if it counted. */
@@ -267,7 +268,14 @@ export function rateAttempt(input: {
 
     if (!firstAttempt) {
         return {
-            scoring: { ...score, counted: false, puzzleRating: puzzle.rating },
+            // The rating is unchanged, but is still given, so it can be shown.
+            scoring: {
+                ...score,
+                counted: false,
+                puzzleRating: puzzle.rating,
+                ratingBefore: before.rating,
+                ratingAfter: before.rating,
+            },
             member: before,
         };
     }

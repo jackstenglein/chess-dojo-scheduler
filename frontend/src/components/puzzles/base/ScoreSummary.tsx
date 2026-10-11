@@ -150,7 +150,7 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
 
     return (
         <Stack sx={{ gap: 0.75 }}>
-            {scoring.counted && scoring.ratingAfter !== undefined && scoring.delta !== undefined ? (
+            {scoring.ratingAfter !== undefined && (
                 <Stack
                     sx={{
                         // As wide as what is in it, not the whole card.
@@ -180,28 +180,31 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                         >
                             {Math.round(scoring.ratingAfter)}
                         </Typography>
-                        <Stack
-                            direction='row'
-                            sx={{
-                                alignItems: 'center',
-                                color: color === 'text' ? 'text.secondary' : `${color}.main`,
-                            }}
-                        >
-                            {up && <ArrowDropUp fontSize='large' />}
-                            {down && <ArrowDropDown fontSize='large' />}
-                            <Typography
+                        {scoring.counted && scoring.delta !== undefined && (
+                            <Stack
+                                direction='row'
                                 sx={{
-                                    fontSize: '1.4rem',
-                                    fontWeight: 800,
-                                    fontVariantNumeric: 'tabular-nums',
+                                    alignItems: 'center',
+                                    color: color === 'text' ? 'text.secondary' : `${color}.main`,
                                 }}
                             >
-                                {formatDelta(scoring.delta)}
-                            </Typography>
-                        </Stack>
+                                {up && <ArrowDropUp fontSize='large' />}
+                                {down && <ArrowDropDown fontSize='large' />}
+                                <Typography
+                                    sx={{
+                                        fontSize: '1.4rem',
+                                        fontWeight: 800,
+                                        fontVariantNumeric: 'tabular-nums',
+                                    }}
+                                >
+                                    {formatDelta(scoring.delta)}
+                                </Typography>
+                            </Stack>
+                        )}
                     </Stack>
                 </Stack>
-            ) : (
+            )}
+            {!scoring.counted && (
                 <Typography variant='body2' color='text.secondary'>
                     You have solved this puzzle before, so it does not affect your rating.
                 </Typography>

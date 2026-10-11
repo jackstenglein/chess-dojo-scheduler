@@ -87,14 +87,22 @@ describe('ScoreSummary', () => {
         expect(screen.getByText('2331')).toBeTruthy();
     });
 
-    it('says a repeat does not change the rating', () => {
+    it('says a repeat does not affect the rating, and still shows the rating', () => {
         render(
             <ScoreSummary
-                scoring={scoring({ counted: false, delta: undefined, ratingAfter: undefined })}
+                scoring={scoring({
+                    counted: false,
+                    delta: undefined,
+                    ratingBefore: 2335,
+                    ratingAfter: 2335,
+                })}
             />,
         );
         expect(screen.getByText(/does not affect your rating/)).toBeTruthy();
-        expect(screen.queryByText('Tactics rating')).toBeNull();
+        expect(screen.getByText('Tactics rating')).toBeTruthy();
+        expect(screen.getByText('2335')).toBeTruthy();
+        // Nothing moved, so there is no change to show.
+        expect(screen.queryByText(/^[+−±]/)).toBeNull();
     });
 
     it('shows a dash for speed when time is not counted yet', () => {
