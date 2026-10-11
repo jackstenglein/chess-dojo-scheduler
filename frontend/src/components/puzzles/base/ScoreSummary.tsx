@@ -1,7 +1,10 @@
 'use client';
 
-import { AttemptScoring } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
-import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
+import {
+    AttemptScoring,
+    AVERAGE_RANGE,
+} from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
+import { ArrowDropDown, ArrowDropUp, Groups } from '@mui/icons-material';
 import { Box, Divider, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
@@ -63,6 +66,19 @@ function Cell({
             </Typography>
         </Stack>
     );
+}
+
+/**
+ * What the average is of, for its tooltip: players rated within 200 points of the member's rating,
+ * with the range spelled out, like "players rated 1413 to 1813".
+ */
+export function averageTooltip(memberRating?: number): string {
+    if (memberRating === undefined) {
+        return `Average scores for players rated within ${AVERAGE_RANGE} points of you`;
+    }
+    const low = Math.round(memberRating - AVERAGE_RANGE);
+    const high = Math.round(memberRating + AVERAGE_RANGE);
+    return `Average scores for players rated ${low} to ${high}`;
 }
 
 /** One small figure in the cohort average: a muted label and a number. */
@@ -210,10 +226,10 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
             </Strip>
             {/* What the member's cohort gets on this puzzle, small and apart from the above. */}
             {average && (
-                <Tooltip title='Members rated within 200 points of you, on their first try'>
+                <Tooltip title={averageTooltip(scoring.ratingBefore)}>
                     <Stack
                         direction='row'
-                        aria-label='Cohort average'
+                        aria-label='Average of players near your rating'
                         sx={{
                             flexWrap: 'wrap',
                             alignItems: 'baseline',
@@ -226,17 +242,22 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                             borderRadius: 2,
                         }}
                     >
-                        <Typography
-                            variant='overline'
-                            sx={{
-                                color: 'text.secondary',
-                                lineHeight: 1.6,
-                                fontSize: '0.65rem',
-                                letterSpacing: '0.08em',
-                            }}
+                        <Stack
+                            direction='row'
+                            sx={{ alignItems: 'center', gap: 0.5, color: 'text.secondary' }}
                         >
-                            Cohort average
-                        </Typography>
+                            <Groups fontSize='small' />
+                            <Typography
+                                variant='overline'
+                                sx={{
+                                    lineHeight: 1.6,
+                                    fontSize: '0.7rem',
+                                    letterSpacing: '0.08em',
+                                }}
+                            >
+                                Avg
+                            </Typography>
+                        </Stack>
                         <AverageItem
                             label='Accuracy'
                             value={`${Math.round(average.accuracy * 100)}%`}

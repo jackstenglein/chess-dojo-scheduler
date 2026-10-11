@@ -1,7 +1,7 @@
 import { AttemptScoring } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatDelta, formatSpeed, ScoreSummary } from './ScoreSummary';
+import { averageTooltip, formatDelta, formatSpeed, ScoreSummary } from './ScoreSummary';
 
 afterEach(cleanup);
 
@@ -25,8 +25,9 @@ describe('ScoreSummary averages', () => {
 
     it('shows the cohort average small and clearly labelled, apart from the member’s own', () => {
         render(<ScoreSummary scoring={scoring({ average })} />);
-        const cohort = within(screen.getByLabelText('Cohort average'));
-        expect(cohort.getByText('Cohort average')).toBeTruthy();
+        const cohort = within(screen.getByLabelText('Average of players near your rating'));
+        expect(cohort.getByText('Avg')).toBeTruthy();
+        expect(screen.queryByText('Cohort average')).toBeNull();
         expect(cohort.getByText('78%')).toBeTruthy();
         expect(cohort.getByText('0.86')).toBeTruthy();
         expect(cohort.getByText('67')).toBeTruthy();
@@ -37,7 +38,18 @@ describe('ScoreSummary averages', () => {
 
     it('shows no averages until there are some', () => {
         render(<ScoreSummary scoring={scoring()} />);
-        expect(screen.queryByLabelText('Cohort average')).toBeNull();
+        expect(screen.queryByLabelText('Average of players near your rating')).toBeNull();
+    });
+});
+
+describe('averageTooltip', () => {
+    it('gives the range of ratings the average is of: the member’s rating, plus and minus 200', () => {
+        expect(averageTooltip(1613)).toBe('Average scores for players rated 1413 to 1813');
+        expect(averageTooltip(1000.4)).toBe('Average scores for players rated 800 to 1200');
+    });
+
+    it('still says what it is of when the rating is not known', () => {
+        expect(averageTooltip()).toBe('Average scores for players rated within 200 points of you');
     });
 });
 

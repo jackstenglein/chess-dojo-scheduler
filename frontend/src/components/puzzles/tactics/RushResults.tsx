@@ -65,33 +65,3 @@ export function RushResults({ results }: { results: PuzzleResult[] }) {
         </Box>
     );
 }
-
-/** How many puzzles have been missed so far shown as boxes, like the strikes of a rush. */
-export function Strikes({ missed, total = 3 }: { missed: number; total?: number }) {
-    return (
-        <Stack
-            direction='row'
-            aria-label={`${missed} puzzle${missed === 1 ? '' : 's'} missed`}
-            sx={{ gap: 1 }}
-        >
-            {Array.from({ length: total }, (_, i) => (
-                <Box
-                    key={i}
-                    sx={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 1,
-                        border: 2,
-                        borderColor: i < missed ? 'error.main' : 'divider',
-                        color: i < missed ? 'error.main' : 'text.disabled',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Close />
-                </Box>
-            ))}
-        </Stack>
-    );
-}

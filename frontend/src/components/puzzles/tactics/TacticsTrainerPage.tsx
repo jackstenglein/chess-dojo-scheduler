@@ -28,7 +28,6 @@ import {
     LocalFireDepartment,
     PlayArrow,
     Settings,
-    TrendingUp,
 } from '@mui/icons-material';
 import {
     Box,
@@ -49,7 +48,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { useLocalStorage } from 'usehooks-ts';
 import { AttemptRecorder } from './attemptRecorder';
 import { ConfettiBurst } from './ConfettiBurst';
-import { PuzzleResult, RushResults, Strikes } from './RushResults';
+import { PuzzleResult, RushResults } from './RushResults';
 import {
     alternateFor,
     commonPrefixLen,
@@ -856,9 +855,14 @@ export function TacticsTrainerPage({
                                                 limit={timeLimitSeconds}
                                             />
                                         </Box>
-                                        <Strikes
-                                            missed={results.filter((result) => !result.ok).length}
-                                        />
+                                        <Tooltip title='Settings'>
+                                            <IconButton
+                                                aria-label='Settings'
+                                                onClick={() => setSettingsOpen(true)}
+                                            >
+                                                <Settings />
+                                            </IconButton>
+                                        </Tooltip>
                                     </Stack>
                                     {phase === 'puzzleDone' || phase === 'sessionDone' ? (
                                         <Stack sx={{ gap: 3 }}>
@@ -959,12 +963,6 @@ export function TacticsTrainerPage({
                                     ) : (
                                         <Stack sx={{ gap: 2 }}>
                                             <Stack sx={{ gap: 1.5 }}>
-                                                <Typography variant='h6' sx={{ fontWeight: 800 }}>
-                                                    {puzzle.userColor === 'white'
-                                                        ? 'White'
-                                                        : 'Black'}{' '}
-                                                    to move
-                                                </Typography>
                                                 {/* Like a puzzle rush: the score, how hard it is, and the run. */}
                                                 <Stack
                                                     direction='row'
@@ -993,26 +991,6 @@ export function TacticsTrainerPage({
                                                             correct
                                                         </Typography>
                                                     </Stack>
-                                                    {puzzle.rating !== undefined && (
-                                                        <Stack
-                                                            direction='row'
-                                                            aria-label='Puzzle rating'
-                                                            sx={{ alignItems: 'center', gap: 0.75 }}
-                                                        >
-                                                            <TrendingUp />
-                                                            <Typography
-                                                                sx={{
-                                                                    fontSize: '1.75rem',
-                                                                    fontWeight: 800,
-                                                                    lineHeight: 1,
-                                                                    fontVariantNumeric:
-                                                                        'tabular-nums',
-                                                                }}
-                                                            >
-                                                                {puzzle.rating}
-                                                            </Typography>
-                                                        </Stack>
-                                                    )}
                                                     {streak >= 2 && (
                                                         <Stack
                                                             direction='row'
@@ -1084,37 +1062,40 @@ export function TacticsTrainerPage({
                                                     )}
                                                 </Box>
                                             )}
+
+                                            <Divider />
+
+                                            <Stack direction='row' sx={{ gap: 1 }}>
+                                                <StatTile label='Accuracy' value={`${accuracy}%`} />
+                                                <StatTile label='Mistakes' value={mistakes} />
+                                                {showRating && (
+                                                    <StatTile
+                                                        label='Rating'
+                                                        value={Math.round(displayedRating)}
+                                                        note={
+                                                            lastGain > 0
+                                                                ? `+${lastGain}`
+                                                                : undefined
+                                                        }
+                                                    />
+                                                )}
+                                            </Stack>
+
+                                            <Divider />
+
+                                            <FormControlLabel
+                                                control={
+                                                    <Switch
+                                                        checked={pieceSoundsEnabled}
+                                                        onChange={(e) =>
+                                                            setPieceSoundsEnabled(e.target.checked)
+                                                        }
+                                                    />
+                                                }
+                                                label='Sounds'
+                                            />
                                         </Stack>
                                     )}
-                                    {/* Sounds and settings, at the foot of the card in both states. */}
-                                    <Divider sx={{ mt: 3, mb: 1 }} />
-                                    <Stack
-                                        direction='row'
-                                        sx={{
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                        }}
-                                    >
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={pieceSoundsEnabled}
-                                                    onChange={(e) =>
-                                                        setPieceSoundsEnabled(e.target.checked)
-                                                    }
-                                                />
-                                            }
-                                            label='Sounds'
-                                        />
-                                        <Tooltip title='Settings'>
-                                            <IconButton
-                                                aria-label='Settings'
-                                                onClick={() => setSettingsOpen(true)}
-                                            >
-                                                <Settings />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Stack>
                                 </CardContent>
                             ),
                         },

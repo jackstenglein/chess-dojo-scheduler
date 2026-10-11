@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { RushResults, Strikes } from './RushResults';
+import { RushResults } from './RushResults';
 
 afterEach(cleanup);
 
@@ -29,18 +29,5 @@ describe('RushResults', () => {
     it('copes with a puzzle that has no rating', () => {
         render(<RushResults results={[{ id: '001', ok: true }]} />);
         expect(screen.getByLabelText('Solved')).toBeTruthy();
-    });
-});
-
-describe('Strikes', () => {
-    it('shows three boxes and says how many puzzles were missed', () => {
-        render(<Strikes missed={2} />);
-        expect(screen.getByLabelText('2 puzzles missed')).toBeTruthy();
-        expect(screen.getByLabelText('2 puzzles missed').children).toHaveLength(3);
-    });
-
-    it('says one puzzle in the singular', () => {
-        render(<Strikes missed={1} />);
-        expect(screen.getByLabelText('1 puzzle missed')).toBeTruthy();
     });
 });
