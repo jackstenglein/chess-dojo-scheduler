@@ -459,11 +459,28 @@ export function TrainSetup({
 }
 
 /**
- * A faint chessboard texture over a card: light squares at a whisper of white, in a pattern small
- * enough to read as grain rather than a board.
+ * A faint texture over a card, a different one for each, chosen to suit it: speed lines for
+ * tactics, a graph-paper grid for strategy, rays for the opening, crosshatching for the
+ * middlegame and a chessboard for the endgame. Light lines at a whisper of white, so they read as
+ * grain.
+ * @param strength How visible it is, from the resting 1 to a little more for hover and selection.
  */
-const CHECKER = (alphaValue: number) =>
-    `repeating-conic-gradient(rgba(255, 255, 255, ${alphaValue}) 0% 25%, transparent 0% 50%) 50% 50% / 24px 24px`;
+function texture(option: PuzzleType | PuzzlePhase, strength: number): string {
+    const line = `rgba(255, 255, 255, ${0.07 * strength})`;
+    const square = `rgba(255, 255, 255, ${0.05 * strength})`;
+    switch (option) {
+        case 'Tactics':
+            return `repeating-linear-gradient(135deg, ${line} 0 2px, transparent 2px 14px)`;
+        case 'Strategy':
+            return `linear-gradient(${line} 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, ${line} 1px, transparent 1px) 0 0 / 18px 18px`;
+        case 'Opening':
+            return `repeating-conic-gradient(from 0deg at 50% 100%, ${line} 0deg 6deg, transparent 6deg 12deg)`;
+        case 'Middlegame':
+            return `repeating-linear-gradient(45deg, ${line} 0 1px, transparent 1px 10px), repeating-linear-gradient(-45deg, ${line} 0 1px, transparent 1px 10px)`;
+        case 'Endgame':
+            return `repeating-conic-gradient(${square} 0% 25%, transparent 0% 50%) 50% 50% / 24px 24px`;
+    }
+}
 
 /** One big card: a type of puzzle or a phase of the game. Picked cards fill with their color. */
 function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?: boolean }) {
@@ -492,7 +509,7 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                 letterSpacing: 0.3,
                 lineHeight: 1.1,
                 // Colored even when not picked: a tint that fades down.
-                background: `${CHECKER(0.05)}, linear-gradient(160deg, ${alpha(color, 0.4)}, ${alpha(color, 0.14)})`,
+                background: `${texture(option, 1)}, linear-gradient(160deg, ${alpha(color, 0.4)}, ${alpha(color, 0.14)})`,
                 // A thin light edge along the top, like a raised tile.
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.18)',
                 transition: 'transform 150ms, box-shadow 150ms, background 150ms',
@@ -505,11 +522,11 @@ function ChoiceCard({ option, wide }: { option: PuzzleType | PuzzlePhase; wide?:
                 },
                 '&:hover': {
                     transform: 'translateY(-2px)',
-                    background: `${CHECKER(0.06)}, linear-gradient(160deg, ${alpha(color, 0.52)}, ${alpha(color, 0.22)})`,
+                    background: `${texture(option, 1.3)}, linear-gradient(160deg, ${alpha(color, 0.52)}, ${alpha(color, 0.22)})`,
                 },
                 // Picked, the card fills with the color and lifts.
                 '&.Mui-selected, &.Mui-selected:hover': {
-                    background: `${CHECKER(0.09)}, linear-gradient(160deg, ${color}, ${darken(color, 0.28)})`,
+                    background: `${texture(option, 1.8)}, linear-gradient(160deg, ${color}, ${darken(color, 0.28)})`,
                     color: '#fff',
                     transform: 'translateY(-3px)',
                     boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px ${alpha(color, 0.45)}`,
