@@ -2,9 +2,8 @@
 
 import { AttemptScoring } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
-import { Box, Divider, Skeleton, Stack, Typography } from '@mui/material';
+import { Box, Divider, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import { ReactNode } from 'react';
-import { formatClock } from '../tactics/tacticsPuzzles';
 
 interface ScoreSummaryProps {
     /** How the attempt was scored. Undefined while the server is still working it out. */
@@ -109,15 +108,9 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
         );
     }
 
-    const seconds = Math.round(scoring.thinkingMs / 1000);
     const average = scoring.average;
-    // The time to compare with: what members really take, once enough have played it, and until
-    // then the puzzle's own reference time.
-    const par = average
-        ? Math.round(average.thinkingMs / 1000)
-        : scoring.referenceMs
-          ? Math.round(scoring.referenceMs / 1000)
-          : undefined;
+    // Speed is only counted for a puzzle that has a reference time.
+    const par = scoring.referenceMs;
     const up = (scoring.delta ?? 0) > 0;
     const down = (scoring.delta ?? 0) < 0;
     const color = up ? 'success' : down ? 'error' : 'text';
@@ -198,32 +191,22 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                 />
                 <Cell label='Score' value={Math.round(scoring.score * 100)} />
             </Strip>
-            {/* What members get on this puzzle on average, apart from the above. */}
+            {/* What members rated near the member get on this puzzle, apart from the above. */}
             {average && (
-                <>
-                    <Typography
-                        variant='overline'
-                        color='text.secondary'
-                        sx={{ textAlign: 'center', lineHeight: 1.4, mt: 0.5 }}
-                    >
-                        Average of members
-                    </Typography>
-                    <Strip quiet>
-                        <Cell
-                            muted
-                            label='Accuracy'
-                            value={`${Math.round(average.accuracy * 100)}%`}
-                        />
-                        <Cell muted label='Speed' value={formatSpeed(average.speed)} />
-                        <Cell muted label='Score' value={Math.round(average.score * 100)} />
-                    </Strip>
-                </>
+                <Tooltip title='Members rated within 200 points of you, on their first try'>
+                    <Box>
+                        <Strip quiet>
+                            <Cell
+                                muted
+                                label='Avg accuracy'
+                                value={`${Math.round(average.accuracy * 100)}%`}
+                            />
+                            <Cell muted label='Avg speed' value={formatSpeed(average.speed)} />
+                            <Cell muted label='Avg score' value={Math.round(average.score * 100)} />
+                        </Strip>
+                    </Box>
+                </Tooltip>
             )}
-            <Typography variant='caption' color='text.secondary' sx={{ textAlign: 'center' }}>
-                {par === undefined
-                    ? 'Time is not counted for this puzzle yet.'
-                    : `Took ${formatClock(seconds)} · average ${formatClock(par)}`}
-            </Typography>
         </Stack>
     );
 }

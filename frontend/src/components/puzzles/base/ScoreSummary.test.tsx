@@ -23,21 +23,24 @@ const scoring = (over: Partial<AttemptScoring> = {}): AttemptScoring => ({
 describe('ScoreSummary averages', () => {
     const average = { attempts: 12, accuracy: 0.78, speed: 0.86, score: 0.67, thinkingMs: 20_000 };
 
-    it('shows how members do on average in a strip of their own', () => {
+    it('shows the averages of members near the member in a compact strip of their own', () => {
         render(<ScoreSummary scoring={scoring({ average })} />);
-        expect(screen.getByText('Average of members')).toBeTruthy();
+        expect(screen.getByText('Avg accuracy')).toBeTruthy();
         expect(screen.getByText('78%')).toBeTruthy();
+        expect(screen.getByText('Avg speed')).toBeTruthy();
         expect(screen.getByText('0.86')).toBeTruthy();
+        expect(screen.getByText('Avg score')).toBeTruthy();
         expect(screen.getByText('67')).toBeTruthy();
         // The member's own numbers are still there, apart from the averages.
         expect(screen.getByText('0.92')).toBeTruthy();
-        // The time to compare with is what members really take.
-        expect(screen.getByText('Took 00:41 · average 00:20')).toBeTruthy();
+        // Nothing else: no heading, and no line about the time.
+        expect(screen.queryByText(/Average of members/)).toBeNull();
+        expect(screen.queryByText(/Took/)).toBeNull();
     });
 
     it('shows no averages until there are some', () => {
         render(<ScoreSummary scoring={scoring()} />);
-        expect(screen.queryByText('Average of members')).toBeNull();
+        expect(screen.queryByText('Avg accuracy')).toBeNull();
     });
 });
 
@@ -65,7 +68,6 @@ describe('ScoreSummary', () => {
         expect(screen.getByText('+6.4')).toBeTruthy();
         expect(screen.getByText('100%')).toBeTruthy();
         expect(screen.getByText('0.92')).toBeTruthy();
-        expect(screen.getByText('Took 00:41 · average 00:30')).toBeTruthy();
         expect(screen.getByText('92')).toBeTruthy();
         expect(screen.queryByText(/vs puzzle/)).toBeNull();
     });
@@ -86,10 +88,9 @@ describe('ScoreSummary', () => {
         expect(screen.queryByText('Tactics rating')).toBeNull();
     });
 
-    it('says when time is not counted yet', () => {
+    it('shows a dash for speed when time is not counted yet', () => {
         render(<ScoreSummary scoring={scoring({ referenceMs: undefined, speed: 1 })} />);
-        expect(screen.getByText(/not counted for this puzzle yet/)).toBeTruthy();
-        expect(screen.queryByText(/average/)).toBeNull();
+        expect(screen.getByText('—')).toBeTruthy();
     });
 
     it('shows a placeholder while the server is scoring', () => {

@@ -5,11 +5,13 @@ import {
     accuracyScore,
     applyScore,
     averagesFromSums,
+    bandNearRating,
     expectedScore,
     K_PER_RD,
     MIN_ATTEMPTS_FOR_AVERAGE,
     moveCredit,
     rateAttempt,
+    ratingBand,
     RD_MIN,
     RD_START,
     replayRatings,
@@ -473,5 +475,21 @@ describe('puzzle averages', () => {
             averagesFromSums({ ...sums, attempts: MIN_ATTEMPTS_FOR_AVERAGE - 1 }),
         ).toBeUndefined();
         expect(averagesFromSums({ ...sums, attempts: MIN_ATTEMPTS_FOR_AVERAGE })).toBeDefined();
+    });
+});
+
+describe('rating bands', () => {
+    it('name a rating by the lower end of its band', () => {
+        expect(ratingBand(1613)).toBe(1600);
+        expect(ratingBand(1600)).toBe(1600);
+        expect(ratingBand(1599)).toBe(1550);
+    });
+
+    it('are near a member when their middle is within 200 points', () => {
+        // Band 1600 has its middle at 1625.
+        expect(bandNearRating(1600, 1425)).toBe(true);
+        expect(bandNearRating(1600, 1424)).toBe(false);
+        expect(bandNearRating(1600, 1825)).toBe(true);
+        expect(bandNearRating(1600, 1826)).toBe(false);
     });
 });

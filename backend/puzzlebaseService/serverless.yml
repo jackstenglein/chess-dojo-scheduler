@@ -463,6 +463,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
+          - dynamodb:Query
         Resource: !GetAtt PuzzlebaseTable.Arn
       - Effect: Allow
         Action:

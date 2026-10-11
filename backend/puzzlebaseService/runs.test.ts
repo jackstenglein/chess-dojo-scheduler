@@ -162,8 +162,19 @@ beforeEach(() => {
             }
         } else {
             if (name === 'QueryCommand') {
-                // Only puzzles are in this table here; nobody has voted.
-                if (unmarshall(cmd.input.ExpressionAttributeValues)[':pk'] !== 'PUZZLE') {
+                const { ':pk': pk, ':prefix': prefix } = unmarshall(
+                    cmd.input.ExpressionAttributeValues,
+                );
+                // The totals behind the averages, one item per puzzle and band of rating.
+                if (pk === 'PSTATS') {
+                    return Promise.resolve({
+                        Items: Object.entries(pstats)
+                            .filter(([sk]) => sk.startsWith(prefix))
+                            .map(([sk, row]) => marshall({ pk, sk, ...row })),
+                    });
+                }
+                // Otherwise only puzzles are in this table here; nobody has voted.
+                if (pk !== 'PUZZLE') {
                     return Promise.resolve({ Items: [] });
                 }
                 return Promise.resolve({
@@ -173,7 +184,7 @@ beforeEach(() => {
                 });
             }
             if (name === 'UpdateItemCommand') {
-                // Adding to the totals behind a puzzle's averages.
+                // Adding to the totals behind a puzzle's averages, kept per band of rating.
                 const key = unmarshall(cmd.input.Key);
                 const values = unmarshall(cmd.input.ExpressionAttributeValues);
                 const now = pstats[key.sk] ?? {};
@@ -188,7 +199,7 @@ beforeEach(() => {
                     now[field] = (now[field] ?? 0) + values[placeholder];
                 }
                 pstats[key.sk] = now;
-                return Promise.resolve({ Attributes: marshall(now) });
+                return Promise.resolve({});
             }
             if (name === 'GetItemCommand') {
                 const key = unmarshall(cmd.input.Key);
@@ -808,7 +819,8 @@ describe('scoring and tactics rating', () => {
         expect(body.scoring.ratingBefore).toBe(1000);
     });
 
-    it('sends back how members do on average once enough have played the puzzle', async () => {
+    it('sends back how members rated near the member do, once enough have played the puzzle', async () => {
+        // Three members start at 1000. The fourth is rated much higher, so is not near them.
         const members = ['solver', 'other', 'coach', 'rated'];
         const results = [];
         for (const [i, member] of members.entries()) {
@@ -819,10 +831,10 @@ describe('scoring and tactics rating', () => {
                 ),
             );
         }
-        // The first two have no average to show yet, the third and fourth do.
         expect(results[1].body.scoring.average).toBeUndefined();
         expect(results[2].body.scoring.average).toMatchObject({ attempts: 3, accuracy: 1 });
-        expect(results[3].body.scoring.average).toMatchObject({ attempts: 4 });
+        // Nobody else is within 200 points of the fourth member, so there is no average for them.
+        expect(results[3].body.scoring.average).toBeUndefined();
     });
 
     it('does not count a repeat, or a puzzle that was left, in the averages', async () => {
@@ -836,7 +848,8 @@ describe('scoring and tactics rating', () => {
         );
         const left = { ...attemptBody('001', '2026-09-29T11:03:00.000Z'), abandoned: true };
         await call(submitAttemptHandler, event('other', left));
-        expect(pstats['001'].attempts).toBe(1);
+        const counted = Object.values(pstats).reduce((total, row) => total + row.attempts, 0);
+        expect(counted).toBe(1);
     });
 
     it('leaves a member with no counted puzzles without a rating in their stats', async () => {

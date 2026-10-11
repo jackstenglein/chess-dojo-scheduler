@@ -21,7 +21,9 @@ import {
 import { defaultTaxonomy } from '@jackstenglein/chess-dojo-common/src/puzzlebase/build';
 import {
     AttemptScoring,
+    bandNearRating,
     PuzzleScoreSums,
+    ratingBand,
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { PuzzleSuggestion } from '@jackstenglein/chess-dojo-common/src/puzzlebase/suggestions';
 import { Vote, VoteCounts, voteDelta } from '@jackstenglein/chess-dojo-common/src/puzzlebase/votes';
@@ -43,7 +45,8 @@ export { dynamo, getUser };
  * - `VOTE` / `<username>#<puzzleId>`: a member's thumbs up (1) or thumbs down (-1) on a puzzle.
  * - `VOTES` / `<puzzleId>`: the totals of a puzzle's votes, kept apart from the puzzle so editing a
  *   puzzle can never lose a vote.
- * - `PSTATS` / `<puzzleId>`: the totals of every member's first attempt at a puzzle, for its averages.
+ * - `PSTATS` / `<puzzleId>#<rating band>`: the totals of members' first attempts at a puzzle, split
+ *   by the band of their rating, for the averages of people near a member.
  * - `AUDIT` / `<ISO time>#<random>`: something a puzzle admin did, for the admin log.
  */
 export const puzzlebaseTable = process.env.stage + '-puzzlebase';
@@ -750,16 +753,18 @@ export async function castVote(
 
 /**
  * Adds a counted attempt, a member's first at the puzzle, to the totals behind the puzzle's
- * averages, and returns the new totals. Time is only added for an attempt that was finished.
+ * averages. The totals are kept per band of the member's rating, so a member can be shown how
+ * people near their own rating do.
  */
 export async function addToPuzzleSums(
     puzzleId: string,
+    memberRating: number,
     scoring: Pick<AttemptScoring, 'accuracy' | 'speed' | 'score' | 'thinkingMs'>,
-): Promise<PuzzleScoreSums> {
-    const output = await dynamo.send(
+) {
+    await dynamo.send(
         new UpdateItemCommand({
             TableName: puzzlebaseTable,
-            Key: marshall({ pk: PSTATS, sk: puzzleId }),
+            Key: marshall({ pk: PSTATS, sk: `${puzzleId}#${ratingBand(memberRating)}` }),
             UpdateExpression:
                 'ADD attempts :one, accuracySum :accuracy, speedSum :speed, scoreSum :score, thinkingMsSum :thinking',
             ExpressionAttributeValues: marshall({
@@ -769,15 +774,43 @@ export async function addToPuzzleSums(
                 ':score': scoring.score,
                 ':thinking': scoring.thinkingMs,
             }),
-            ReturnValues: 'ALL_NEW',
         }),
     );
-    const item = unmarshall(output.Attributes ?? {});
-    return {
-        attempts: item.attempts ?? 0,
-        accuracySum: item.accuracySum ?? 0,
-        speedSum: item.speedSum ?? 0,
-        scoreSum: item.scoreSum ?? 0,
-        thinkingMsSum: item.thinkingMsSum ?? 0,
+}
+
+/** The totals of the attempts at a puzzle by members rated near the given rating. */
+export async function getPuzzleSums(
+    puzzleId: string,
+    memberRating: number,
+): Promise<PuzzleScoreSums> {
+    const sums: PuzzleScoreSums = {
+        attempts: 0,
+        accuracySum: 0,
+        speedSum: 0,
+        scoreSum: 0,
+        thinkingMsSum: 0,
     };
+    let startKey: Record<string, any> | undefined;
+    do {
+        const output = await dynamo.send(
+            new QueryCommand({
+                TableName: puzzlebaseTable,
+                KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
+                ExpressionAttributeValues: marshall({ ':pk': PSTATS, ':prefix': `${puzzleId}#` }),
+                ExclusiveStartKey: startKey,
+            }),
+        );
+        for (const item of output.Items ?? []) {
+            const row = unmarshall(item);
+            const band = Number(String(row.sk).split('#')[1]);
+            if (!bandNearRating(band, memberRating)) continue;
+            sums.attempts += row.attempts ?? 0;
+            sums.accuracySum += row.accuracySum ?? 0;
+            sums.speedSum += row.speedSum ?? 0;
+            sums.scoreSum += row.scoreSum ?? 0;
+            sums.thinkingMsSum += row.thinkingMsSum ?? 0;
+        }
+        startKey = output.LastEvaluatedKey;
+    } while (startKey);
+    return sums;
 }

@@ -170,7 +170,22 @@ export function applyScore(
 /** How many first attempts a puzzle needs before its averages are worth showing. */
 export const MIN_ATTEMPTS_FOR_AVERAGE = 3;
 
-/** The totals behind a puzzle's averages: every counted attempt at it, added up. */
+/** Averages are kept for members of similar strength: totals are split into bands this wide. */
+export const RATING_BAND = 50;
+/** The averages a member sees are of members rated within this many points of them. */
+export const AVERAGE_RANGE = 200;
+
+/** The band a rating falls in, named by its lower end: 1613 is in band 1600. */
+export function ratingBand(rating: number): number {
+    return Math.floor(rating / RATING_BAND) * RATING_BAND;
+}
+
+/** Whether a band is close enough to a member's rating to be in their averages. */
+export function bandNearRating(band: number, rating: number): boolean {
+    return Math.abs(band + RATING_BAND / 2 - rating) <= AVERAGE_RANGE;
+}
+
+/** The totals behind a puzzle's averages: counted attempts at it, added up. */
 export interface PuzzleScoreSums {
     attempts: number;
     accuracySum: number;
@@ -179,7 +194,10 @@ export interface PuzzleScoreSums {
     thinkingMsSum: number;
 }
 
-/** How members do on a puzzle on average: their first attempts, the one just made included. */
+/**
+ * How members rated near the member do on a puzzle on average: their first attempts, the one just
+ * made included.
+ */
 export interface PuzzleAverages {
     attempts: number;
     accuracy: number;

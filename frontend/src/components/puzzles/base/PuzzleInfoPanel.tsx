@@ -98,7 +98,11 @@ function PuzzleInfo({
     if (numberOnly && !hideHeading) {
         return (
             <Stack sx={{ gap: 1, px: 2, pt: 2, flexShrink: 0 }}>
-                <Stack direction='row' sx={{ alignItems: 'baseline', gap: 1.5 }}>
+                {/* The number and the short facts share one line, wrapping only if they must. */}
+                <Stack
+                    direction='row'
+                    sx={{ flexWrap: 'wrap', alignItems: 'center', columnGap: 2.5, rowGap: 0.5 }}
+                >
                     <Typography
                         component='span'
                         sx={{
@@ -116,25 +120,23 @@ function PuzzleInfo({
                     >
                         #{puzzle.id}
                     </Typography>
-                    {game && <Typography sx={{ fontWeight: 600 }}>{game[1]}</Typography>}
-                </Stack>
-                <Stack
-                    direction='row'
-                    sx={{ flexWrap: 'wrap', columnGap: 3, rowGap: 0.5, alignItems: 'baseline' }}
-                >
                     {others.map(([label, value]) => (
                         <Stack
                             key={label}
                             direction='row'
                             sx={{ gap: 0.75, alignItems: 'baseline' }}
                         >
-                            <Label>{label}</Label>
+                            <Label>{label === 'Annotated by' ? 'Annotator' : label}</Label>
                             <Typography component='div' variant='body2' sx={{ fontWeight: 600 }}>
                                 {value}
                             </Typography>
                         </Stack>
                     ))}
                 </Stack>
+                {/* The game gets the whole width of its own line, so it rarely needs two. */}
+                {game && (
+                    <Typography sx={{ fontWeight: 600, lineHeight: 1.35 }}>{game[1]}</Typography>
+                )}
             </Stack>
         );
     }

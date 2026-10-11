@@ -9,6 +9,7 @@ import {
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/runs';
 import {
     averagesFromSums,
+    DEFAULT_START_RATING,
     rateAttempt,
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { getNormalizedRating } from '@jackstenglein/chess-dojo-common/src/ratings/ratings';
@@ -25,6 +26,7 @@ import {
     addToPuzzleSums,
     getMyVotes,
     getPuzzle,
+    getPuzzleSums,
     getUser,
     listPuzzles,
     requireTrainingAccess,
@@ -143,9 +145,12 @@ export const submitAttemptHandler: APIGatewayProxyHandlerV2 = async (event) => {
                 console.warn('Rating changed while saving an attempt for %s', username);
             }
             if (scoring.counted && !submission.abandoned) {
-                // Add it to what everyone has done on the puzzle, and send back how they do on
-                // average. The average is not stored with the attempt, so a resend is not counted twice.
-                const average = averagesFromSums(await addToPuzzleSums(puzzle.id, scoring));
+                // Add it to what members have done on the puzzle, and send back how members rated near
+                // them do on average. The average is not stored with the attempt, so a resend is not
+                // counted twice.
+                const memberRating = scoring.ratingBefore ?? DEFAULT_START_RATING;
+                await addToPuzzleSums(puzzle.id, memberRating, scoring);
+                const average = averagesFromSums(await getPuzzleSums(puzzle.id, memberRating));
                 return success(
                     average ? { ...attempt, scoring: { ...scoring, average } } : attempt,
                 );
