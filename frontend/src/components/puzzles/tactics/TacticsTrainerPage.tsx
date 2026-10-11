@@ -901,11 +901,6 @@ export function TacticsTrainerPage({
                                                           : 'Session complete!'}
                                                 </Typography>
                                             )}
-                                            <SessionStreak
-                                                results={results}
-                                                streak={streak}
-                                                showCount={false}
-                                            />
                                             <Stack sx={{ gap: 1.5 }}>
                                                 {phase === 'puzzleDone' ? (
                                                     <>
@@ -986,6 +981,12 @@ export function TacticsTrainerPage({
                                                         compact
                                                     />
                                                 </Stack>
+                                                {/* The run so far, under the session's numbers. */}
+                                                <SessionStreak
+                                                    results={results}
+                                                    streak={streak}
+                                                    showCount={false}
+                                                />
                                                 {showRating && (
                                                     <Typography
                                                         variant='body2'
