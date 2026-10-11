@@ -805,7 +805,7 @@ export function TacticsTrainerPage({
                                 : undefined
                             : {
                                   // While solving, a sticker beside the board says who is to play.
-                                  besideBoard: <SideToPlay color={puzzle.userColor} stacked />,
+                                  besideBoard: <SideToPlay color={puzzle.userColor} wide />,
                               }
                     }
                     underboardTabs={[
@@ -1134,22 +1134,24 @@ function SessionClock({ elapsed, limit }: { elapsed: number; limit?: number }) {
  */
 function SideToPlay({
     color,
-    stacked,
+    wide,
 }: {
     color: 'white' | 'black';
-    /** The two words on two lines, with the dot above, for a narrow sticker beside the board. */
-    stacked?: boolean;
+    /** A big, wide sticker on one line, for beside the board. */
+    wide?: boolean;
 }) {
     const white = color === 'white';
     return (
         <Stack
-            direction={stacked ? 'column' : 'row'}
+            direction='row'
             aria-label={`${white ? 'White' : 'Black'} to play`}
             sx={{
                 alignItems: 'center',
-                gap: stacked ? 0.5 : 1,
-                px: stacked ? 1.25 : 1.5,
-                py: stacked ? 1 : 0.5,
+                justifyContent: wide ? 'center' : undefined,
+                gap: wide ? 1.5 : 1,
+                px: wide ? 3 : 1.5,
+                py: wide ? 1.25 : 0.5,
+                minWidth: wide ? 240 : undefined,
                 borderRadius: 1.5,
                 bgcolor: white ? '#f4f4f4' : '#0b0b0b',
                 color: white ? '#111' : '#fff',
@@ -1162,8 +1164,8 @@ function SideToPlay({
         >
             <Box
                 sx={{
-                    width: stacked ? 16 : 12,
-                    height: stacked ? 16 : 12,
+                    width: wide ? 18 : 12,
+                    height: wide ? 18 : 12,
                     borderRadius: '50%',
                     bgcolor: white ? '#fff' : '#000',
                     border: '2px solid',
@@ -1174,15 +1176,13 @@ function SideToPlay({
             <Typography
                 component='span'
                 sx={{
-                    fontSize: '1rem',
+                    fontSize: wide ? '1.4rem' : '1rem',
                     fontWeight: 800,
                     lineHeight: 1.2,
-                    whiteSpace: stacked ? 'normal' : 'nowrap',
-                    textAlign: 'center',
+                    whiteSpace: 'nowrap',
                 }}
             >
-                {white ? 'White' : 'Black'}
-                {stacked ? <br /> : ' '}to play
+                {white ? 'White' : 'Black'} to play
             </Typography>
         </Stack>
     );
