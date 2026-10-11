@@ -793,6 +793,8 @@ export function TacticsTrainerPage({
                                               {renderPuzzleInfo && (
                                                   <Box
                                                       sx={{
+                                                          // Some room under the result, then a line.
+                                                          mt: 3,
                                                           borderTop: 1,
                                                           borderColor: 'divider',
                                                           pb: 2,
@@ -808,8 +810,9 @@ export function TacticsTrainerPage({
                                   }
                                 : undefined
                             : {
-                                  // While solving, a sticker beside the board says who is to play.
-                                  besideBoard: <SideToPlay color={puzzle.userColor} wide />,
+                                  // While solving, a sticker in the middle of the right side says who
+                                  // is to play.
+                                  overPgnText: <SideToPlay color={puzzle.userColor} wide />,
                               }
                     }
                     underboardTabs={[
@@ -942,12 +945,11 @@ export function TacticsTrainerPage({
                                                     direction='row'
                                                     sx={{
                                                         alignItems: 'center',
-                                                        justifyContent: 'space-between',
+                                                        justifyContent: 'flex-end',
                                                         gap: 1,
                                                         flexWrap: 'wrap',
                                                     }}
                                                 >
-                                                    <SideToPlay color={puzzle.userColor} />
                                                     <Typography
                                                         variant='body2'
                                                         color='text.secondary'

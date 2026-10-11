@@ -19,6 +19,7 @@ export function PuzzleInfoPanel({
     puzzle,
     taxonomy,
     hideHeading,
+    numberOnly,
     plain,
     afterHeading,
 }: {
@@ -26,6 +27,8 @@ export function PuzzleInfoPanel({
     taxonomy: PuzzlebaseTaxonomy;
     /** Leave out the number and tags, when they are shown somewhere else. */
     hideHeading?: boolean;
+    /** Show the number as the title, but not the tags, which are shown somewhere else. */
+    numberOnly?: boolean;
     /** No line or space under it, for when something else follows directly. */
     plain?: boolean;
     /** Something to put under the number and tags, such as a button, with a line under it. */
@@ -55,6 +58,7 @@ export function PuzzleInfoPanel({
             groups={groups}
             facts={facts}
             hideHeading={hideHeading}
+            numberOnly={numberOnly}
             plain={plain}
             afterHeading={afterHeading}
         />
@@ -70,6 +74,7 @@ function PuzzleInfo({
     groups,
     facts,
     hideHeading,
+    numberOnly,
     plain,
     afterHeading,
 }: {
@@ -77,6 +82,7 @@ function PuzzleInfo({
     groups: ReturnType<typeof groupTags>;
     facts: [string, ReactNode][];
     hideHeading?: boolean;
+    numberOnly?: boolean;
     plain?: boolean;
     afterHeading?: ReactNode;
 }) {
@@ -99,7 +105,9 @@ function PuzzleInfo({
                 ...(plain ? {} : { mb: 2.5, pb: 2.5, borderBottom: 1, borderColor: 'divider' }),
             }}
         >
-            {!hideHeading && <PuzzleHeading puzzle={puzzle} groups={groups} />}
+            {!hideHeading && (
+                <PuzzleHeading puzzle={puzzle} groups={groups} numberOnly={numberOnly} />
+            )}
             {afterHeading && (
                 <>
                     <Box sx={{ pb: 1 }}>{afterHeading}</Box>
@@ -151,42 +159,47 @@ function PuzzleInfo({
 function PuzzleHeading({
     puzzle,
     groups,
+    numberOnly,
 }: {
     puzzle: PuzzlebasePuzzle;
     groups: ReturnType<typeof groupTags>;
+    /** Just the number, with the tags left for somewhere else. */
+    numberOnly?: boolean;
 }) {
     return (
         <Stack direction='row' sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
             <Typography variant='h5' sx={{ fontWeight: 'bold', lineHeight: 1.1 }}>
                 #{puzzle.id}
             </Typography>
-            <Stack direction='row' sx={{ gap: 0.5, flexWrap: 'wrap' }}>
-                {groups
-                    .filter((group) => group.hasBucketTag)
-                    .map((group) => (
-                        <Chip
-                            key={group.bucket}
-                            size='small'
-                            label={group.bucket}
-                            sx={{
-                                ...tagChipSx,
-                                fontWeight: 600,
-                                bgcolor: alpha(bucketColor(group.bucket), 0.42),
-                            }}
-                        />
-                    ))}
-                {groups.flatMap((group) =>
-                    group.themes.map((theme) => (
-                        <Chip
-                            key={theme}
-                            size='small'
-                            variant='outlined'
-                            label={theme}
-                            sx={{ ...tagChipSx, borderColor: themeOutline }}
-                        />
-                    )),
-                )}
-            </Stack>
+            {!numberOnly && (
+                <Stack direction='row' sx={{ gap: 0.5, flexWrap: 'wrap' }}>
+                    {groups
+                        .filter((group) => group.hasBucketTag)
+                        .map((group) => (
+                            <Chip
+                                key={group.bucket}
+                                size='small'
+                                label={group.bucket}
+                                sx={{
+                                    ...tagChipSx,
+                                    fontWeight: 600,
+                                    bgcolor: alpha(bucketColor(group.bucket), 0.42),
+                                }}
+                            />
+                        ))}
+                    {groups.flatMap((group) =>
+                        group.themes.map((theme) => (
+                            <Chip
+                                key={theme}
+                                size='small'
+                                variant='outlined'
+                                label={theme}
+                                sx={{ ...tagChipSx, borderColor: themeOutline }}
+                            />
+                        )),
+                    )}
+                </Stack>
+            )}
         </Stack>
     );
 }
@@ -200,6 +213,46 @@ export function PuzzleNumberAndTags({
     taxonomy: PuzzlebaseTaxonomy;
 }) {
     return <PuzzleHeading puzzle={puzzle} groups={groupTags(taxonomy, puzzle)} />;
+}
+
+/** Just the puzzle's bucket and theme chips, for showing them under its other details. */
+export function PuzzleTagChips({
+    puzzle,
+    taxonomy,
+}: {
+    puzzle: PuzzlebasePuzzle;
+    taxonomy: PuzzlebaseTaxonomy;
+}) {
+    const groups = groupTags(taxonomy, puzzle);
+    return (
+        <Stack direction='row' sx={{ gap: 0.5, flexWrap: 'wrap' }}>
+            {groups
+                .filter((group) => group.hasBucketTag)
+                .map((group) => (
+                    <Chip
+                        key={group.bucket}
+                        size='small'
+                        label={group.bucket}
+                        sx={{
+                            ...tagChipSx,
+                            fontWeight: 600,
+                            bgcolor: alpha(bucketColor(group.bucket), 0.42),
+                        }}
+                    />
+                ))}
+            {groups.flatMap((group) =>
+                group.themes.map((theme) => (
+                    <Chip
+                        key={theme}
+                        size='small'
+                        variant='outlined'
+                        label={theme}
+                        sx={{ ...tagChipSx, borderColor: themeOutline }}
+                    />
+                )),
+            )}
+        </Stack>
+    );
 }
 
 /** A small grey label in front of a value. */

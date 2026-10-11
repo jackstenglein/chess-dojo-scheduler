@@ -3,7 +3,7 @@ import { UnpublishedGameBanner } from '@/components/games/edit/UnpublishedGameBa
 import { UnsavedGameBanner } from '@/components/games/edit/UnsavedGameBanner';
 import useGame from '@/context/useGame';
 import { useLightMode } from '@/style/useLightMode';
-import { Card, Stack } from '@mui/material';
+import { Box, Card, Stack } from '@mui/material';
 import React, { useMemo, useRef } from 'react';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { useLocalStorage } from 'usehooks-ts';
@@ -125,7 +125,7 @@ interface ResizablePgnTextProps {
 
 export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
     const { resizeData, onResize, hidden } = props;
-    const { chess } = useChess();
+    const { chess, slots } = useChess();
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeCallbackData) => {
         onResize(data.size.width, data.size.height);
@@ -149,9 +149,28 @@ export const ResizablePgnText: React.FC<ResizablePgnTextProps> = (props) => {
                     width: `${resizeData.width}px`,
                     maxHeight: `${resizeData.height}px`,
                     visibility: chess ? undefined : 'hidden',
+                    position: 'relative',
                 }}
             >
                 {Pgn}
+                {slots?.overPgnText && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: 1,
+                            height: `${resizeData.height}px`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
+                            zIndex: 2,
+                        }}
+                    >
+                        {slots.overPgnText}
+                    </Box>
+                )}
             </Stack>
         </Resizable>
     );

@@ -13,7 +13,7 @@ import { Alert, Container, Snackbar, Stack } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { TacticsTrainerPage } from '../tactics/TacticsTrainerPage';
 import { TacticsPuzzle } from '../tactics/tacticsPuzzles';
-import { PuzzleInfoPanel, PuzzleNumberAndTags } from './PuzzleInfoPanel';
+import { PuzzleInfoPanel, PuzzleTagChips } from './PuzzleInfoPanel';
 import { PuzzleVote } from './PuzzleVote';
 import { ScoreSummary } from './ScoreSummary';
 import { SuggestTagsButton } from './SuggestTagsButton';
@@ -255,7 +255,7 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                             <PuzzleInfoPanel
                                 puzzle={puzzle.info}
                                 taxonomy={taxonomy}
-                                hideHeading
+                                numberOnly
                                 plain
                             />
                         ) : undefined
@@ -275,8 +275,14 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                             }}
                         >
                             {puzzle.info && (
-                                <PuzzleNumberAndTags puzzle={puzzle.info} taxonomy={taxonomy} />
+                                <PuzzleTagChips puzzle={puzzle.info} taxonomy={taxonomy} />
                             )}
+                            <PuzzleVote
+                                key={puzzle.id}
+                                client={client}
+                                puzzleId={puzzle.id}
+                                initialVote={puzzle.info?.myVote}
+                            />
                             <SuggestTagsButton
                                 key={puzzle.id}
                                 client={client}
@@ -299,22 +305,14 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                             />
                         </Stack>
                     )}
-                    renderPuzzleDone={(puzzle) => (
-                        <>
-                            {puzzle.id in scores && (
-                                <ScoreSummary
-                                    scoring={scores[puzzle.id].scoring}
-                                    failed={scores[puzzle.id].failed}
-                                />
-                            )}
-                            <PuzzleVote
-                                key={puzzle.id}
-                                client={client}
-                                puzzleId={puzzle.id}
-                                initialVote={puzzle.info?.myVote}
+                    renderPuzzleDone={(puzzle) =>
+                        puzzle.id in scores ? (
+                            <ScoreSummary
+                                scoring={scores[puzzle.id].scoring}
+                                failed={scores[puzzle.id].failed}
                             />
-                        </>
-                    )}
+                        ) : undefined
+                    }
                     onTrainAgain={() => setStage('setup')}
                 />
             ) : (

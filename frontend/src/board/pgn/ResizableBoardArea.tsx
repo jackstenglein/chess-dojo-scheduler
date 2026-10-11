@@ -41,7 +41,7 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
     onInitialize,
     underboardRef,
 }) => {
-    const { slotProps, slots } = useChess();
+    const { slotProps } = useChess();
     const t = useTranslations('analysisBoard.boardButtons');
     const hideButton = useRef<HTMLButtonElement>(null);
     const restoreButton = useRef<HTMLButtonElement>(null);
@@ -68,35 +68,18 @@ const ResizableBoardArea: React.FC<ResizableBoardAreaProps> = ({
             <Stack sx={{ width: `${resizeData.width}px` }}>
                 {showPlayerHeaders && !barsHidden && <PlayerHeader type='header' />}
 
-                {/* Relative, so something can be placed against the board's right edge. */}
-                <Box sx={{ position: 'relative' }}>
-                    <Board
-                        config={{
-                            pgn,
-                            fen,
-                            orientation: startOrientation,
-                        }}
-                        onInitialize={onInitialize}
-                        resizeData={resizeData}
-                        onResize={handlResize}
-                        hideResize={hideResize}
-                        onMove={slotProps?.board?.onMove}
-                    />
-                    {slots?.besideBoard && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                left: '100%',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                ml: 0.5,
-                                zIndex: 2,
-                            }}
-                        >
-                            {slots.besideBoard}
-                        </Box>
-                    )}
-                </Box>
+                <Board
+                    config={{
+                        pgn,
+                        fen,
+                        orientation: startOrientation,
+                    }}
+                    onInitialize={onInitialize}
+                    resizeData={resizeData}
+                    onResize={handlResize}
+                    hideResize={hideResize}
+                    onMove={slotProps?.board?.onMove}
+                />
 
                 {showPlayerHeaders && !barsHidden && <PlayerHeader type='footer' />}
 
