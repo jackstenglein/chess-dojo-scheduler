@@ -819,7 +819,7 @@ export function TacticsTrainerPage({
                                                   <Box
                                                       sx={{
                                                           // Some room under the result, then a line.
-                                                          mt: 3,
+                                                          mt: 4,
                                                           borderTop: 1,
                                                           borderColor: 'divider',
                                                           pb: 1,

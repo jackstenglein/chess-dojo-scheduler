@@ -264,22 +264,23 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                         <Stack
                             sx={{
                                 // The details above it already leave a little room.
-                                pt: 1,
+                                pt: 2,
                                 // Room at the sides, so the tags do not run into the edge or the scrollbar.
                                 pr: 2.5,
                                 pl: 2,
-                                pb: 2,
-                                gap: 1.5,
+                                pb: 3,
+                                gap: 2.5,
                                 flexShrink: 0,
                             }}
                         >
                             {puzzle.info && (
-                                <PuzzleTagChips puzzle={puzzle.info} taxonomy={taxonomy} />
+                                <PuzzleTagChips puzzle={puzzle.info} taxonomy={taxonomy} roomy />
                             )}
                             {/* The suggestion, then under it the vote. */}
                             <SuggestTagsButton
                                 key={puzzle.id}
                                 outlined
+                                roomy
                                 client={client}
                                 taxonomy={taxonomy}
                                 puzzle={puzzle}
@@ -304,6 +305,7 @@ export function PuzzleTrainerPage({ client = getPuzzlebaseClient() }: PuzzleTrai
                                     client={client}
                                     puzzleId={puzzle.id}
                                     initialVote={puzzle.info?.myVote}
+                                    large
                                 />
                             </Box>
                         </Stack>

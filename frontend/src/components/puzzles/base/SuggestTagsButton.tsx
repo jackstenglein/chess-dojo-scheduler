@@ -18,6 +18,8 @@ interface SuggestTagsButtonProps {
     onApplied?: (puzzle: PuzzlebasePuzzle) => void;
     /** An outlined button instead of plain text. */
     outlined?: boolean;
+    /** Bigger, for when there is room. */
+    roomy?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export function SuggestTagsButton({
     puzzle,
     onApplied,
     outlined,
+    roomy,
 }: SuggestTagsButtonProps) {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState<'review' | 'applied'>();
@@ -50,10 +53,19 @@ export function SuggestTagsButton({
                 </Typography>
             )}
             <Button
-                size='small'
+                size={roomy ? 'medium' : 'small'}
                 color='inherit'
                 variant={outlined ? 'outlined' : 'text'}
-                sx={outlined ? { borderRadius: 2, fontWeight: 700, px: 1.5 } : undefined}
+                sx={
+                    outlined
+                        ? {
+                              borderRadius: 2,
+                              fontWeight: 700,
+                              px: roomy ? 2.5 : 1.5,
+                              py: roomy ? 1 : undefined,
+                          }
+                        : undefined
+                }
                 startIcon={<LocalOffer fontSize='small' />}
                 onClick={() => setOpen(true)}
             >

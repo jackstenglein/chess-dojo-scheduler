@@ -100,7 +100,7 @@ function PuzzleInfo({
         const result = present.find(([label]) => label === 'Result')?.[1];
         const rest = others.filter(([label]) => label !== 'Result');
         return (
-            <Stack sx={{ gap: 0.75, px: 2, pt: 2, flexShrink: 0 }}>
+            <Stack sx={{ gap: 1.25, px: 2.5, pt: 3, flexShrink: 0 }}>
                 {/* The number, the players and the result on one line. */}
                 <Stack direction='row' sx={{ alignItems: 'center', gap: 1.5 }}>
                     <Typography
@@ -113,20 +113,23 @@ function PuzzleInfo({
                             borderColor: 'divider',
                             bgcolor: (theme) => alpha(theme.palette.text.primary, 0.08),
                             fontWeight: 800,
-                            fontSize: '0.95rem',
+                            fontSize: '1.05rem',
                             lineHeight: 1.4,
                             flexShrink: 0,
                         }}
                     >
                         #{puzzle.id}
                     </Typography>
-                    <Typography sx={{ fontWeight: 700, lineHeight: 1.3, flexGrow: 1 }}>
+                    <Typography
+                        sx={{ fontWeight: 700, fontSize: '1.2rem', lineHeight: 1.3, flexGrow: 1 }}
+                    >
                         {players || (game ? game[1] : '')}
                     </Typography>
                     {result && (
                         <Typography
                             sx={{
                                 fontWeight: 700,
+                                fontSize: '1.2rem',
                                 color: 'text.secondary',
                                 fontVariantNumeric: 'tabular-nums',
                                 flexShrink: 0,
@@ -137,16 +140,12 @@ function PuzzleInfo({
                     )}
                 </Stack>
                 {/* Where and when, quieter, under the players. */}
-                {where && players && (
-                    <Typography variant='body2' color='text.secondary'>
-                        {where}
-                    </Typography>
-                )}
+                {where && players && <Typography color='text.secondary'>{where}</Typography>}
                 {/* The rest as small labelled facts on one line. */}
                 {rest.length > 0 && (
                     <Stack
                         direction='row'
-                        sx={{ flexWrap: 'wrap', columnGap: 2.5, rowGap: 0.25, pt: 0.25 }}
+                        sx={{ flexWrap: 'wrap', columnGap: 3, rowGap: 0.5, pt: 0.75 }}
                     >
                         {rest.map(([label, value]) => (
                             <Stack
@@ -157,7 +156,7 @@ function PuzzleInfo({
                                 <Label>{label === 'Annotated by' ? 'Annotator' : label}</Label>
                                 <Typography
                                     component='div'
-                                    variant='body2'
+                                    variant='body1'
                                     sx={{ fontWeight: 600 }}
                                 >
                                     {value}
@@ -296,13 +295,17 @@ export function PuzzleNumberAndTags({
 export function PuzzleTagChips({
     puzzle,
     taxonomy,
+    roomy,
 }: {
     puzzle: PuzzlebasePuzzle;
     taxonomy: PuzzlebaseTaxonomy;
+    /** Bigger chips with more space between, for when there is room. */
+    roomy?: boolean;
 }) {
+    const size = roomy ? { height: 28, fontSize: '0.85rem' } : {};
     const groups = groupTags(taxonomy, puzzle);
     return (
-        <Stack direction='row' sx={{ gap: 0.5, flexWrap: 'wrap' }}>
+        <Stack direction='row' sx={{ gap: roomy ? 0.875 : 0.5, flexWrap: 'wrap' }}>
             {groups
                 .filter((group) => group.hasBucketTag)
                 .map((group) => (
@@ -312,6 +315,7 @@ export function PuzzleTagChips({
                         label={group.bucket}
                         sx={{
                             ...tagChipSx,
+                            ...size,
                             fontWeight: 600,
                             bgcolor: alpha(bucketColor(group.bucket), 0.42),
                         }}
@@ -324,7 +328,7 @@ export function PuzzleTagChips({
                         size='small'
                         variant='outlined'
                         label={theme}
-                        sx={{ ...tagChipSx, borderColor: themeOutline }}
+                        sx={{ ...tagChipSx, ...size, borderColor: themeOutline }}
                     />
                 )),
             )}
