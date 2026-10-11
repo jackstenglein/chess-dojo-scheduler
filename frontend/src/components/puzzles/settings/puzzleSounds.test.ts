@@ -93,6 +93,23 @@ describe('puzzle sounds', () => {
         ]);
     });
 
+    it('plays two bells for Rising fifth, a fifth apart, one after the other', async () => {
+        const { oscillators } = fakeAudio();
+        const { playSolvedSound } = await fresh();
+        playSolvedSound('fifth');
+        const notes = oscillators.map((o) => Math.round(o.frequency.value));
+        expect(notes.filter((f) => f === 784 || f === 1175)).toEqual([784, 1175]);
+    });
+
+    it('plays a warm note then a bell for Sixth up', async () => {
+        const { oscillators } = fakeAudio();
+        const { playSolvedSound } = await fresh();
+        playSolvedSound('sixth');
+        const notes = oscillators.map((o) => Math.round(o.frequency.value));
+        expect(notes[0]).toBe(659);
+        expect(notes).toContain(1047);
+    });
+
     it('plays a single clean bell for Classic ding', async () => {
         const { oscillators } = fakeAudio();
         const { playSolvedSound } = await fresh();

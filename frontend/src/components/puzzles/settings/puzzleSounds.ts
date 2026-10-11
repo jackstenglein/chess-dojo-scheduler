@@ -9,12 +9,15 @@ export interface SoundOption<Id extends string> {
     label: string;
 }
 
-export type SolvedSoundId = 'off' | 'chord' | 'pair' | 'sparkle' | 'bell' | 'ding';
+export type SolvedSoundId =
+    'off' | 'chord' | 'pair' | 'sparkle' | 'bell' | 'ding' | 'fifth' | 'sixth';
 
 export const DEFAULT_SOLVED_SOUND: SolvedSoundId = 'chord';
 
 export const SOLVED_SOUNDS: SoundOption<SolvedSoundId>[] = [
     { id: 'chord', label: 'Warm chord' },
+    { id: 'fifth', label: 'Rising fifth' },
+    { id: 'sixth', label: 'Sixth up' },
     { id: 'pair', label: 'Rising pair' },
     { id: 'sparkle', label: 'Sparkle run' },
     { id: 'bell', label: 'Soft bell' },
@@ -30,6 +33,15 @@ type Note = readonly [
     peak: number,
     type?: OscillatorType,
 ];
+
+/** A bell: a note with the overtones of metal, which fade faster than the note itself. */
+function bellNotes(frequency: number, at: number, ring: number, peak: number): Note[] {
+    return [
+        [frequency, at, ring, peak],
+        [frequency * 2.76, at, ring * 0.4, peak * 0.22],
+        [frequency * 5.4, at, ring * 0.2, peak * 0.1],
+    ];
+}
 
 /** The notes of each solved sound. */
 export const SOLVED_NOTES: Record<Exclude<SolvedSoundId, 'off'>, readonly Note[]> = {
@@ -49,6 +61,10 @@ export const SOLVED_NOTES: Record<Exclude<SolvedSoundId, 'off'>, readonly Note[]
         [1318.5 * 2.76, 0, 0.5, 0.025],
         [1318.5 * 5.4, 0, 0.25, 0.012],
     ],
+    // Two bells a fifth apart, one after the other: da-DING.
+    fifth: [...bellNotes(784, 0, 0.18, 0.1), ...bellNotes(1175, 0.09, 0.5, 0.12)],
+    // A warm note, then a bell a major sixth above it.
+    sixth: [[659, 0, 0.14, 0.09, 'triangle'], ...bellNotes(1047, 0.08, 0.5, 0.11)],
     // One clean bell: a bright note with the overtones of metal, ringing out quickly.
     ding: [
         [1568, 0, 0.8, 0.14],
