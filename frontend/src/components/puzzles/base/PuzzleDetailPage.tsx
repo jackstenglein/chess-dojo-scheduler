@@ -5,14 +5,26 @@ import {
     PuzzlebasePuzzle,
     PuzzlebaseTaxonomy,
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/api';
-import { ArrowBack } from '@mui/icons-material';
-import { Alert, Button, CircularProgress, Container, Stack, Typography } from '@mui/material';
+import { ArrowBack, Edit } from '@mui/icons-material';
+import {
+    Alert,
+    Button,
+    CircularProgress,
+    Container,
+    IconButton,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { PUZZLE_COORDINATE_SIZE } from '../settings/puzzleSettingsKeys';
+import { splitPuzzlePgn, validatePuzzleEdit } from './editPuzzle';
+import { EditSolutionDialog } from './EditSolutionDialog';
 import { PuzzlebaseClient } from './puzzlebaseClient';
 import { errorMessage, errorStatus } from './puzzlebaseErrors';
 import { PuzzlebaseGate } from './PuzzlebaseGate';
+import { diffToUpdate } from './puzzleDiff';
 import { PuzzleInfoPanel } from './PuzzleInfoPanel';
 
 /**
@@ -31,6 +43,8 @@ function PuzzleDetail({ client, id }: { client: PuzzlebaseClient; id: string }) 
         taxonomy: PuzzlebaseTaxonomy;
     }>();
     const [error, setError] = useState<{ notFound: boolean; message: string }>();
+    const [editing, setEditing] = useState(false);
+    const [saveError, setSaveError] = useState<string>();
 
     useEffect(() => {
         let cancelled = false;
@@ -80,15 +94,33 @@ function PuzzleDetail({ client, id }: { client: PuzzlebaseClient; id: string }) 
     return (
         <Container maxWidth='xl' sx={{ py: 3 }}>
             <Stack sx={{ gap: 2.5 }}>
-                <Button
-                    component={Link}
-                    href='/puzzles/base'
-                    color='inherit'
-                    startIcon={<ArrowBack />}
-                    sx={{ alignSelf: 'flex-start' }}
+                <Stack
+                    direction='row'
+                    sx={{ alignItems: 'center', justifyContent: 'space-between' }}
                 >
-                    Dojo PuzzleBase
-                </Button>
+                    <Button
+                        component={Link}
+                        href='/puzzles/base'
+                        color='inherit'
+                        startIcon={<ArrowBack />}
+                    >
+                        Dojo PuzzleBase
+                    </Button>
+                    <Tooltip title='Edit solution on a board'>
+                        <IconButton
+                            aria-label={`Edit puzzle ${puzzle.id}`}
+                            onClick={() => setEditing(true)}
+                        >
+                            <Edit />
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
+
+                {saveError && (
+                    <Alert severity='error' onClose={() => setSaveError(undefined)}>
+                        {saveError}
+                    </Alert>
+                )}
 
                 <PgnBoard
                     key={puzzle.id}
@@ -107,6 +139,32 @@ function PuzzleDetail({ client, id }: { client: PuzzlebaseClient; id: string }) 
                     }}
                 />
             </Stack>
+
+            {editing && (
+                <EditSolutionDialog
+                    puzzleId={puzzle.id}
+                    fen={puzzle.fen}
+                    movetext={splitPuzzlePgn(puzzle.solutionPgn).movetext}
+                    headers={splitPuzzlePgn(puzzle.solutionPgn).headers}
+                    onClose={() => setEditing(false)}
+                    onApply={(movetext) => {
+                        const result = validatePuzzleEdit(puzzle.fen, movetext, puzzle.solutionPgn);
+                        if (!result.ok) {
+                            setSaveError(result.error);
+                            return;
+                        }
+                        const request = diffToUpdate(puzzle, {
+                            ...puzzle,
+                            solutionPgn: result.solutionPgn,
+                        });
+                        if (!request) return;
+                        client
+                            .updatePuzzle(request)
+                            .then((saved) => setLoaded({ puzzle: saved, taxonomy }))
+                            .catch((err: unknown) => setSaveError(errorMessage(err)));
+                    }}
+                />
+            )}
         </Container>
     );
 }
