@@ -5,7 +5,7 @@ import {
     AVERAGE_RANGE,
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { ArrowDropDown, ArrowDropUp, Groups } from '@mui/icons-material';
-import { Box, Divider, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import { Divider, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 interface ScoreSummaryProps {
@@ -152,26 +152,24 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
         <Stack sx={{ gap: 1 }}>
             {scoring.counted && scoring.ratingAfter !== undefined && scoring.delta !== undefined ? (
                 <Stack
-                    direction='row'
                     sx={{
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
                         px: 2,
-                        py: 1.25,
+                        py: 1,
                         borderRadius: 2,
                         bgcolor: 'action.hover',
                     }}
                 >
-                    <Box>
-                        <Typography
-                            variant='overline'
-                            sx={{ color: 'text.secondary', lineHeight: 1.4, display: 'block' }}
-                        >
-                            Tactics rating
-                        </Typography>
+                    <Typography
+                        variant='overline'
+                        sx={{ color: 'text.secondary', lineHeight: 1.4, display: 'block' }}
+                    >
+                        Tactics rating
+                    </Typography>
+                    {/* The rating and its change side by side, close together. */}
+                    <Stack direction='row' sx={{ alignItems: 'center', gap: 2 }}>
                         <Typography
                             sx={{
-                                fontSize: '2.25rem',
+                                fontSize: '2rem',
                                 fontWeight: 800,
                                 lineHeight: 1.1,
                                 fontVariantNumeric: 'tabular-nums',
@@ -179,25 +177,25 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                         >
                             {Math.round(scoring.ratingAfter)}
                         </Typography>
-                    </Box>
-                    <Stack
-                        direction='row'
-                        sx={{
-                            alignItems: 'center',
-                            color: color === 'text' ? 'text.secondary' : `${color}.main`,
-                        }}
-                    >
-                        {up && <ArrowDropUp fontSize='large' />}
-                        {down && <ArrowDropDown fontSize='large' />}
-                        <Typography
+                        <Stack
+                            direction='row'
                             sx={{
-                                fontSize: '1.5rem',
-                                fontWeight: 800,
-                                fontVariantNumeric: 'tabular-nums',
+                                alignItems: 'center',
+                                color: color === 'text' ? 'text.secondary' : `${color}.main`,
                             }}
                         >
-                            {formatDelta(scoring.delta)}
-                        </Typography>
+                            {up && <ArrowDropUp fontSize='large' />}
+                            {down && <ArrowDropDown fontSize='large' />}
+                            <Typography
+                                sx={{
+                                    fontSize: '1.4rem',
+                                    fontWeight: 800,
+                                    fontVariantNumeric: 'tabular-nums',
+                                }}
+                            >
+                                {formatDelta(scoring.delta)}
+                            </Typography>
+                        </Stack>
                     </Stack>
                 </Stack>
             ) : (
