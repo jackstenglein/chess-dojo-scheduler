@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { RushResults } from './RushResults';
+import { currentStreak, RushResults } from './RushResults';
 
 afterEach(cleanup);
 
@@ -29,5 +29,27 @@ describe('RushResults', () => {
     it('copes with a puzzle that has no rating', () => {
         render(<RushResults results={[{ id: '001', ok: true }]} />);
         expect(screen.getByLabelText('Solved')).toBeTruthy();
+    });
+});
+
+describe('the streak', () => {
+    const ok = (id: string) => ({ id, rating: 1000, ok: true });
+    const miss = (id: string) => ({ id, rating: 1000, ok: false });
+
+    it('is the clean solves at the end', () => {
+        expect(currentStreak([])).toBe(0);
+        expect(currentStreak([ok('1'), ok('2')])).toBe(2);
+        expect(currentStreak([ok('1'), miss('2'), ok('3'), ok('4'), ok('5')])).toBe(3);
+        expect(currentStreak([ok('1'), miss('2')])).toBe(0);
+    });
+
+    it('is set apart as a band from two in a row', () => {
+        render(<RushResults results={[miss('1'), ok('2'), ok('3'), ok('4')]} />);
+        expect(screen.getByLabelText('3 in a row')).toBeTruthy();
+    });
+
+    it('is not set apart when it is just one solve', () => {
+        render(<RushResults results={[miss('1'), ok('2')]} />);
+        expect(screen.queryByLabelText(/in a row/)).toBeNull();
     });
 });
