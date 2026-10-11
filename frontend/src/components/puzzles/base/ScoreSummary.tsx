@@ -232,11 +232,15 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                         aria-label='Average of players near your rating'
                         sx={{
                             flexWrap: 'wrap',
-                            alignItems: 'baseline',
+                            // The icon, the label and the figures are centered, in the row and on
+                            // each other, and the row sits a little way below the strip above.
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             columnGap: 2,
                             rowGap: 0.25,
+                            mt: 1.5,
                             px: 1.5,
-                            py: 0.75,
+                            py: 1,
                             border: 1,
                             borderColor: 'divider',
                             borderRadius: 2,
