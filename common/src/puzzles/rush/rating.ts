@@ -10,6 +10,9 @@ export const PUZZLE_RUSH_MAX_STRIKES = 3;
 /** The search rating at the start of a puzzle rush run. */
 export const PUZZLE_RUSH_START_RATING = 300;
 
+/** The maximum search rating during a puzzle rush run. */
+export const PUZZLE_RUSH_MAX_RATING = 3500;
+
 /** Puzzles are sampled from within +/- this many points of the search rating. */
 export const PUZZLE_RUSH_RATING_WINDOW = 50;
 
@@ -65,7 +68,7 @@ export function nextRushRating(ladder: PuzzleRushLadder): number {
     } else {
         increase = Math.min(increase, MAX_RATING_INCREASE);
     }
-    return current + increase;
+    return Math.min(current + increase, PUZZLE_RUSH_MAX_RATING);
 }
 
 /**

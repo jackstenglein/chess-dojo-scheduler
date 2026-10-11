@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { PuzzleRushAttempt } from './api';
 import {
+    PUZZLE_RUSH_MAX_RATING,
     PUZZLE_RUSH_START_RATING,
+    PuzzleRushLadder,
     applyRushResult,
     computePuzzleRushStats,
     currentRushRating,
@@ -34,6 +36,15 @@ describe('nextRushRating', () => {
         ladder.stack.push(410);
         ladder.streak += 1;
         expect(nextRushRating(ladder)).toBe(480);
+    });
+
+    it('caps rating at PUZZLE_RUSH_MAX_RATING', () => {
+        const ladder: PuzzleRushLadder = {
+            stack: [PUZZLE_RUSH_MAX_RATING - 10],
+            streak: 0,
+            strikes: 0,
+        };
+        expect(nextRushRating(ladder)).toBe(PUZZLE_RUSH_MAX_RATING);
     });
 });
 
@@ -99,6 +110,7 @@ describe('computePuzzleRushStats', () => {
             totalCount: 0,
             percentage: 0,
             peakRating: 300,
+            peakCompletedRating: 0,
         });
     });
 
@@ -115,11 +127,13 @@ describe('computePuzzleRushStats', () => {
         // avg = 400, dp(75) = 193
         expect(stats.performanceRating).toBe(593);
         expect(stats.peakRating).toBe(510);
+        expect(stats.peakCompletedRating).toBe(430);
     });
 
     it('does not include the rating reached after the final win in the peak', () => {
         const stats = computePuzzleRushStats([attempt('win', 300), attempt('win', 360)]);
         expect(stats.peakRating).toBe(360);
+        expect(stats.peakCompletedRating).toBe(360);
         expect(stats.percentage).toBe(100);
         expect(stats.performanceRating).toBe(330 + 400);
     });
@@ -132,5 +146,6 @@ describe('computePuzzleRushStats', () => {
         ]);
         expect(stats.performanceRating).toBe(0);
         expect(stats.peakRating).toBe(300);
+        expect(stats.peakCompletedRating).toBe(0);
     });
 });
