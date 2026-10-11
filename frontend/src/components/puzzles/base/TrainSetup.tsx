@@ -41,6 +41,7 @@ import {
 
 /** The colors of the Start Training button: black and white with an orange edge. */
 const ORANGE = '#ff6d00';
+const ORANGE_DEEP = darken(ORANGE, 0.22);
 const START_PAPER = '#141414';
 const START_INK = '#f5f5f5';
 
@@ -460,9 +461,11 @@ export function TrainSetup({
                         boxShadow: `0 6px 18px ${alpha(ORANGE, 0.3)}`,
                         '& .MuiButton-startIcon svg': { color: ORANGE, fontSize: '1.8rem' },
                         '&:hover': {
-                            bgcolor: ORANGE,
+                            // A deeper orange than the edge, so it fills in without glaring.
+                            bgcolor: ORANGE_DEEP,
+                            borderColor: ORANGE_DEEP,
                             color: '#fff',
-                            boxShadow: `0 8px 22px ${alpha(ORANGE, 0.45)}`,
+                            boxShadow: `0 8px 22px ${alpha(ORANGE_DEEP, 0.4)}`,
                             '& .MuiButton-startIcon svg': { color: '#fff' },
                         },
                         '&.Mui-disabled': {
