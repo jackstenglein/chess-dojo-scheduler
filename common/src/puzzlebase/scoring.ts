@@ -167,6 +167,42 @@ export function applyScore(
     };
 }
 
+/** How many first attempts a puzzle needs before its averages are worth showing. */
+export const MIN_ATTEMPTS_FOR_AVERAGE = 3;
+
+/** The totals behind a puzzle's averages: every counted attempt at it, added up. */
+export interface PuzzleScoreSums {
+    attempts: number;
+    accuracySum: number;
+    speedSum: number;
+    scoreSum: number;
+    thinkingMsSum: number;
+}
+
+/** How members do on a puzzle on average: their first attempts, the one just made included. */
+export interface PuzzleAverages {
+    attempts: number;
+    accuracy: number;
+    speed: number;
+    score: number;
+    thinkingMs: number;
+}
+
+/**
+ * Turns a puzzle's totals into averages. Nothing until enough people have played it for an average
+ * to mean something.
+ */
+export function averagesFromSums(sums: PuzzleScoreSums): PuzzleAverages | undefined {
+    if (sums.attempts < MIN_ATTEMPTS_FOR_AVERAGE) return undefined;
+    return {
+        attempts: sums.attempts,
+        accuracy: sums.accuracySum / sums.attempts,
+        speed: sums.speedSum / sums.attempts,
+        score: sums.scoreSum / sums.attempts,
+        thinkingMs: sums.thinkingMsSum / sums.attempts,
+    };
+}
+
 /** How an attempt was scored and what it did to the member's rating, as stored with the attempt. */
 export interface AttemptScoring extends AttemptScore {
     /** Whether it counted towards the member's rating. Only a first attempt at a puzzle does. */
@@ -179,6 +215,11 @@ export interface AttemptScoring extends AttemptScore {
     ratingAfter?: number;
     /** The change in rating. Only if it counted. */
     delta?: number;
+    /**
+     * How members do on this puzzle on average, sent back with a counted attempt once enough people
+     * have played it. Not stored with the attempt.
+     */
+    average?: PuzzleAverages;
 }
 
 /** How many moves the solver has to find in a puzzle, from its solution PGN. */

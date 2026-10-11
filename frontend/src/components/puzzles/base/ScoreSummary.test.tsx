@@ -20,6 +20,24 @@ const scoring = (over: Partial<AttemptScoring> = {}): AttemptScoring => ({
     ...over,
 });
 
+describe('ScoreSummary averages', () => {
+    const average = { attempts: 12, accuracy: 0.78, speed: 0.86, score: 0.67, thinkingMs: 20_000 };
+
+    it('shows how members do on average beside the member’s own numbers', () => {
+        render(<ScoreSummary scoring={scoring({ average })} />);
+        expect(screen.getByText('avg 78%')).toBeTruthy();
+        expect(screen.getByText('avg 0.86')).toBeTruthy();
+        expect(screen.getByText('avg 67')).toBeTruthy();
+        // The time to compare with is what members really take.
+        expect(screen.getByText('Took 00:41 · average 00:20')).toBeTruthy();
+    });
+
+    it('shows no averages until there are some', () => {
+        render(<ScoreSummary scoring={scoring()} />);
+        expect(screen.queryByText(/^avg /)).toBeNull();
+    });
+});
+
 describe('formatSpeed', () => {
     it('is a plain number without trailing zeros', () => {
         expect(formatSpeed(0.7)).toBe('0.7');

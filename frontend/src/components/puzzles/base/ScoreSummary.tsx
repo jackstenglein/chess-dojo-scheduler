@@ -26,7 +26,18 @@ export function formatSpeed(speed: number): string {
 }
 
 /** One cell of the strip: a small label over a number, centered. */
-function Cell({ label, value, color }: { label: string; value: ReactNode; color?: string }) {
+function Cell({
+    label,
+    value,
+    color,
+    average,
+}: {
+    label: string;
+    value: ReactNode;
+    color?: string;
+    /** What members get on average, shown small under the number. */
+    average?: string;
+}) {
     return (
         <Stack sx={{ flex: 1, minWidth: 0, alignItems: 'center', py: 1.25 }}>
             <Typography
@@ -51,6 +62,11 @@ function Cell({ label, value, color }: { label: string; value: ReactNode; color?
             >
                 {value}
             </Typography>
+            {average && (
+                <Typography variant='caption' color='text.secondary'>
+                    avg {average}
+                </Typography>
+            )}
         </Stack>
     );
 }
@@ -81,7 +97,14 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
     }
 
     const seconds = Math.round(scoring.thinkingMs / 1000);
-    const par = scoring.referenceMs ? Math.round(scoring.referenceMs / 1000) : undefined;
+    const average = scoring.average;
+    // The time to compare with: what members really take, once enough have played it, and until
+    // then the puzzle's own reference time.
+    const par = average
+        ? Math.round(average.thinkingMs / 1000)
+        : scoring.referenceMs
+          ? Math.round(scoring.referenceMs / 1000)
+          : undefined;
     const up = (scoring.delta ?? 0) > 0;
     const down = (scoring.delta ?? 0) < 0;
     const color = up ? 'success' : down ? 'error' : 'text';
@@ -149,10 +172,15 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                 divider={<Divider orientation='vertical' flexItem sx={{ my: 1.5 }} />}
                 sx={{ borderRadius: 2, bgcolor: 'action.hover' }}
             >
-                <Cell label='Accuracy' value={`${Math.round(scoring.accuracy * 100)}%`} />
+                <Cell
+                    label='Accuracy'
+                    value={`${Math.round(scoring.accuracy * 100)}%`}
+                    average={average && `${Math.round(average.accuracy * 100)}%`}
+                />
                 <Cell
                     label='Speed'
                     value={par === undefined ? '—' : formatSpeed(scoring.speed)}
+                    average={average && formatSpeed(average.speed)}
                     // Green at full speed, amber once it costs a lot.
                     color={
                         par === undefined
@@ -164,7 +192,11 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                                 : undefined
                     }
                 />
-                <Cell label='Score' value={Math.round(scoring.score * 100)} />
+                <Cell
+                    label='Score'
+                    value={Math.round(scoring.score * 100)}
+                    average={average && String(Math.round(average.score * 100))}
+                />
             </Stack>
             <Typography variant='caption' color='text.secondary' sx={{ textAlign: 'center' }}>
                 {par === undefined

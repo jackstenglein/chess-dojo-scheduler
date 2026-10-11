@@ -4,8 +4,10 @@ import { MoveRecord } from './runs';
 import {
     accuracyScore,
     applyScore,
+    averagesFromSums,
     expectedScore,
     K_PER_RD,
+    MIN_ATTEMPTS_FOR_AVERAGE,
     moveCredit,
     rateAttempt,
     RD_MIN,
@@ -444,5 +446,32 @@ describe('replayRatings', () => {
 
     it('has no rating for a member who has played nothing', () => {
         expect(replayRatings([], puzzles, 1500).member).toBeUndefined();
+    });
+});
+
+describe('puzzle averages', () => {
+    const sums = {
+        attempts: 4,
+        accuracySum: 3,
+        speedSum: 3.2,
+        scoreSum: 2.4,
+        thinkingMsSum: 120_000,
+    };
+
+    it('are the totals divided by the attempts', () => {
+        expect(averagesFromSums(sums)).toEqual({
+            attempts: 4,
+            accuracy: 0.75,
+            speed: 0.8,
+            score: 0.6,
+            thinkingMs: 30_000,
+        });
+    });
+
+    it('wait until enough people have played the puzzle', () => {
+        expect(
+            averagesFromSums({ ...sums, attempts: MIN_ATTEMPTS_FOR_AVERAGE - 1 }),
+        ).toBeUndefined();
+        expect(averagesFromSums({ ...sums, attempts: MIN_ATTEMPTS_FOR_AVERAGE })).toBeDefined();
     });
 });

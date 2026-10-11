@@ -52,6 +52,7 @@ const puzzle = (id: string, rating: number, buckets: string[], themes: string[])
 /** Both tables, in memory. Just enough of DynamoDB for what these endpoints do. */
 let puzzles: Record<string, any>;
 let runs: Map<string, Record<string, any>>; // key: `${username}|${sk}`
+let pstats: Record<string, Record<string, number>>; // the totals behind each puzzle's averages
 
 /** Resolves `#alias` names in an update expression. */
 const resolveName = (name: string, names: Record<string, string> = {}) =>
@@ -107,6 +108,7 @@ beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(NOW);
     sendMock.mockReset();
+    pstats = {};
     puzzles = {
         '001': puzzle('001', 500, ['Tactics'], ['Fork']),
         '002': puzzle('002', 900, ['Tactics'], ['Pin']),
@@ -169,6 +171,24 @@ beforeEach(() => {
                         marshall({ pk: 'PUZZLE', sk: p.id, ...p }),
                     ),
                 });
+            }
+            if (name === 'UpdateItemCommand') {
+                // Adding to the totals behind a puzzle's averages.
+                const key = unmarshall(cmd.input.Key);
+                const values = unmarshall(cmd.input.ExpressionAttributeValues);
+                const now = pstats[key.sk] ?? {};
+                const names: Record<string, string> = {
+                    ':one': 'attempts',
+                    ':accuracy': 'accuracySum',
+                    ':speed': 'speedSum',
+                    ':score': 'scoreSum',
+                    ':thinking': 'thinkingMsSum',
+                };
+                for (const [placeholder, field] of Object.entries(names)) {
+                    now[field] = (now[field] ?? 0) + values[placeholder];
+                }
+                pstats[key.sk] = now;
+                return Promise.resolve({ Attributes: marshall(now) });
             }
             if (name === 'GetItemCommand') {
                 const key = unmarshall(cmd.input.Key);
@@ -786,6 +806,37 @@ describe('scoring and tactics rating', () => {
             event('solver', attemptBody('001', '2026-09-29T11:01:00.000Z')),
         );
         expect(body.scoring.ratingBefore).toBe(1000);
+    });
+
+    it('sends back how members do on average once enough have played the puzzle', async () => {
+        const members = ['solver', 'other', 'coach', 'rated'];
+        const results = [];
+        for (const [i, member] of members.entries()) {
+            results.push(
+                await call(
+                    submitAttemptHandler,
+                    event(member, attemptBody('001', `2026-09-29T11:0${i + 1}:00.000Z`)),
+                ),
+            );
+        }
+        // The first two have no average to show yet, the third and fourth do.
+        expect(results[1].body.scoring.average).toBeUndefined();
+        expect(results[2].body.scoring.average).toMatchObject({ attempts: 3, accuracy: 1 });
+        expect(results[3].body.scoring.average).toMatchObject({ attempts: 4 });
+    });
+
+    it('does not count a repeat, or a puzzle that was left, in the averages', async () => {
+        await call(
+            submitAttemptHandler,
+            event('solver', attemptBody('001', '2026-09-29T11:01:00.000Z')),
+        );
+        await call(
+            submitAttemptHandler,
+            event('solver', attemptBody('001', '2026-09-29T11:02:00.000Z')),
+        );
+        const left = { ...attemptBody('001', '2026-09-29T11:03:00.000Z'), abandoned: true };
+        await call(submitAttemptHandler, event('other', left));
+        expect(pstats['001'].attempts).toBe(1);
     });
 
     it('leaves a member with no counted puzzles without a rating in their stats', async () => {

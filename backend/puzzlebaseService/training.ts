@@ -7,7 +7,10 @@ import {
     trainingTagSets,
     TrainRequestSchema,
 } from '@jackstenglein/chess-dojo-common/src/puzzlebase/runs';
-import { rateAttempt } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
+import {
+    averagesFromSums,
+    rateAttempt,
+} from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { getNormalizedRating } from '@jackstenglein/chess-dojo-common/src/ratings/ratings';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import {
@@ -18,7 +21,14 @@ import {
     requireUserInfo,
     success,
 } from '../directoryService/api';
-import { getMyVotes, getPuzzle, getUser, listPuzzles, requireTrainingAccess } from './database';
+import {
+    addToPuzzleSums,
+    getMyVotes,
+    getPuzzle,
+    getUser,
+    listPuzzles,
+    requireTrainingAccess,
+} from './database';
 import {
     addToSession,
     addToStats,
@@ -131,6 +141,14 @@ export const submitAttemptHandler: APIGatewayProxyHandlerV2 = async (event) => {
                 // Another puzzle finished at the same moment. The rating is still right to within
                 // a few points, so say so in the log and carry on rather than failing the save.
                 console.warn('Rating changed while saving an attempt for %s', username);
+            }
+            if (scoring.counted && !submission.abandoned) {
+                // Add it to what everyone has done on the puzzle, and send back how they do on
+                // average. The average is not stored with the attempt, so a resend is not counted twice.
+                const average = averagesFromSums(await addToPuzzleSums(puzzle.id, scoring));
+                return success(
+                    average ? { ...attempt, scoring: { ...scoring, average } } : attempt,
+                );
             }
         } else {
             // Sending the same attempt twice: answer with what was saved the first time.
