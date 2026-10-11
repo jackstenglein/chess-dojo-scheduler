@@ -1,7 +1,7 @@
 import { AttemptScoring } from '@jackstenglein/chess-dojo-common/src/puzzlebase/scoring';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { formatDelta, ScoreSummary } from './ScoreSummary';
+import { formatDelta, formatSpeed, ScoreSummary } from './ScoreSummary';
 
 afterEach(cleanup);
 
@@ -20,6 +20,14 @@ const scoring = (over: Partial<AttemptScoring> = {}): AttemptScoring => ({
     ...over,
 });
 
+describe('formatSpeed', () => {
+    it('is a plain number without trailing zeros', () => {
+        expect(formatSpeed(0.7)).toBe('0.7');
+        expect(formatSpeed(0.9234)).toBe('0.92');
+        expect(formatSpeed(1)).toBe('1');
+    });
+});
+
 describe('formatDelta', () => {
     it('shows the sign and one decimal', () => {
         expect(formatDelta(6.42)).toBe('+6.4');
@@ -35,7 +43,7 @@ describe('ScoreSummary', () => {
         expect(screen.getByText('2341')).toBeTruthy();
         expect(screen.getByText('+6.4')).toBeTruthy();
         expect(screen.getByText('100%')).toBeTruthy();
-        expect(screen.getByText('92%')).toBeTruthy();
+        expect(screen.getByText('0.92')).toBeTruthy();
         expect(screen.getByText('Took 00:41 · average 00:30')).toBeTruthy();
         expect(screen.getByText('92')).toBeTruthy();
         expect(screen.queryByText(/vs puzzle/)).toBeNull();

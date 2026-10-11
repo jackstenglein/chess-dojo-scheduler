@@ -20,6 +20,11 @@ export function formatDelta(delta: number): string {
     return `${rounded > 0 ? '+' : '−'}${Math.abs(rounded).toFixed(1)}`;
 }
 
+/** The speed factor as a plain number, to two places without trailing zeros: 0.7, 0.92, 1. */
+export function formatSpeed(speed: number): string {
+    return String(Number(speed.toFixed(2)));
+}
+
 /** One cell of the strip: a small label over a number, centered. */
 function Cell({ label, value, color }: { label: string; value: ReactNode; color?: string }) {
     return (
@@ -147,7 +152,7 @@ export function ScoreSummary({ scoring, failed }: ScoreSummaryProps) {
                 <Cell label='Accuracy' value={`${Math.round(scoring.accuracy * 100)}%`} />
                 <Cell
                     label='Speed'
-                    value={par === undefined ? '—' : `${Math.round(scoring.speed * 100)}%`}
+                    value={par === undefined ? '—' : formatSpeed(scoring.speed)}
                     // Green at full speed, amber once it costs a lot.
                     color={
                         par === undefined
