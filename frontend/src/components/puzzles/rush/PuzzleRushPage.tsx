@@ -23,6 +23,7 @@ import {
     Clear,
     Close,
     LocalFireDepartment,
+    Settings,
 } from '@mui/icons-material';
 import {
     Box,
@@ -35,7 +36,10 @@ import {
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo, useRef } from 'react';
-import { DefaultUnderboardTab } from 'src/board/pgn/boardTools/underboard/underboardTabs';
+import { ShortcutAction } from 'src/board/pgn/boardTools/underboard/settings/ShortcutAction';
+import ViewerSettings, {
+    ViewerSetting,
+} from 'src/board/pgn/boardTools/underboard/settings/ViewerSettings';
 import {
     PuzzleRushAttemptsTable,
     puzzleRushRetryHref,
@@ -181,7 +185,12 @@ function RunningScreen({ rush }: { rush: UsePuzzleRushResponse }) {
                         icon: <Bolt />,
                         element: <PuzzleRushUnderboard rush={rush} orientation={orientation} />,
                     },
-                    DefaultUnderboardTab.Settings,
+                    {
+                        name: 'puzzleRushSettings',
+                        tooltip: t('tooltipSettings'),
+                        icon: <Settings />,
+                        element: <PuzzleRushSettings />,
+                    },
                 ]}
                 pgn={puzzlePGN}
                 initialRightTab='puzzleRush'
@@ -202,6 +211,46 @@ function RunningScreen({ rush }: { rush: UsePuzzleRushResponse }) {
                 hideBoardButtons
             />
         </Container>
+    );
+}
+
+const viewerSettings = {
+    [ViewerSetting.BoardStyle]: true,
+    [ViewerSetting.PieceStyle]: true,
+    [ViewerSetting.CoordinateStyle]: true,
+    [ViewerSetting.CoordinateSize]: true,
+    [ViewerSetting.StartEndButtonBehavior]: true,
+    [ViewerSetting.VariationBehavior]: true,
+    [ViewerSetting.ShowLegalMoves]: true,
+    [ViewerSetting.ScrollOnBoardToMove]: true,
+    [ViewerSetting.InlineNotation]: true,
+    [ViewerSetting.ShowEngine]: true,
+    [ViewerSetting.PieceSounds]: true,
+    [ViewerSetting.CorrectSolitaireMoveSound]: true,
+    [ViewerSetting.IncorrectSolitaireMoveSound]: true,
+};
+
+const keyboardShortcutProps = {
+    actions: [
+        ShortcutAction.FirstMove,
+        ShortcutAction.FirstMoveVariation,
+        ShortcutAction.PreviousMove,
+        ShortcutAction.NextMove,
+        ShortcutAction.LastMove,
+        ShortcutAction.LastMoveVariation,
+        ShortcutAction.ToggleOrientation,
+    ],
+};
+
+/** The underboard panel for puzzle rush settings. */
+function PuzzleRushSettings() {
+    return (
+        <CardContent sx={{ minHeight: 1 }}>
+            <ViewerSettings
+                enabledSettings={viewerSettings}
+                keyboardShortcutsProps={keyboardShortcutProps}
+            />
+        </CardContent>
     );
 }
 

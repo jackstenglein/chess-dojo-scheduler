@@ -13,6 +13,11 @@ import {
     Typography,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
+import {
+    SOLITAIRE_DEFAULT_CORRECT_SOUND,
+    SOLITAIRE_DEFAULT_INCORRECT_SOUND,
+    SolitaireSound,
+} from 'src/board/pgn/solitaire/useSolitaireChess';
 import { useLocalStorage } from 'usehooks-ts';
 import KeyboardShortcuts, { KeyboardShortcutsProps } from './KeyboardShortcuts';
 import { CoordinateSize, CoordinateSizeKey } from './viewerSettingsConstants';
@@ -217,8 +222,14 @@ const ViewerSettings = ({
         InlineNotationSetting.default,
     );
 
-    const [correctSound, setCorrectSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
-    const [incorrectSound, setIncorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
+    const [correctSound, setCorrectSound] = useLocalStorage(
+        CORRECT_SOUND_KEY,
+        SOLITAIRE_DEFAULT_CORRECT_SOUND,
+    );
+    const [incorrectSound, setIncorrectSound] = useLocalStorage(
+        INCORRECT_SOUND_KEY,
+        SOLITAIRE_DEFAULT_INCORRECT_SOUND,
+    );
 
     return (
         <Stack spacing={3}>
@@ -531,28 +542,39 @@ const ViewerSettings = ({
                 )}
 
                 {(!enabledSettings || enabledSettings[ViewerSetting.CorrectSolitaireMoveSound]) && (
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={correctSound}
-                                onChange={(e) => setCorrectSound(e.target.checked)}
-                            />
-                        }
-                        label={t('playCorrectSoundLabel')}
-                    />
+                    <TextField
+                        select
+                        label={t('solitaire.correctSoundLabel')}
+                        value={correctSound}
+                        onChange={(e) => setCorrectSound(e.target.value as SolitaireSound)}
+                        sx={{ my: 3 }}
+                    >
+                        <MenuItem value={SolitaireSound.None}>{t('solitaire.none')}</MenuItem>
+                        <MenuItem value={SolitaireSound.Bell}>{t('solitaire.bell')}</MenuItem>
+                        <MenuItem value={SolitaireSound.Rising5th}>
+                            {t('solitaire.rising5th')}
+                        </MenuItem>
+                        <MenuItem value={SolitaireSound.Rising6th}>
+                            {t('solitaire.rising6th')}
+                        </MenuItem>
+                        <MenuItem value={SolitaireSound.WarmChord}>
+                            {t('solitaire.warmChord')}
+                        </MenuItem>
+                        <MenuItem value={SolitaireSound.Boss}>{t('solitaire.boss')}</MenuItem>
+                    </TextField>
                 )}
 
                 {(!enabledSettings ||
                     enabledSettings[ViewerSetting.IncorrectSolitaireMoveSound]) && (
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={incorrectSound}
-                                onChange={(e) => setIncorrectSound(e.target.checked)}
-                            />
-                        }
-                        label={t('playIncorrectSoundLabel')}
-                    />
+                    <TextField
+                        select
+                        label={t('solitaire.incorrectSoundLabel')}
+                        value={incorrectSound}
+                        onChange={(e) => setIncorrectSound(e.target.value as SolitaireSound)}
+                    >
+                        <MenuItem value={SolitaireSound.None}>{t('solitaire.none')}</MenuItem>
+                        <MenuItem value={SolitaireSound.Buzz}>{t('solitaire.buzz')}</MenuItem>
+                    </TextField>
                 )}
             </Stack>
 

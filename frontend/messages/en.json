@@ -3238,7 +3238,8 @@
             "historyEmpty": "You haven't completed any Dojo Rush runs yet.",
             "loadMore": "Load More",
             "incorrectMoveComment": "Incorrect guess",
-            "incorrectMoveCommentDuringRun": "Incorrect guess during the run"
+            "incorrectMoveCommentDuringRun": "Incorrect guess during the run",
+            "tooltipSettings": "Settings"
         },
         "squareColors": {
             "title": "Square Color Drill",
@@ -3932,7 +3933,18 @@
                 "keyEscape": "Escape",
                 "keyTab": "Tab",
                 "keyBackspace": "Backspace",
-                "fieldRequired": "This field is required"
+                "fieldRequired": "This field is required",
+                "solitaire": {
+                    "correctSoundLabel": "Play sound on correct move",
+                    "incorrectSoundLabel": "Play sound on incorrect move",
+                    "none": "None",
+                    "bell": "Bell",
+                    "rising5th": "Rising 5th",
+                    "rising6th": "Rising 6th",
+                    "warmChord": "Warm Chord",
+                    "boss": "Bauss",
+                    "buzz": "Buzz"
+                }
             },
             "comments": {
                 "showCommentsLabel": "Show Comments From",
@@ -4112,6 +4124,17 @@
                 "moveTooltip": "Move {value}"
             },
             "tools": {
+                "solitaire": {
+                    "correctSoundLabel": "Play sound on correct move",
+                    "incorrectSoundLabel": "Play sound on incorrect move",
+                    "none": "None",
+                    "bell": "Bell",
+                    "rising5th": "Rising 5th",
+                    "rising6th": "Rising 6th",
+                    "warmChord": "Warm Chord",
+                    "boss": "Bauss",
+                    "buzz": "Buzz"
+                },
                 "solitaireChessTitle": "Solitaire Chess (Guess the Move)",
                 "solitaireChessDescription": "Test your understanding (or memory) of this game by guessing the moves. Starting this mode will hide the PGN text until you correctly pick the next move.",
                 "playAsLabel": "Play As",

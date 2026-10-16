@@ -36,6 +36,19 @@ const EMPTY_SOLITAIRE_RESULTS = {
     black: { correct: 0, total: 0 },
 };
 
+export enum SolitaireSound {
+    None = 'none',
+    Bell = 'bell',
+    Rising5th = 'rising_5th',
+    Rising6th = 'rising_6th',
+    WarmChord = 'warm_chord',
+    Boss = 'boss',
+    Buzz = 'buzz',
+}
+
+export const SOLITAIRE_DEFAULT_CORRECT_SOUND = SolitaireSound.Bell;
+export const SOLITAIRE_DEFAULT_INCORRECT_SOUND = SolitaireSound.Buzz;
+
 export interface UseSolitaireChessResponse {
     /** Whether solitaire mode is enabled. */
     enabled: boolean;
@@ -96,8 +109,11 @@ export function useSolitaireChess(
     const onWrongMove = useRef<() => void>(undefined);
     const onComplete = useRef<() => void>(undefined);
     const allowDifferentMates = useRef(false);
-    const [correctSound] = useLocalStorage(CORRECT_SOUND_KEY, true);
-    const [incorrectSound] = useLocalStorage(INCORRECT_SOUND_KEY, true);
+    const [correctSound] = useLocalStorage(CORRECT_SOUND_KEY, SOLITAIRE_DEFAULT_CORRECT_SOUND);
+    const [incorrectSound] = useLocalStorage(
+        INCORRECT_SOUND_KEY,
+        SOLITAIRE_DEFAULT_INCORRECT_SOUND,
+    );
     const t = useTranslations('analysisBoard.underboard.tools');
     const [incorrectMoveComment, setIncorrectMoveComment] = useState(t('incorrectMoveComment'));
 
@@ -138,7 +154,7 @@ export function useSolitaireChess(
                 });
             }
         },
-        [setEnabled, chess, board, showGlyphs, playAs],
+        [setEnabled, chess, board, showGlyphs, playAs, t],
     );
 
     const stop = useCallback(() => {
@@ -167,8 +183,8 @@ export function useSolitaireChess(
                 chess.isMainline(move) ||
                 (allowDifferentMates.current && chess.isCheckmate(testMove))
             ) {
-                if (correctSound) {
-                    const audio = new Audio('/static/sounds/puzzles_correct_move.mp3');
+                if (correctSound !== SolitaireSound.None) {
+                    const audio = new Audio(`/static/sounds/${correctSound}.mp3`);
                     void audio.play();
                 }
                 handleCorrectMove({
@@ -184,8 +200,8 @@ export function useSolitaireChess(
                 return;
             }
 
-            if (incorrectSound) {
-                const audio = new Audio('/static/sounds/puzzles_incorrect_move.mp3');
+            if (incorrectSound !== SolitaireSound.None) {
+                const audio = new Audio(`/static/sounds/${incorrectSound}.mp3`);
                 void audio.play();
             }
 
