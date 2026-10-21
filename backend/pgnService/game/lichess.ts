@@ -1,7 +1,46 @@
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { splitPgns } from '@jackstenglein/chess-dojo-common/src/pgn/pgn';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { ApiError } from '../../directoryService/api';
 import { getPathSegment } from './helpers';
+
+const secretsManager = new SecretsManagerClient({ region: 'us-east-1' });
+let lichessToken: Promise<string | undefined> | undefined;
+
+/**
+ * Returns ChessDojo's Lichess API token, or undefined if it is not configured. Without it,
+ * Lichess only exports games that are recent or between players rated 2200+ on average.
+ */
+function getLichessToken(): Promise<string | undefined> {
+    lichessToken ??= secretsManager
+        .send(
+            new GetSecretValueCommand({
+                SecretId: `chess-dojo-${process.env.stage}-lichessApiToken`,
+            }),
+        )
+        .then((output) => output.SecretString || undefined)
+        .catch((err: unknown) => {
+            console.error('Failed to get the Lichess API token: ', err);
+            return undefined;
+        });
+    return lichessToken;
+}
+
+/**
+ * Returns the axios config for a Lichess export. Redirects are not followed, because
+ * Lichess redirects the exports it refuses to its sign up page.
+ * @param accept The Accept header to send, if any.
+ */
+async function getLichessConfig(accept?: string): Promise<AxiosRequestConfig> {
+    const token = await getLichessToken();
+    return {
+        headers: {
+            ...(accept ? { Accept: accept } : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        maxRedirects: 0,
+    };
+}
 
 /**
  * Fetches the PGN of the given Lichess game.
@@ -16,9 +55,10 @@ export async function getLichessGame(url?: string): Promise<string> {
 
     try {
         const exportUrl = `https://lichess.org/game/export/${gameId}?evals=0&clocks=1`;
-        const response = await axios.get<string>(exportUrl, {
-            headers: { Accept: 'application/x-chess-pgn' },
-        });
+        const response = await axios.get<string>(
+            exportUrl,
+            await getLichessConfig('application/x-chess-pgn'),
+        );
         return response.data;
     } catch (err: unknown) {
         handleError('Lichess Game', err);
@@ -35,10 +75,10 @@ export async function getLichessChapter(url?: string): Promise<string> {
     const studyId = getPathSegment(url, 1);
     const chapterId = getPathSegment(url, 2);
 
-    const exportUrl = `https://lichess.org/study/${studyId}/${chapterId}.pgn?source=true`;
+    const exportUrl = `https://lichess.org/api/study/${studyId}/${chapterId}.pgn?source=true`;
 
     try {
-        const response = await axios.get<string>(exportUrl);
+        const response = await axios.get<string>(exportUrl, await getLichessConfig());
         return response.data;
     } catch (err) {
         handleError('Lichess Study Chapter', err);
@@ -54,9 +94,9 @@ export async function getLichessChapter(url?: string): Promise<string> {
 export async function getLichessStudy(url?: string): Promise<string[]> {
     const studyId = getPathSegment(url, 1);
 
-    const exportUrl = `https://lichess.org/study/${studyId}.pgn?source=true`;
+    const exportUrl = `https://lichess.org/api/study/${studyId}.pgn?source=true`;
     try {
-        const response = await axios.get<string>(exportUrl);
+        const response = await axios.get<string>(exportUrl, await getLichessConfig());
         return splitPgns(response.data);
     } catch (err) {
         handleError('Lichess Study', err);
@@ -83,6 +123,12 @@ function handleError(requested: string, err: unknown) {
             throw new ApiError({
                 statusCode: 400,
                 publicMessage: `${requested} not found.`,
+                cause: err,
+            });
+        } else if (status >= 300 && status < 400) {
+            throw new ApiError({
+                statusCode: 400,
+                publicMessage: `${requested} can only be downloaded by signed-in users. Download its PGN from Lichess and import that instead.`,
                 cause: err,
             });
         }

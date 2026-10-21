@@ -2,7 +2,7 @@
 
 import { CandidateMove, Chess } from '@jackstenglein/chess';
 import tcn from '@savi2w/chess-tcn';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { Browser, BrowserErrorCaptureEnum } from 'happy-dom';
 import moment from 'moment';
 
@@ -98,6 +98,24 @@ function getPathSegment(url: string | undefined, idx: number): PgnImportResult<s
 }
 
 /**
+ * Returns the axios config for a Lichess export. It sends ChessDojo's Lichess API token
+ * when the server has one: without it, Lichess only exports games that are recent or
+ * between players rated 2200+ on average. Redirects are not followed, because Lichess
+ * redirects the exports it refuses to its sign up page.
+ * @param accept The Accept header to send, if any.
+ */
+function getLichessConfig(accept?: string): AxiosRequestConfig {
+    const token = process.env.LICHESS_API_TOKEN;
+    return {
+        headers: {
+            ...(accept ? { Accept: accept } : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        maxRedirects: 0,
+    };
+}
+
+/**
  * Fetches the PGN of the given Lichess game.
  * @param url The URL of the Lichess game.
  * @returns The PGN of the Lichess game.
@@ -114,9 +132,10 @@ export async function getLichessGame(url?: string): Promise<PgnImportResult<stri
     const gameId = data?.substring(0, 8);
     try {
         const exportUrl = `https://lichess.org/game/export/${gameId}?evals=0&clocks=1`;
-        const response = await axios.get<string>(exportUrl, {
-            headers: { Accept: 'application/x-chess-pgn' },
-        });
+        const response = await axios.get<string>(
+            exportUrl,
+            getLichessConfig('application/x-chess-pgn'),
+        );
         return { data: response.data };
     } catch (err: unknown) {
         return handleError('Lichess Game', err);
@@ -139,10 +158,10 @@ export async function getLichessChapter(url?: string): Promise<PgnImportResult<s
         return chapterIdResp;
     }
 
-    const exportUrl = `https://lichess.org/study/${studyIdResp.data}/${chapterIdResp.data}.pgn?source=true`;
+    const exportUrl = `https://lichess.org/api/study/${studyIdResp.data}/${chapterIdResp.data}.pgn?source=true`;
 
     try {
-        const response = await axios.get<string>(exportUrl);
+        const response = await axios.get<string>(exportUrl, getLichessConfig());
         return { data: response.data };
     } catch (err) {
         return handleError('Lichess Study Chapter', err);
@@ -160,9 +179,9 @@ export async function getLichessStudy(url?: string): Promise<PgnImportResult<str
         return studyIdResp;
     }
 
-    const exportUrl = `https://lichess.org/study/${studyIdResp.data}.pgn?source=true`;
+    const exportUrl = `https://lichess.org/api/study/${studyIdResp.data}.pgn?source=true`;
     try {
-        const response = await axios.get<string>(exportUrl);
+        const response = await axios.get<string>(exportUrl, getLichessConfig());
         return { data: splitPgns(response.data) };
     } catch (err) {
         return handleError('Lichess Study', err);
@@ -215,6 +234,13 @@ function handleError<T>(requested: string, err: unknown): PgnImportResult<T> {
                 error: {
                     statusCode: 400,
                     publicMessage: `${requested} not found.`,
+                },
+            };
+        } else if (status >= 300 && status < 400) {
+            return {
+                error: {
+                    statusCode: 400,
+                    publicMessage: `${requested} can only be downloaded by signed-in users. Download its PGN from Lichess and import that instead.`,
                 },
             };
         }
