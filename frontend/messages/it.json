@@ -407,7 +407,6 @@
             "goal": "Obiettivo",
             "goalPoints": "{value} {value, plural, =1 {punto} other {punti}}",
             "goalHours": "{value} {value, plural, =1 {ora} other {ore}}",
-            "popOutView": "Vista separata",
             "classicalGames": "Partite classiche (ultimo anno)",
             "nextGraduation": "Prossimo passaggio: da {cohort} a {nextCohort}",
             "allTasks": "Tutti i compiti",
@@ -462,6 +461,12 @@
                 "noActivity": "Nessuna attività recente dai tuoi seguiti o dalla tua coorte."
             },
             "heatmap": {
+                "legend": "Cosa significano i colori",
+                "settings": "Impostazioni della heatmap",
+                "title": "Heatmap",
+                "dailyGoal": "Obiettivo giornaliero {time}",
+                "nothingLogged": "Niente registrato questo giorno",
+                "dayTotal": "Totale {time}",
                 "weekdaySun": "Dom",
                 "weekdayMon": "Lun",
                 "weekdayTue": "Mar",

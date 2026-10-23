@@ -4,7 +4,7 @@ import { useWindowSizeEffect } from '@/style/useWindowSizeEffect';
 import { Close } from '@mui/icons-material';
 import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type MouseEvent } from 'react';
 import { Heatmap } from './Heatmap';
 
 const BLOCK_COLUMNS = 54;
@@ -35,6 +35,7 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
     const t = useTranslations('profile.info');
+    const tHeatmap = useTranslations('profile.info.heatmap');
 
     const resizeDialogBlocks = useCallback(() => {
         if (isModalOpen) {
@@ -45,14 +46,30 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
     useEffect(resizeDialogBlocks, [resizeDialogBlocks]);
     useWindowSizeEffect(resizeDialogBlocks);
 
+    /**
+     * Expands the heatmap when the card is clicked anywhere but a day square (which
+     * shows that day's tasks) or a button.
+     */
+    const onClickCard = (event: MouseEvent<HTMLDivElement>) => {
+        const target = event.target as Element;
+        if (
+            // Clicks in menus and popups are portalled outside but still bubble here.
+            !event.currentTarget.contains(target) ||
+            target.closest('button, a, [data-activity-date]')
+        ) {
+            return;
+        }
+        setIsModalOpen(true);
+    };
+
     return (
         <>
-            <Card sx={{ height: 1 }}>
+            <Card onClick={onClickCard} sx={{ height: 1, cursor: 'pointer' }}>
                 <CardContent sx={{ position: 'relative' }}>
                     <Heatmap
                         entries={entries}
-                        onPopOut={() => setIsModalOpen(true)}
-                        description=''
+                        description={t('pastYear')}
+                        title={tHeatmap('title')}
                         workGoalHistory={workGoalHistory}
                     />
                 </CardContent>
@@ -84,6 +101,9 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
 
                 <DialogContent
                     sx={{
+                        // Room for the close button, so it doesn't crowd the heatmap's
+                        // own info, settings and expand icons.
+                        pt: 7,
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -93,6 +113,7 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
                         entries={entries}
                         blockSize={blockSize}
                         description={t('pastYear')}
+                        title={tHeatmap('title')}
                         workGoalHistory={workGoalHistory}
                     />
                 </DialogContent>

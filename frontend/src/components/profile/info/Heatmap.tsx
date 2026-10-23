@@ -7,22 +7,31 @@ import { User, WorkGoalHistory, WorkGoalSettings } from '@/database/user';
 import CohortIcon, { cohortIcons } from '@/scoreboard/CohortIcon';
 import { CategoryColors } from '@/style/ThemeProvider';
 import { useLightMode } from '@/style/useLightMode';
+import { getTimeZonedDate } from '@jackstenglein/chess-dojo-common/src/dates/dates';
 import {
     calculateColor,
     calculateLevel,
     getActivity,
     mixColors,
 } from '@jackstenglein/chess-dojo-common/src/heatmap/heatmap';
-import { Bedtime, CheckCircle, Close, HourglassBottom } from '@mui/icons-material';
+import {
+    Bedtime,
+    CheckCircle,
+    Close,
+    HourglassBottom,
+    InfoOutlined,
+    LocalFireDepartment,
+} from '@mui/icons-material';
 import {
     Box,
-    Checkbox,
+    ClickAwayListener,
     Divider,
-    FormControlLabel,
+    IconButton,
     Menu,
     MenuItem,
     Paper,
     PaperProps,
+    Popover,
     PopoverPosition,
     Stack,
     Tooltip,
@@ -30,7 +39,7 @@ import {
 } from '@mui/material';
 import { DateTime } from 'luxon';
 import { useTranslations } from 'next-intl';
-import type { MouseEvent as ReactMouseEvent } from 'react';
+import type { MouseEvent as ReactMouseEvent, ReactNode } from 'react';
 import { cloneElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ActivityCalendar,
@@ -41,9 +50,10 @@ import {
 import { GiCrossedSwords } from 'react-icons/gi';
 import { LongPressEventType, LongPressReactEvents, useLongPress } from 'use-long-press';
 import { useTimelineContext } from '../activity/useTimeline';
+import { TrainingPlanIcon } from '../trainingPlan/TrainingPlanIcon';
 import { DEFAULT_WORK_GOAL } from '../trainingPlan/workGoal';
 import { MIN_BLOCK_SIZE } from './HeatmapCard';
-import { HeatmapOptions, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
+import { HeatmapSettingsButton, TimelineEntryField, useHeatmapOptions } from './HeatmapOptions';
 
 interface CategoryCount {
     /** The count of the category spent on custom tasks. */
@@ -153,16 +163,17 @@ export function Heatmap({
     entries,
     description,
     blockSize = MIN_BLOCK_SIZE,
-    onPopOut,
     minDate: initialMinDate,
     maxDate: initialMaxDate,
     workGoalHistory,
     slotProps,
+    title,
 }: {
     entries: TimelineEntry[];
     description: string;
+    /** A heading shown in place of the total, when given. */
+    title?: string;
     blockSize?: number;
-    onPopOut?: () => void;
     minDate?: string;
     maxDate?: string;
     workGoalHistory: WorkGoalHistory[];
@@ -187,6 +198,7 @@ export function Heatmap({
           }
         | undefined
     >();
+    const [selectedDay, setSelectedDay] = useState<{ date: string; anchor: Element }>();
     const { field, colorMode, maxPoints, maxMinutes, weekStartOn, weekEndOn } = useHeatmapOptions();
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
     const theme = isLight ? LIGHT_THEME : DARK_THEME;
@@ -329,6 +341,8 @@ export function Heatmap({
         }
     };
 
+    const todaysGoal = getTodaysGoal(workGoalHistory);
+
     return (
         <Stack
             sx={{
@@ -346,12 +360,108 @@ export function Heatmap({
             }}
         >
             <RequestSnackbar request={request} />
-            <HeatmapOptions onPopOut={onPopOut} />
+            <Stack
+                direction='row'
+                sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 1.5 }}
+            >
+                <Typography
+                    sx={{
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                    }}
+                >
+                    {title && (
+                        <LocalFireDepartment
+                            fontSize='small'
+                            sx={{ color: 'dojoOrange.main' }}
+                            aria-hidden
+                        />
+                    )}
+                    {title && (
+                        <>
+                            {title}
+                            {todaysGoal !== undefined && (
+                                <Typography
+                                    component='span'
+                                    variant='caption'
+                                    sx={{ color: 'text.secondary', fontWeight: 400 }}
+                                    data-testid='heatmap-daily-goal'
+                                >
+                                    · {t('dailyGoal', { time: formatTime(todaysGoal, tCommon) })}
+                                </Typography>
+                            )}
+                        </>
+                    )}
+                    {!title &&
+                        (field === 'dojoPoints'
+                            ? t('totalDojoPointsLine', {
+                                  points: Math.round(10 * totalDojoPoints) / 10,
+                                  description,
+                              })
+                            : t('totalMinutesLine', {
+                                  time: formatTime(totalMinutesSpent, tCommon),
+                                  description,
+                              }))}
+                </Typography>
+
+                <Stack direction='row' sx={{ alignItems: 'center', gap: 0.25 }}>
+                    <HeatmapLegendButton
+                        scale={
+                            <Stack
+                                direction='row'
+                                sx={{
+                                    alignItems: 'center',
+                                    gap: '3px',
+                                }}
+                            >
+                                <Typography sx={{ fontSize: '14px', mr: '0.4em' }}>
+                                    {t('less')}
+                                </Typography>
+
+                                {Array(MAX_LEVEL + 1)
+                                    .fill(0)
+                                    .map((_, i) => (
+                                        <LegendTooltip
+                                            key={i}
+                                            block={
+                                                <svg width={blockSize} height={blockSize}>
+                                                    <rect
+                                                        width={blockSize}
+                                                        height={blockSize}
+                                                        fill={theme[i]}
+                                                        rx='2'
+                                                        ry='2'
+                                                        style={{
+                                                            stroke: 'rgba(255, 255, 255, 0.04)',
+                                                        }}
+                                                    ></rect>
+                                                </svg>
+                                            }
+                                            level={i}
+                                            clamp={clamp}
+                                            field={field}
+                                        />
+                                    ))}
+
+                                <Typography sx={{ fontSize: '14px', ml: '0.4em' }}>
+                                    {t('more')}
+                                </Typography>
+                            </Stack>
+                        }
+                    />
+                    <HeatmapSettingsButton />
+                </Stack>
+            </Stack>
 
             <Stack ref={scrollerRef} direction='row' sx={{ overflowX: 'auto' }}>
                 <Paper
                     elevation={1}
-                    sx={{ position: 'sticky', left: 0, pr: 0.75, borderRadius: 0, pb: 4 }}
+                    // Padded to the calendar's height, so the labels never make the heatmap scroll
+                    // vertically, without the extra space that was here before.
+                    sx={{ position: 'sticky', left: 0, pr: 0.75, borderRadius: 0, pb: '10px' }}
                     {...slotProps?.weekdayLabelPaper}
                 >
                     <Stack>
@@ -410,6 +520,9 @@ export function Heatmap({
                                 editable={editable}
                                 onContextMenu={onBlockContextMenu}
                                 onLongPress={onBlockLongPress}
+                                onSelect={(anchor) =>
+                                    setSelectedDay({ date: activity.date, anchor })
+                                }
                             />
                         )}
                         maxLevel={MAX_LEVEL}
@@ -423,66 +536,6 @@ export function Heatmap({
                 </Stack>
             </Stack>
 
-            <Stack
-                direction='row'
-                sx={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '4px 16px',
-                    mt: 0.5,
-                }}
-            >
-                <Typography sx={{ fontSize: '14px' }}>
-                    {field === 'dojoPoints'
-                        ? t('totalDojoPointsLine', {
-                              points: Math.round(10 * totalDojoPoints) / 10,
-                              description,
-                          })
-                        : t('totalMinutesLine', {
-                              time: formatTime(totalMinutesSpent, tCommon),
-                              description,
-                          })}
-                </Typography>
-
-                <Stack
-                    direction='row'
-                    sx={{
-                        alignItems: 'center',
-                        gap: '3px',
-                    }}
-                >
-                    <Typography sx={{ fontSize: '14px', mr: '0.4em' }}>{t('less')}</Typography>
-
-                    {Array(MAX_LEVEL + 1)
-                        .fill(0)
-                        .map((_, i) => (
-                            <LegendTooltip
-                                key={i}
-                                block={
-                                    <svg width={blockSize} height={blockSize}>
-                                        <rect
-                                            width={blockSize}
-                                            height={blockSize}
-                                            fill={theme[i]}
-                                            rx='2'
-                                            ry='2'
-                                            style={{
-                                                stroke: 'rgba(255, 255, 255, 0.04)',
-                                            }}
-                                        ></rect>
-                                    </svg>
-                                }
-                                level={i}
-                                clamp={clamp}
-                                field={field}
-                            />
-                        ))}
-
-                    <Typography sx={{ fontSize: '14px', ml: '0.4em' }}>{t('more')}</Typography>
-                </Stack>
-            </Stack>
-            <CategoryLegend />
             <Menu
                 open={!!contextMenu}
                 onClose={closeContextMenu}
@@ -525,7 +578,233 @@ export function Heatmap({
                     </MenuItem>
                 )}
             </Menu>
+
+            <DayPopover
+                date={selectedDay?.date}
+                anchor={selectedDay?.anchor}
+                entries={entries}
+                onClose={() => setSelectedDay(undefined)}
+            />
         </Stack>
+    );
+}
+
+/**
+ * The work goal in effect today, in minutes: today's entry in the latest goal set
+ * on or before today. Undefined when there's no goal or it's 0.
+ */
+function getTodaysGoal(workGoalHistory: WorkGoalHistory[]): number | undefined {
+    const today = new Date().toISOString();
+    const current = [...workGoalHistory]
+        .filter((h) => h.date <= today)
+        .sort((a, b) => b.date.localeCompare(a.date))[0];
+    const minutes = current?.workGoal.minutesPerDay[new Date().getDay()];
+    return minutes ? minutes : undefined;
+}
+
+/** The YYYY-MM-DD day an entry counts towards on the heatmap, in the viewer's timezone. */
+function getEntryDay(entry: TimelineEntry, viewer?: User): string {
+    const date = getTimeZonedDate(
+        new Date(entry.date || entry.createdAt),
+        viewer?.timezoneOverride,
+    );
+    return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
+}
+
+/** A small popup listing what was logged on a day of the heatmap. */
+function DayPopover({
+    date,
+    anchor,
+    entries,
+    onClose,
+}: {
+    date?: string;
+    anchor?: Element;
+    entries: TimelineEntry[];
+    onClose: () => void;
+}) {
+    const t = useTranslations('profile.info.heatmap');
+    const tCommon = useTranslations('common');
+    const tNewsfeed = useTranslations('newsfeed');
+    const { user: viewer } = useAuth();
+
+    // One row per task, with the day's time on it added up.
+    const dayEntries = useMemo(() => {
+        if (!date) {
+            return [];
+        }
+        const byTask = new Map<string, TimelineEntry>();
+        for (const e of entries) {
+            if (getEntryDay(e, viewer) !== date || e.minutesSpent < 0 || e.dojoPoints < 0) {
+                continue;
+            }
+            const key =
+                e.requirementId === TimelineSpecialRequirementId.GameSubmission
+                    ? e.id
+                    : e.requirementId;
+            const existing = byTask.get(key);
+            byTask.set(
+                key,
+                existing
+                    ? { ...existing, minutesSpent: existing.minutesSpent + e.minutesSpent }
+                    : e,
+            );
+        }
+        return [...byTask.values()];
+    }, [date, entries, viewer]);
+    const totalMinutes = dayEntries.reduce((sum, e) => sum + e.minutesSpent, 0);
+
+    return (
+        <Popover
+            open={!!anchor}
+            anchorEl={anchor}
+            onClose={onClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+            slotProps={{ paper: { sx: { p: 1.5, width: 280, maxWidth: '90vw' } } }}
+        >
+            <Stack spacing={1} data-testid='heatmap-day-popover'>
+                <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                    {date &&
+                        DateTime.fromISO(date).toLocaleString({
+                            weekday: 'long',
+                            month: 'long',
+                            day: 'numeric',
+                        })}
+                </Typography>
+
+                {dayEntries.length === 0 ? (
+                    <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                        {t('nothingLogged')}
+                    </Typography>
+                ) : (
+                    <Stack spacing={0.75}>
+                        {dayEntries.map((entry) => (
+                            <Stack
+                                key={entry.id}
+                                direction='row'
+                                sx={{ alignItems: 'center', gap: 1, minWidth: 0 }}
+                            >
+                                {entry.requirementId === TimelineSpecialRequirementId.RestDay ? (
+                                    <RestDayIcon size={16} />
+                                ) : (
+                                    <TrainingPlanIcon
+                                        category={
+                                            entry.requirementId ===
+                                            TimelineSpecialRequirementId.GameSubmission
+                                                ? RequirementCategory.Games
+                                                : entry.requirementCategory
+                                        }
+                                        sx={{
+                                            fontSize: '1rem',
+                                            color: CategoryColors[entry.requirementCategory],
+                                        }}
+                                    />
+                                )}
+                                <Typography
+                                    variant='body2'
+                                    noWrap
+                                    sx={{ flexGrow: 1, minWidth: 0 }}
+                                >
+                                    {entry.requirementId === TimelineSpecialRequirementId.RestDay
+                                        ? t('restDay')
+                                        : entry.requirementId ===
+                                            TimelineSpecialRequirementId.GameSubmission
+                                          ? tNewsfeed.rich('game.publishedAnalysis', {
+                                                link: (chunks: ReactNode) => chunks,
+                                            })
+                                          : entry.requirementName}
+                                </Typography>
+                                {entry.minutesSpent > 0 && (
+                                    <Typography
+                                        variant='body2'
+                                        sx={{
+                                            color: 'text.secondary',
+                                            fontVariantNumeric: 'tabular-nums',
+                                        }}
+                                    >
+                                        {formatTime(entry.minutesSpent, tCommon)}
+                                    </Typography>
+                                )}
+                            </Stack>
+                        ))}
+                    </Stack>
+                )}
+
+                {totalMinutes > 0 && (
+                    <Typography
+                        variant='caption'
+                        sx={{
+                            color: 'text.secondary',
+                            borderTop: 1,
+                            borderColor: 'divider',
+                            pt: 0.75,
+                        }}
+                    >
+                        {t('dayTotal', { time: formatTime(totalMinutes, tCommon) })}
+                    </Typography>
+                )}
+            </Stack>
+        </Popover>
+    );
+}
+
+/**
+ * Renders an info button whose popup explains the heatmap: the colour scale and
+ * what each category colour and icon means. Opens on hover, and on tap for phones.
+ */
+function HeatmapLegendButton({ scale }: { scale: ReactNode }) {
+    const t = useTranslations('profile.info.heatmap');
+    // Controlled so a click or tap pins it open as well as hover showing it.
+    const [open, setOpen] = useState(false);
+    const [pinned, setPinned] = useState(false);
+
+    return (
+        <ClickAwayListener
+            onClickAway={() => {
+                setPinned(false);
+                setOpen(false);
+            }}
+        >
+            <Tooltip
+                open={open || pinned}
+                onOpen={() => setOpen(true)}
+                onClose={() => setOpen(false)}
+                disableTouchListener
+                placement='bottom-end'
+                slotProps={{
+                    tooltip: {
+                        sx: {
+                            bgcolor: 'background.paper',
+                            backgroundImage: 'var(--Paper-overlay)',
+                            color: 'text.primary',
+                            border: 1,
+                            borderColor: 'divider',
+                            boxShadow: 4,
+                            p: 1.5,
+                            maxWidth: 340,
+                        },
+                    },
+                }}
+                title={
+                    <Stack spacing={1.25} data-testid='heatmap-legend'>
+                        {scale}
+                        <CategoryLegend />
+                    </Stack>
+                }
+            >
+                <IconButton
+                    size='small'
+                    aria-label={t('legend')}
+                    aria-expanded={open || pinned}
+                    onClick={() => setPinned((v) => !v)}
+                    sx={{ color: 'text.secondary' }}
+                    data-testid='heatmap-legend-button'
+                >
+                    <InfoOutlined fontSize='small' />
+                </IconButton>
+            </Tooltip>
+        </ClickAwayListener>
     );
 }
 
@@ -535,27 +814,10 @@ export function Heatmap({
 export function CategoryLegend() {
     const t = useTranslations('profile.info.heatmap');
     const tCategory = useTranslations('enums.requirementCategory');
-    const { colorMode, setColorMode } = useHeatmapOptions();
+    const { colorMode } = useHeatmapOptions();
 
     return (
-        <Stack
-            sx={{
-                mt: 0.5,
-                alignItems: 'start',
-            }}
-        >
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={colorMode === 'monochrome'}
-                        onChange={(e) => setColorMode(e.target.checked ? 'monochrome' : 'standard')}
-                        sx={{ '& .MuiSvgIcon-root': { fontSize: '1rem' } }}
-                    />
-                }
-                label={t('singleColorMode')}
-                slotProps={{ typography: { variant: 'caption' } }}
-            />
-
+        <Stack sx={{ alignItems: 'start' }}>
             {colorMode !== 'monochrome' && (
                 <Stack
                     direction='row'
@@ -563,7 +825,6 @@ export function CategoryLegend() {
                         flexWrap: 'wrap',
                         columnGap: 1,
                         rowGap: 0.5,
-                        mt: 0.5,
                     }}
                 >
                     {VALID_TOOLTIP_CATEGORIES.map((category) => {
@@ -600,6 +861,7 @@ export function CategoryLegend() {
                                             width={12}
                                             height={12}
                                             fill='url(#diagonalHatch)'
+                                            style={{ cursor: 'pointer' }}
                                         />
                                     </svg>
                                 )}
@@ -695,6 +957,7 @@ function Block({
     editable,
     onContextMenu,
     onLongPress,
+    onSelect,
 }: {
     block: BlockElement;
     activity: Activity | ExtendedBaseActivity;
@@ -715,6 +978,8 @@ function Block({
         event: LongPressReactEvents<SVGElement>,
         activity: Activity | ExtendedBaseActivity,
     ) => void;
+    /** Called with the clicked square, to show what was logged that day. */
+    onSelect?: (anchor: Element) => void;
 }) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let totalCount = 0;
@@ -767,12 +1032,14 @@ function Block({
         },
     );
     const blockProps = {
+        onClick: (event: ReactMouseEvent<SVGElement>) => onSelect?.(event.currentTarget),
         'data-testid': `heatmap-block-${activity.date}`,
         'data-activity-date': activity.date,
         'data-can-manage-rest-day': `${canOpenContextMenu}`,
     };
     const blockStyle = {
         ...newStyle,
+        cursor: 'pointer',
         ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
     };
 

@@ -407,7 +407,6 @@
             "goal": "[T] Goal",
             "goalPoints": "[T] {value} {value, plural, =1 {point} other {points}}",
             "goalHours": "[T] {value} {value, plural, =1 {hour} other {hours}}",
-            "popOutView": "[T] Pop out view",
             "classicalGames": "[T] Classical Games (Past Year)",
             "nextGraduation": "[T] Next graduation: from {cohort} to {nextCohort}",
             "allTasks": "[T] All Tasks",
@@ -462,6 +461,12 @@
                 "noActivity": "[T] No recent activity from your follows or cohort."
             },
             "heatmap": {
+                "legend": "[T] What the colours mean",
+                "settings": "[T] Heatmap settings",
+                "title": "[T] Heatmap",
+                "dailyGoal": "[T] Daily goal {time}",
+                "nothingLogged": "[T] Nothing logged this day",
+                "dayTotal": "[T] Total {time}",
                 "weekdaySun": "[T] Sun",
                 "weekdayMon": "[T] Mon",
                 "weekdayTue": "[T] Tue",
