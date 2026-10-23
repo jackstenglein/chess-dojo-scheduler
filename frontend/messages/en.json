@@ -567,6 +567,9 @@
             "freeTierPrivate": "Free-tier users cannot create private folders",
             "share": "Share",
             "shareTitle": "Share {name}?",
+            "subscriptionTiers": "Also share with subscription tiers (optional)",
+            "subscriptionTiersDescription": "Give Viewer access to everyone on a selected tier. Leave all unchecked to share only with specific people.",
+            "subscriptionTiersPrivateWarning": "Saving will make this public folder private. Its owner, people with access, and members of the selected tiers will be able to view it.",
             "copyLink": "Copy Link",
             "addPeople": "Add people",
             "searchUsers": "Search for users...",
@@ -2193,6 +2196,7 @@
         },
         "view": {
             "pgnErrorBoundary": {
+                "copyPgn": "Copy PGN",
                 "invalidPgn": "Invalid PGN",
                 "invalidPgnDescription": "Unfortunately, this game's PGN cannot be displayed by our PGN viewer (see the error message below). This most likely happened due to a malformed PGN. If you manually produced your PGN, it is likely incorrect. If you believe your PGN is correct or are otherwise unable to correct it, please send a Discord DM to @JackStenglein with the link to this page.",
                 "resubmitPgn": "Resubmit PGN",
@@ -3498,6 +3502,14 @@
             "failedToFetchData": "Failed to fetch data"
         },
         "explorer": {
+            "gameActions": {
+                "insert": "Insert game with citation",
+                "cite": "Cite game",
+                "open": "Open game in new tab",
+                "inserted": "Game inserted.",
+                "cited": "Game cited.",
+                "invalidSource": "Cannot insert this game: its mainline is invalid, empty, or has a different starting position."
+            },
             "columnMove": "Move",
             "columnGames": "Games",
             "columnPerformance": "Performance",
@@ -3689,6 +3701,8 @@
             "delete": "Delete",
             "deleteMovesTitle": "{count, plural, =1 {Delete # move} other {Delete # moves}}",
             "deleteCommentsAppend": "and {count, plural, =1 {# comment} other {# comments}}",
+            "deletedMoves": "{count, plural, =1 {Deleted # move} other {Deleted # moves}}",
+            "undo": "Undo",
             "settings": {
                 "editorSettingsTitle": "Editor Settings",
                 "clockFieldFormatLabel": "Clock Field Format",

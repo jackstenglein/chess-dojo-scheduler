@@ -567,6 +567,9 @@
             "freeTierPrivate": "Los usuarios del plan gratuito no pueden crear carpetas privadas",
             "share": "Compartir",
             "shareTitle": "¿Compartir {name}?",
+            "subscriptionTiers": "Compartir también con niveles de suscripción (opcional)",
+            "subscriptionTiersDescription": "Da acceso de lectura a todos los miembros de un nivel seleccionado. Deja todo sin marcar para compartir solo con personas específicas.",
+            "subscriptionTiersPrivateWarning": "Al guardar, esta carpeta pública se volverá privada. Podrán verla su propietario, las personas con acceso y los miembros de los niveles seleccionados.",
             "copyLink": "Copiar enlace",
             "addPeople": "Añadir personas",
             "searchUsers": "Buscar usuarios...",
@@ -2193,6 +2196,7 @@
         },
         "view": {
             "pgnErrorBoundary": {
+                "copyPgn": "Copiar PGN",
                 "invalidPgn": "PGN no válido",
                 "invalidPgnDescription": "Lamentablemente, nuestro visor de PGN no puede mostrar el PGN de esta partida (mira el mensaje de error de abajo). Lo más probable es que se deba a un PGN mal formado. Si creaste el PGN manualmente, es probable que sea incorrecto. Si crees que tu PGN es correcto o no puedes corregirlo, envía un mensaje directo de Discord a @JackStenglein con el enlace a esta página.",
                 "resubmitPgn": "Reenviar PGN",
@@ -3498,6 +3502,14 @@
             "failedToFetchData": "Error al obtener los datos"
         },
         "explorer": {
+            "gameActions": {
+                "insert": "Insertar partida con referencia",
+                "cite": "Citar partida",
+                "open": "Abrir partida en una pestaña nueva",
+                "inserted": "Partida insertada.",
+                "cited": "Partida citada.",
+                "invalidSource": "No se puede insertar esta partida: la línea principal no es válida, está vacía o tiene una posición inicial diferente."
+            },
             "columnMove": "Jugada",
             "columnGames": "Partidas",
             "columnPerformance": "Performance",
@@ -3689,6 +3701,8 @@
             "delete": "Eliminar",
             "deleteMovesTitle": "{count, plural, =1 {Eliminar # jugada} other {Eliminar # jugadas}}",
             "deleteCommentsAppend": "y {count, plural, =1 {# comentario} other {# comentarios}}",
+            "deletedMoves": "{count, plural, =1 {# jugada eliminada} other {# jugadas eliminadas}}",
+            "undo": "Deshacer",
             "settings": {
                 "editorSettingsTitle": "Configuración del editor",
                 "clockFieldFormatLabel": "Formato del campo de reloj",

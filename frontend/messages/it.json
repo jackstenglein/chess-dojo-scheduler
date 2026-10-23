@@ -567,6 +567,9 @@
             "freeTierPrivate": "Gli utenti del piano gratuito non possono creare cartelle private",
             "share": "Condividi",
             "shareTitle": "Condividere {name}?",
+            "subscriptionTiers": "Condividi anche con i piani di abbonamento (facoltativo)",
+            "subscriptionTiersDescription": "Concedi l’accesso in lettura a tutti i membri di un piano selezionato. Lascia tutto deselezionato per condividere solo con persone specifiche.",
+            "subscriptionTiersPrivateWarning": "Il salvataggio renderà privata questa cartella pubblica. Potranno visualizzarla il proprietario, le persone autorizzate e i membri dei piani selezionati.",
             "copyLink": "Copia link",
             "addPeople": "Aggiungi persone",
             "searchUsers": "Cerca utenti...",
@@ -2193,6 +2196,7 @@
         },
         "view": {
             "pgnErrorBoundary": {
+                "copyPgn": "Copia PGN",
                 "invalidPgn": "PGN non valido",
                 "invalidPgnDescription": "Purtroppo il PGN di questa partita non può essere visualizzato dal nostro visualizzatore PGN (vedi il messaggio di errore qui sotto). Molto probabilmente è dovuto a un PGN malformato. Se hai creato il PGN manualmente, è probabile che sia errato. Se ritieni che il tuo PGN sia corretto o non riesci comunque a correggerlo, invia un messaggio diretto su Discord a @JackStenglein con il link a questa pagina.",
                 "resubmitPgn": "Reinvia PGN",
@@ -3498,6 +3502,14 @@
             "failedToFetchData": "Impossibile recuperare i dati"
         },
         "explorer": {
+            "gameActions": {
+                "insert": "Inserisci partita con riferimento",
+                "cite": "Cita partita",
+                "open": "Apri partita in una nuova scheda",
+                "inserted": "Partita inserita.",
+                "cited": "Partita citata.",
+                "invalidSource": "Impossibile inserire questa partita: la linea principale non è valida, è vuota o ha una posizione iniziale diversa."
+            },
             "columnMove": "Mossa",
             "columnGames": "Partite",
             "columnPerformance": "Performance",
@@ -3689,6 +3701,8 @@
             "delete": "Elimina",
             "deleteMovesTitle": "{count, plural, =1 {Elimina # mossa} other {Elimina # mosse}}",
             "deleteCommentsAppend": "e {count, plural, =1 {# commento} other {# commenti}}",
+            "deletedMoves": "{count, plural, =1 {# mossa eliminata} other {# mosse eliminate}}",
+            "undo": "Annulla",
             "settings": {
                 "editorSettingsTitle": "Impostazioni editor",
                 "clockFieldFormatLabel": "Formato del campo orologio",

@@ -567,6 +567,9 @@
             "freeTierPrivate": "Usuários do plano gratuito não podem criar pastas privadas",
             "share": "Compartilhar",
             "shareTitle": "Compartilhar {name}?",
+            "subscriptionTiers": "Compartilhar também com níveis de assinatura (opcional)",
+            "subscriptionTiersDescription": "Conceda acesso de visualização a todos os membros de um nível selecionado. Deixe tudo desmarcado para compartilhar apenas com pessoas específicas.",
+            "subscriptionTiersPrivateWarning": "Ao salvar, esta pasta pública se tornará privada. O proprietário, as pessoas com acesso e os membros dos níveis selecionados poderão visualizá-la.",
             "copyLink": "Copiar link",
             "addPeople": "Adicionar pessoas",
             "searchUsers": "Buscar usuários...",
@@ -2193,6 +2196,7 @@
         },
         "view": {
             "pgnErrorBoundary": {
+                "copyPgn": "Copiar PGN",
                 "invalidPgn": "PGN inválido",
                 "invalidPgnDescription": "Infelizmente, o PGN desta partida não pode ser exibido pelo nosso visualizador de PGN (veja a mensagem de erro abaixo). Isso provavelmente aconteceu por causa de um PGN malformado. Se você criou o PGN manualmente, é provável que esteja incorreto. Se você acredita que o seu PGN está correto ou não consegue corrigi-lo, envie uma DM no Discord para @JackStenglein com o link desta página.",
                 "resubmitPgn": "Reenviar PGN",
@@ -3498,6 +3502,14 @@
             "failedToFetchData": "Falha ao obter os dados"
         },
         "explorer": {
+            "gameActions": {
+                "insert": "Inserir partida com referência",
+                "cite": "Citar partida",
+                "open": "Abrir partida numa nova aba",
+                "inserted": "Partida inserida.",
+                "cited": "Partida citada.",
+                "invalidSource": "Não é possível inserir esta partida: a linha principal é inválida, está vazia ou tem uma posição inicial diferente."
+            },
             "columnMove": "Lance",
             "columnGames": "Partidas",
             "columnPerformance": "Performance",
@@ -3689,6 +3701,8 @@
             "delete": "Excluir",
             "deleteMovesTitle": "{count, plural, =1 {Excluir # lance} other {Excluir # lances}}",
             "deleteCommentsAppend": "e {count, plural, =1 {# comentário} other {# comentários}}",
+            "deletedMoves": "{count, plural, =1 {# lance excluído} other {# lances excluídos}}",
+            "undo": "Desfazer",
             "settings": {
                 "editorSettingsTitle": "Configurações do editor",
                 "clockFieldFormatLabel": "Formato do campo do relógio",

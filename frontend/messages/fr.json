@@ -567,6 +567,9 @@
             "freeTierPrivate": "Les utilisateurs de la formule gratuite ne peuvent pas créer de dossiers privés",
             "share": "Partager",
             "shareTitle": "Partager {name} ?",
+            "subscriptionTiers": "Partager aussi avec des formules d’abonnement (facultatif)",
+            "subscriptionTiersDescription": "Donnez un accès en lecture à tous les membres d’une formule sélectionnée. Laissez tout décoché pour partager uniquement avec des personnes précises.",
+            "subscriptionTiersPrivateWarning": "L’enregistrement rendra ce dossier privé. Son propriétaire, les personnes autorisées et les membres des formules sélectionnées pourront le consulter.",
             "copyLink": "Copier le lien",
             "addPeople": "Ajouter des personnes",
             "searchUsers": "Rechercher des utilisateurs...",
@@ -2193,6 +2196,7 @@
         },
         "view": {
             "pgnErrorBoundary": {
+                "copyPgn": "Copier le PGN",
                 "invalidPgn": "PGN invalide",
                 "invalidPgnDescription": "Malheureusement, le PGN de cette partie ne peut pas être affiché par notre visionneuse de PGN (voir le message d'erreur ci-dessous). Cela est très probablement dû à un PGN mal formé. Si tu as créé ton PGN manuellement, il est probablement incorrect. Si tu penses que ton PGN est correct ou que tu n'arrives pas à le corriger, envoie un message privé Discord à @JackStenglein avec le lien vers cette page.",
                 "resubmitPgn": "Soumettre à nouveau le PGN",
@@ -3498,6 +3502,14 @@
             "failedToFetchData": "Échec de la récupération des données"
         },
         "explorer": {
+            "gameActions": {
+                "insert": "Insérer la partie avec sa référence",
+                "cite": "Citer la partie",
+                "open": "Ouvrir la partie dans un nouvel onglet",
+                "inserted": "Partie insérée.",
+                "cited": "Partie citée.",
+                "invalidSource": "Impossible d’insérer cette partie : la ligne principale est invalide, vide ou commence dans une position différente."
+            },
             "columnMove": "Coup",
             "columnGames": "Parties",
             "columnPerformance": "Performance",
@@ -3689,6 +3701,8 @@
             "delete": "Supprimer",
             "deleteMovesTitle": "{count, plural, =1 {Supprimer # coup} other {Supprimer # coups}}",
             "deleteCommentsAppend": "et {count, plural, =1 {# commentaire} other {# commentaires}}",
+            "deletedMoves": "{count, plural, =1 {# coup supprimé} other {# coups supprimés}}",
+            "undo": "Annuler",
             "settings": {
                 "editorSettingsTitle": "Paramètres de l'éditeur",
                 "clockFieldFormatLabel": "Format du champ d'horloge",
