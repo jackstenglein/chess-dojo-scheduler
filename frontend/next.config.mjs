@@ -202,6 +202,10 @@ const pagesWithVideosRaw = [
     '/courses/WORKSHOP/a1149366-ee03-46b9-b609-d6f51e8a2fe4/0/8',
     '/courses/WORKSHOP/a1149366-ee03-46b9-b609-d6f51e8a2fe4/0/9',
     '/courses/WORKSHOP/a1149366-ee03-46b9-b609-d6f51e8a2fe4/0/10',
+
+    // Accelerated Dragon
+    '/courses/WORKSHOP/d8f16797-4183-4edb-8831-02e36b38f784',
+    '/courses/WORKSHOP/d8f16797-4183-4edb-8831-02e36b38f784/0/:module',
 ];
 
 // Under localePrefix: 'as-needed', default-locale URLs are bare ('/profile',
