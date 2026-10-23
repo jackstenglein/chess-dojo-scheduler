@@ -461,6 +461,13 @@
                 "noActivity": "Keine neuen Aktivitäten von deinen Followern oder deiner Kohorte."
             },
             "heatmap": {
+                "yearlyTotals": "Jahressummen",
+                "year": "Jahr",
+                "total": "Gesamt",
+                "loadingHistory": "Trainingsverlauf wird geladen…",
+                "historyError": "Der Trainingsverlauf konnte nicht geladen werden.",
+                "noTimeLogged": "Noch keine Zeit eingetragen.",
+                "lastTwelveMonths": "Letzte 12 Monate: {total}",
                 "legend": "Was die Farben bedeuten",
                 "settings": "Heatmap-Einstellungen",
                 "title": "Heatmap",

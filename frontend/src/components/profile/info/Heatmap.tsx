@@ -27,11 +27,11 @@ import {
     ClickAwayListener,
     Divider,
     IconButton,
+    LinearProgress,
     Menu,
     MenuItem,
     Paper,
     PaperProps,
-    Popover,
     PopoverPosition,
     Stack,
     Tooltip,
@@ -198,7 +198,6 @@ export function Heatmap({
           }
         | undefined
     >();
-    const [selectedDay, setSelectedDay] = useState<{ date: string; anchor: Element }>();
     const { field, colorMode, maxPoints, maxMinutes, weekStartOn, weekEndOn } = useHeatmapOptions();
     const clamp = field === 'dojoPoints' ? maxPoints : maxMinutes;
     const theme = isLight ? LIGHT_THEME : DARK_THEME;
@@ -341,7 +340,16 @@ export function Heatmap({
         }
     };
 
-    const todaysGoal = getTodaysGoal(workGoalHistory);
+    const totalLine =
+        field === 'dojoPoints'
+            ? t('totalDojoPointsLine', {
+                  points: Math.round(10 * totalDojoPoints) / 10,
+                  description,
+              })
+            : t('totalMinutesLine', {
+                  time: formatTime(totalMinutesSpent, tCommon),
+                  description,
+              });
 
     return (
         <Stack
@@ -362,7 +370,7 @@ export function Heatmap({
             <RequestSnackbar request={request} />
             <Stack
                 direction='row'
-                sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 1.5 }}
+                sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 0.75 }}
             >
                 <Typography
                     sx={{
@@ -380,31 +388,8 @@ export function Heatmap({
                             aria-hidden
                         />
                     )}
-                    {title && (
-                        <>
-                            {title}
-                            {todaysGoal !== undefined && (
-                                <Typography
-                                    component='span'
-                                    variant='caption'
-                                    sx={{ color: 'text.secondary', fontWeight: 400 }}
-                                    data-testid='heatmap-daily-goal'
-                                >
-                                    · {t('dailyGoal', { time: formatTime(todaysGoal, tCommon) })}
-                                </Typography>
-                            )}
-                        </>
-                    )}
-                    {!title &&
-                        (field === 'dojoPoints'
-                            ? t('totalDojoPointsLine', {
-                                  points: Math.round(10 * totalDojoPoints) / 10,
-                                  description,
-                              })
-                            : t('totalMinutesLine', {
-                                  time: formatTime(totalMinutesSpent, tCommon),
-                                  description,
-                              }))}
+                    {title}
+                    {!title && totalLine}
                 </Typography>
 
                 <Stack direction='row' sx={{ alignItems: 'center', gap: 0.25 }}>
@@ -520,9 +505,7 @@ export function Heatmap({
                                 editable={editable}
                                 onContextMenu={onBlockContextMenu}
                                 onLongPress={onBlockLongPress}
-                                onSelect={(anchor) =>
-                                    setSelectedDay({ date: activity.date, anchor })
-                                }
+                                entries={entries}
                             />
                         )}
                         maxLevel={MAX_LEVEL}
@@ -535,6 +518,24 @@ export function Heatmap({
                     <Divider sx={{ mt: '2px' }} />
                 </Stack>
             </Stack>
+
+            {title && (
+                <Typography
+                    variant='caption'
+                    sx={{ color: 'text.secondary', mt: 0.25 }}
+                    data-testid='heatmap-total'
+                >
+                    {t('lastTwelveMonths', {
+                        total:
+                            field === 'dojoPoints'
+                                ? t('totalDojoPointsLine', {
+                                      points: Math.round(10 * totalDojoPoints) / 10,
+                                      description: '',
+                                  }).trim()
+                                : formatTime(totalMinutesSpent, tCommon),
+                    })}
+                </Typography>
+            )}
 
             <Menu
                 open={!!contextMenu}
@@ -578,32 +579,26 @@ export function Heatmap({
                     </MenuItem>
                 )}
             </Menu>
-
-            <DayPopover
-                date={selectedDay?.date}
-                anchor={selectedDay?.anchor}
-                entries={entries}
-                onClose={() => setSelectedDay(undefined)}
-            />
         </Stack>
     );
 }
 
 /**
- * The work goal in effect today, in minutes: today's entry in the latest goal set
- * on or before today. Undefined when there's no goal or it's 0.
+ * The work goal for a day, in minutes: that weekday's entry in the latest goal set on
+ * or before the day. Undefined when there's no goal or it's 0.
  */
-function getTodaysGoal(workGoalHistory: WorkGoalHistory[]): number | undefined {
-    const today = new Date().toISOString();
+function getGoalOn(workGoalHistory: WorkGoalHistory[], date: string): number | undefined {
+    const day = new Date(`${date}T00:00:00`);
+    const endOfDay = `${date}T23:59:59.999Z`;
     const current = [...workGoalHistory]
-        .filter((h) => h.date <= today)
+        .filter((h) => h.date <= endOfDay)
         .sort((a, b) => b.date.localeCompare(a.date))[0];
-    const minutes = current?.workGoal.minutesPerDay[new Date().getDay()];
+    const minutes = current?.workGoal.minutesPerDay[day.getDay()];
     return minutes ? minutes : undefined;
 }
 
 /** The YYYY-MM-DD day an entry counts towards on the heatmap, in the viewer's timezone. */
-function getEntryDay(entry: TimelineEntry, viewer?: User): string {
+export function getEntryDay(entry: TimelineEntry, viewer?: User): string {
     const date = getTimeZonedDate(
         new Date(entry.date || entry.createdAt),
         viewer?.timezoneOverride,
@@ -611,17 +606,18 @@ function getEntryDay(entry: TimelineEntry, viewer?: User): string {
     return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
 }
 
-/** A small popup listing what was logged on a day of the heatmap. */
-function DayPopover({
+/**
+ * What was logged on a day of the heatmap, shown when hovering its square: the
+ * date, each task with its time, and the day's total against its goal.
+ */
+function DayDetails({
     date,
-    anchor,
     entries,
-    onClose,
+    workGoalHistory,
 }: {
-    date?: string;
-    anchor?: Element;
+    date: string;
     entries: TimelineEntry[];
-    onClose: () => void;
+    workGoalHistory: WorkGoalHistory[];
 }) {
     const t = useTranslations('profile.info.heatmap');
     const tCommon = useTranslations('common');
@@ -630,9 +626,6 @@ function DayPopover({
 
     // One row per task, with the day's time on it added up.
     const dayEntries = useMemo(() => {
-        if (!date) {
-            return [];
-        }
         const byTask = new Map<string, TimelineEntry>();
         for (const e of entries) {
             if (getEntryDay(e, viewer) !== date || e.minutesSpent < 0 || e.dojoPoints < 0) {
@@ -653,99 +646,103 @@ function DayPopover({
         return [...byTask.values()];
     }, [date, entries, viewer]);
     const totalMinutes = dayEntries.reduce((sum, e) => sum + e.minutesSpent, 0);
+    const goal = getGoalOn(workGoalHistory, date);
+    const goalMet = goal !== undefined && totalMinutes >= goal;
 
     return (
-        <Popover
-            open={!!anchor}
-            anchorEl={anchor}
-            onClose={onClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-            slotProps={{ paper: { sx: { p: 1.5, width: 280, maxWidth: '90vw' } } }}
-        >
-            <Stack spacing={1} data-testid='heatmap-day-popover'>
-                <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                    {date &&
-                        DateTime.fromISO(date).toLocaleString({
-                            weekday: 'long',
-                            month: 'long',
-                            day: 'numeric',
-                        })}
-                </Typography>
+        <Stack spacing={1} sx={{ minWidth: 220 }} data-testid='heatmap-day-details'>
+            <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                {DateTime.fromISO(date).toLocaleString({
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                })}
+            </Typography>
 
-                {dayEntries.length === 0 ? (
-                    <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                        {t('nothingLogged')}
-                    </Typography>
-                ) : (
-                    <Stack spacing={0.75}>
-                        {dayEntries.map((entry) => (
-                            <Stack
-                                key={entry.id}
-                                direction='row'
-                                sx={{ alignItems: 'center', gap: 1, minWidth: 0 }}
-                            >
-                                {entry.requirementId === TimelineSpecialRequirementId.RestDay ? (
-                                    <RestDayIcon size={16} />
-                                ) : (
-                                    <TrainingPlanIcon
-                                        category={
-                                            entry.requirementId ===
-                                            TimelineSpecialRequirementId.GameSubmission
-                                                ? RequirementCategory.Games
-                                                : entry.requirementCategory
-                                        }
-                                        sx={{
-                                            fontSize: '1rem',
-                                            color: CategoryColors[entry.requirementCategory],
-                                        }}
-                                    />
-                                )}
+            {dayEntries.length === 0 ? (
+                <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                    {t('nothingLogged')}
+                </Typography>
+            ) : (
+                <Stack spacing={0.75}>
+                    {dayEntries.map((entry) => (
+                        <Stack
+                            key={entry.id}
+                            direction='row'
+                            sx={{ alignItems: 'center', gap: 1, minWidth: 0 }}
+                        >
+                            {entry.requirementId === TimelineSpecialRequirementId.RestDay ? (
+                                <RestDayIcon size={16} />
+                            ) : (
+                                <TrainingPlanIcon
+                                    category={
+                                        entry.requirementId ===
+                                        TimelineSpecialRequirementId.GameSubmission
+                                            ? RequirementCategory.Games
+                                            : entry.requirementCategory
+                                    }
+                                    sx={{
+                                        fontSize: '1rem',
+                                        color: CategoryColors[entry.requirementCategory],
+                                    }}
+                                />
+                            )}
+                            <Typography variant='body2' noWrap sx={{ flexGrow: 1, minWidth: 0 }}>
+                                {entry.requirementId === TimelineSpecialRequirementId.RestDay
+                                    ? t('restDay')
+                                    : entry.requirementId ===
+                                        TimelineSpecialRequirementId.GameSubmission
+                                      ? tNewsfeed.rich('game.publishedAnalysis', {
+                                            link: (chunks: ReactNode) => chunks,
+                                        })
+                                      : entry.requirementName}
+                            </Typography>
+                            {entry.minutesSpent > 0 && (
                                 <Typography
                                     variant='body2'
-                                    noWrap
-                                    sx={{ flexGrow: 1, minWidth: 0 }}
+                                    sx={{
+                                        color: 'text.secondary',
+                                        fontVariantNumeric: 'tabular-nums',
+                                    }}
                                 >
-                                    {entry.requirementId === TimelineSpecialRequirementId.RestDay
-                                        ? t('restDay')
-                                        : entry.requirementId ===
-                                            TimelineSpecialRequirementId.GameSubmission
-                                          ? tNewsfeed.rich('game.publishedAnalysis', {
-                                                link: (chunks: ReactNode) => chunks,
-                                            })
-                                          : entry.requirementName}
+                                    {formatTime(entry.minutesSpent, tCommon)}
                                 </Typography>
-                                {entry.minutesSpent > 0 && (
-                                    <Typography
-                                        variant='body2'
-                                        sx={{
-                                            color: 'text.secondary',
-                                            fontVariantNumeric: 'tabular-nums',
-                                        }}
-                                    >
-                                        {formatTime(entry.minutesSpent, tCommon)}
-                                    </Typography>
-                                )}
-                            </Stack>
-                        ))}
-                    </Stack>
-                )}
+                            )}
+                        </Stack>
+                    ))}
+                </Stack>
+            )}
 
-                {totalMinutes > 0 && (
-                    <Typography
-                        variant='caption'
-                        sx={{
-                            color: 'text.secondary',
-                            borderTop: 1,
-                            borderColor: 'divider',
-                            pt: 0.75,
-                        }}
+            {(totalMinutes > 0 || goal !== undefined) && (
+                <Stack
+                    spacing={0.5}
+                    sx={{ borderTop: 1, borderColor: 'divider', pt: 0.75 }}
+                    data-testid='heatmap-day-goal'
+                >
+                    <Stack
+                        direction='row'
+                        sx={{ justifyContent: 'space-between', gap: 1, typography: 'caption' }}
                     >
-                        {t('dayTotal', { time: formatTime(totalMinutes, tCommon) })}
-                    </Typography>
-                )}
-            </Stack>
-        </Popover>
+                        <Box component='span' sx={{ fontWeight: 600 }}>
+                            {t('dayTotal', { time: formatTime(totalMinutes, tCommon) })}
+                        </Box>
+                        {goal !== undefined && (
+                            <Box component='span' sx={{ color: 'text.secondary' }}>
+                                {t('dailyGoal', { time: formatTime(goal, tCommon) })}
+                            </Box>
+                        )}
+                    </Stack>
+                    {goal !== undefined && (
+                        <LinearProgress
+                            variant='determinate'
+                            value={Math.min(100, (100 * totalMinutes) / goal)}
+                            color={goalMet ? 'success' : 'primary'}
+                            sx={{ height: 6, borderRadius: 3, backgroundColor: 'action.hover' }}
+                        />
+                    )}
+                </Stack>
+            )}
+        </Stack>
     );
 }
 
@@ -861,7 +858,6 @@ export function CategoryLegend() {
                                             width={12}
                                             height={12}
                                             fill='url(#diagonalHatch)'
-                                            style={{ cursor: 'pointer' }}
                                         />
                                     </svg>
                                 )}
@@ -957,7 +953,7 @@ function Block({
     editable,
     onContextMenu,
     onLongPress,
-    onSelect,
+    entries,
 }: {
     block: BlockElement;
     activity: Activity | ExtendedBaseActivity;
@@ -978,8 +974,8 @@ function Block({
         event: LongPressReactEvents<SVGElement>,
         activity: Activity | ExtendedBaseActivity,
     ) => void;
-    /** Called with the clicked square, to show what was logged that day. */
-    onSelect?: (anchor: Element) => void;
+    /** The timeline, to list what was logged on the day when hovered. */
+    entries: TimelineEntry[];
 }) {
     let maxCategory: RequirementCategory | undefined = undefined;
     let totalCount = 0;
@@ -1032,14 +1028,12 @@ function Block({
         },
     );
     const blockProps = {
-        onClick: (event: ReactMouseEvent<SVGElement>) => onSelect?.(event.currentTarget),
         'data-testid': `heatmap-block-${activity.date}`,
         'data-activity-date': activity.date,
         'data-can-manage-rest-day': `${canOpenContextMenu}`,
     };
     const blockStyle = {
         ...newStyle,
-        cursor: 'pointer',
         ...(icon ? { fill: 'transparent', stroke: 'transparent' } : {}),
     };
 
@@ -1135,7 +1129,14 @@ function Block({
             <Tooltip
                 key={activity.date}
                 disableInteractive
-                title={<BlockTooltip activity={activity} field={field} />}
+                title={
+                    <DayDetails
+                        date={activity.date}
+                        entries={entries}
+                        workGoalHistory={workGoalHistory}
+                    />
+                }
+                slotProps={{ tooltip: { sx: { maxWidth: 300, p: 1.25 } } }}
             >
                 {renderedBlock}
             </Tooltip>
@@ -1213,164 +1214,6 @@ function WeekSummaryBlock({
                 <rect x={x} y={y} width={size} height={size} fill='transparent' />
             </Tooltip>
         </>
-    );
-}
-
-/**
- * Renders a tooltip for a heatmap block with the given activity and field.
- * @param activity The activity for the given block.
- * @param field The field (dojo points/minutes) being displayed.
- * @returns A tooltip displaying the activity's breakdown by category.
- */
-function BlockTooltip({
-    activity,
-    field,
-}: {
-    activity: Activity | ExtendedBaseActivity;
-    field: TimelineEntryField;
-}) {
-    const t = useTranslations('profile.info.heatmap');
-    const tCommon = useTranslations('common');
-    const categories = Object.entries(activity.categoryCounts ?? {})
-        .filter((entry) => VALID_TOOLTIP_CATEGORIES.includes(entry[0] as RequirementCategory))
-        .sort(
-            (lhs, rhs) =>
-                rhs[1][field].custom +
-                rhs[1][field].trainingPlan -
-                (lhs[1][field].custom + lhs[1][field].trainingPlan),
-        );
-
-    return (
-        <Stack
-            sx={{
-                alignItems: 'center',
-            }}
-        >
-            <Typography variant='caption'>
-                {field === 'dojoPoints'
-                    ? t('dojoPointsOnDate', {
-                          points: Math.round(10 * (activity.dojoPoints || 0)) / 10,
-                          pluralCount: activity.dojoPoints || 0,
-                          date: activity.date,
-                      })
-                    : t('minutesOnDate', {
-                          time: formatTime(activity.minutesSpent || 0, tCommon),
-                          date: activity.date,
-                      })}
-            </Typography>
-            <Divider sx={{ width: 1 }} />
-            {activity.graduation && (
-                <Stack
-                    direction='row'
-                    sx={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        columnGap: '1rem',
-                        width: 1,
-                    }}
-                >
-                    <Stack
-                        direction='row'
-                        sx={{
-                            alignItems: 'center',
-                            columnGap: 0.5,
-                        }}
-                    >
-                        <CohortIcon tooltip='' cohort={activity.graduation} size={12} />
-                        <Typography
-                            variant='caption'
-                            sx={{
-                                pt: '2px',
-                            }}
-                        >
-                            {t('graduatedFrom', { cohort: activity.graduation })}
-                        </Typography>
-                    </Stack>
-                </Stack>
-            )}
-
-            {activity.gamePlayed && (
-                <Stack
-                    direction='row'
-                    sx={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        columnGap: '1rem',
-                        width: 1,
-                    }}
-                >
-                    <Stack
-                        direction='row'
-                        sx={{
-                            alignItems: 'center',
-                            columnGap: 0.5,
-                        }}
-                    >
-                        <GiCrossedSwords />
-                        <Typography
-                            variant='caption'
-                            sx={{
-                                pt: '2px',
-                            }}
-                        >
-                            {t('classicalGamePlayed')}
-                        </Typography>
-                    </Stack>
-                </Stack>
-            )}
-            {activity.restDay && (
-                <Stack
-                    direction='row'
-                    sx={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        columnGap: '1rem',
-                        width: 1,
-                    }}
-                >
-                    <Stack
-                        direction='row'
-                        sx={{
-                            alignItems: 'center',
-                            columnGap: 0.5,
-                        }}
-                    >
-                        <RestDayIcon size={12} />
-                        <Typography
-                            variant='caption'
-                            sx={{
-                                pt: '2px',
-                            }}
-                        >
-                            {t('restDay')}
-                        </Typography>
-                    </Stack>
-                </Stack>
-            )}
-            {categories.map(([category, count]) => {
-                const rows = [
-                    { category, count: count[field].trainingPlan },
-                    {
-                        category: `${category} (Custom)`,
-                        count: count[field].custom,
-                        striped: true,
-                    },
-                ]
-                    .filter((x) => x.count)
-                    .sort((x, y) => y.count - x.count);
-
-                return rows.map((row) => (
-                    <TooltipRow
-                        key={row.category}
-                        category={row.category}
-                        field={field}
-                        count={row.count}
-                        backgroundColor={CategoryColors[category as RequirementCategory]}
-                        striped={row.striped}
-                    />
-                ));
-            })}
-        </Stack>
     );
 }
 

@@ -461,6 +461,13 @@
                 "noActivity": "No hay actividad reciente de las personas que sigues ni de tu cohorte."
             },
             "heatmap": {
+                "yearlyTotals": "Totales por año",
+                "year": "Año",
+                "total": "Total",
+                "loadingHistory": "Cargando tu historial de entrenamiento…",
+                "historyError": "No se pudo cargar tu historial de entrenamiento.",
+                "noTimeLogged": "Aún no hay tiempo registrado.",
+                "lastTwelveMonths": "Últimos 12 meses: {total}",
                 "legend": "Qué significan los colores",
                 "settings": "Ajustes del mapa de calor",
                 "title": "Mapa de calor",

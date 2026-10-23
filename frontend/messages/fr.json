@@ -461,6 +461,13 @@
                 "noActivity": "Aucune activité récente de tes abonnements ou de ta cohorte."
             },
             "heatmap": {
+                "yearlyTotals": "Totaux par année",
+                "year": "Année",
+                "total": "Total",
+                "loadingHistory": "Chargement de ton historique d’entraînement…",
+                "historyError": "Impossible de charger ton historique d’entraînement.",
+                "noTimeLogged": "Aucun temps enregistré pour l’instant.",
+                "lastTwelveMonths": "12 derniers mois : {total}",
                 "legend": "Signification des couleurs",
                 "settings": "Paramètres de la carte thermique",
                 "title": "Carte thermique",

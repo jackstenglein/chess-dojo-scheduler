@@ -461,6 +461,13 @@
                 "noActivity": "No recent activity from your follows or cohort."
             },
             "heatmap": {
+                "yearlyTotals": "Yearly totals",
+                "year": "Year",
+                "total": "Total",
+                "loadingHistory": "Loading your training history…",
+                "historyError": "Couldn't load your training history.",
+                "noTimeLogged": "No time logged yet.",
+                "lastTwelveMonths": "Last 12 Months: {total}",
                 "legend": "What the colours mean",
                 "settings": "Heatmap settings",
                 "title": "Heatmap",

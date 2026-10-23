@@ -6,6 +6,7 @@ import { Card, CardContent, Dialog, DialogContent, IconButton } from '@mui/mater
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState, type MouseEvent } from 'react';
 import { Heatmap } from './Heatmap';
+import { YearlyTotals } from './YearlyTotals';
 
 const BLOCK_COLUMNS = 54;
 const BLOCK_MARGIN = 4;
@@ -31,7 +32,7 @@ export function getBlockSize() {
  * @param workGoalHistory The work goal history of the user.
  */
 export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHistory[] }) => {
-    const { entries } = useTimelineContext();
+    const { entries, owner } = useTimelineContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blockSize, setBlockSize] = useState(MIN_BLOCK_SIZE);
     const t = useTranslations('profile.info');
@@ -65,7 +66,7 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
     return (
         <>
             <Card onClick={onClickCard} sx={{ height: 1, cursor: 'pointer' }}>
-                <CardContent sx={{ position: 'relative' }}>
+                <CardContent sx={{ position: 'relative', '&:last-child': { pb: 2 } }}>
                     <Heatmap
                         entries={entries}
                         description={t('pastYear')}
@@ -105,8 +106,9 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
                         // own info, settings and expand icons.
                         pt: 7,
                         display: 'flex',
-                        justifyContent: 'center',
+                        flexDirection: 'column',
                         alignItems: 'center',
+                        gap: 4,
                     }}
                 >
                     <Heatmap
@@ -116,6 +118,7 @@ export const HeatmapCard = ({ workGoalHistory }: { workGoalHistory: WorkGoalHist
                         title={tHeatmap('title')}
                         workGoalHistory={workGoalHistory}
                     />
+                    <YearlyTotals owner={owner} />
                 </DialogContent>
             </Dialog>
         </>
